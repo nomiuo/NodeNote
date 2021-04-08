@@ -1,0 +1,4 @@
+Wheel-Version: 1.0
+Generator: sip-wheel 6.0.3
+Root-Is-Purelib: false
+Tag: cp36.cp37.cp38.cp39-abi3-manylinux2014_x86_64
