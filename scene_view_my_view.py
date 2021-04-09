@@ -1,8 +1,7 @@
-from PyQt5.QtWidgets import QGraphicsView, QVBoxLayout, QGraphicsItem, QPushButton, QTextEdit
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsItem, QPushButton, QTextEdit
 from PyQt5.QtGui import QPen, QBrush, QColor, QFont
 from PyQt5.QtCore import Qt
-from Scene_View.scene import Scene
-from Components.sky_widget import SkyWidget
+from scene_view_scene import Scene
 
 
 class MyView(QGraphicsView):
@@ -13,14 +12,6 @@ class MyView(QGraphicsView):
         self.scene = Scene()
         self.setScene(self.scene.my_scene)
 
-        # function2: show snow falling
-        # self.view_layout = QVBoxLayout(self)  # view layout
-        # # print(self.view_layout.parent())
-        # self.view_layout.setContentsMargins(0, 0, 0, 0)  # set view margins
-        # self.sky_widget = SkyWidget(self)  # get sky widget
-        # # self.sky_widget.show()
-        # self.view_layout.addWidget(self.sky_widget)  # add snow falling widget
-        # self.view_layout.
         self.add_DebugContent()
 
     def add_DebugContent(self):
@@ -32,7 +23,7 @@ class MyView(QGraphicsView):
 
         text = self.scene.my_scene.addText("this is my awesome text!", QFont("Manjaro"))
         text.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
-        text.setDefaultTextColor(QColor.fromRgbF(10.0, 7.0, 3.0))
+        text.setDefaultTextColor(QColor.fromRgbF(0, 0, 0))
 
         pushBtn = QPushButton("Hello World")
         proxy1 = self.scene.my_scene.addWidget(pushBtn)

@@ -1,8 +1,8 @@
 import random
 from PyQt5 import sip
-from PyQt5.QtWidgets import QWidget, QGraphicsOpacityEffect, QApplication
+from PyQt5.QtWidgets import QWidget, QGraphicsOpacityEffect, QApplication, QMainWindow
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QParallelAnimationGroup, QPoint, QTimer
-from Components.snow_widget import SnowWidget
+from snow_widget import SnowWidget
 
 
 DEBUG = True
@@ -13,11 +13,10 @@ class SkyWidget(QWidget):
 
     def __init__(self, parent=None):
         super(SkyWidget, self).__init__(parent)
-        self.resize(600, 600)
         self.path_list = list()
         self.index = 0
         self.timer.timeout.connect(self.snow_create)
-        self.timer.start(10000)
+        self.timer.start(8000)
 
     def snow_create(self):
         # DEBUG
@@ -71,6 +70,8 @@ class SkyWidget(QWidget):
 
 if __name__ == '__main__':
     app = QApplication([])
-    sky = SkyWidget()
-    sky.show()
+    widget = QMainWindow()
+    widget.setCentralWidget(SkyWidget())
+    widget.setWindowOpacity(8)
+    widget.show()
     app.exec_()

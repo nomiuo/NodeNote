@@ -1,4 +1,4 @@
-from Scene_View.my_scene import MyScene
+from scene_view_my_scene import MyScene
 
 
 class Scene:

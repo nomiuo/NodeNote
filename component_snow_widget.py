@@ -9,7 +9,7 @@ class SnowWidget(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.drawPixmap(self.rect(), QPixmap('../Templates/snow1.png'), QRect())
+        painter.drawPixmap(self.rect(), QPixmap('Templates/snow1.png'), QRect())
 
 
 if __name__ == '__main__':
