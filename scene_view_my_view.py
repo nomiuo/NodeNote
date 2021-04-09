@@ -1,38 +1,63 @@
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsItem, QPushButton, QTextEdit
-from PyQt5.QtGui import QPen, QBrush, QColor, QFont
+from PyQt5.QtWidgets import QGraphicsView, QLabel
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPainter, QMovie
 from scene_view_scene import Scene
 
 
 class MyView(QGraphicsView):
-    def __init__(self):
-        super(MyView, self).__init__()
+    def __init__(self, parent=None):
+        super(MyView, self).__init__(parent)
 
         # function1: show scene
-        self.scene = Scene()
+        self.scene = Scene(self)
+        self.set_scene()
+
+        # function2: beauty
+        self.set_beauty()
+
+    # function1: show scene
+    def set_scene(self):
         self.setScene(self.scene.my_scene)
 
-        self.add_DebugContent()
+    # function2: interface beauty
+    def set_beauty(self):
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        self.setRenderHints(QPainter.Antialiasing | QPainter.HighQualityAntialiasing |
+                            QPainter.TextAntialiasing | QPainter.SmoothPixmapTransform)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-    def add_DebugContent(self):
-        outlinePen = QPen(Qt.black)
-        outlinePen.setWidth(2)
-        greenBrush = QBrush(Qt.green)
-        rect = self.scene.my_scene.addRect(-100, -100, 80, 100, outlinePen, greenBrush)
-        rect.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
+    # function3: left button beauty
+    def set_left_btn_beauty(self, event):
+        # set widget
+        effect_container = QLabel(self)
+        left_btn_effect = QMovie("Templates/20210409_213939.gif")
 
-        text = self.scene.my_scene.addText("this is my awesome text!", QFont("Manjaro"))
-        text.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
-        text.setDefaultTextColor(QColor.fromRgbF(0, 0, 0))
+        # set style
+        effect_container.setScaledContents(True)
+        effect_container.resize(50, 50)
+        effect_container.move(int(event.pos().x() - effect_container.width() / 2),
+                              int(event.pos().y() - effect_container.height() / 2))
 
-        pushBtn = QPushButton("Hello World")
-        proxy1 = self.scene.my_scene.addWidget(pushBtn)
-        proxy1.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
-        proxy1.setPos(0, 30)
+        # set function
+        effect_container.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        effect_container.setMovie(left_btn_effect)
+        left_btn_effect.start()
+        effect_container.show()
 
-        text = QTextEdit()
-        proxy2 = self.scene.my_scene.addWidget(text)
-        proxy2.setPos(0, 60)
+        # set done
+        left_btn_effect.frameChanged.connect(lambda frame_number: self.set_left_btn_beauty_down(
+                                                        frame_number=frame_number,
+                                                        left_btn_effect=left_btn_effect,
+                                                        effect_container=effect_container))
 
-        line = self.scene.my_scene.addLine(-200, -100, 400, 200, outlinePen)
-        line.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
+    @staticmethod
+    def set_left_btn_beauty_down(frame_number, left_btn_effect, effect_container):
+        if frame_number == left_btn_effect.frameCount() - 1:
+            effect_container.close()
+
+    def mousePressEvent(self, event) -> None:
+        super(MyView, self).mousePressEvent(event)
+        if event.button() == Qt.LeftButton:
+            self.set_left_btn_beauty(event)

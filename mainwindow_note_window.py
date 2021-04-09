@@ -1,6 +1,8 @@
-from PyQt5.QtWidgets import QDesktopWidget
+from PyQt5.QtWidgets import QDesktopWidget, QVBoxLayout
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QCoreApplication
 from component_sky_widget import *
+from scene_view_my_view import MyView
 
 
 class NoteWindow(QMainWindow):
@@ -11,10 +13,10 @@ class NoteWindow(QMainWindow):
         self.UI_MainWindow()
 
         # function: 2. basic Widget UI setting
-        # self.view_widget = MyView()  # view widget
-        # self.central_widget = QWidget()  # central widget
-        # self.layout = QVBoxLayout()  # layout contains two widgets
-        # self.sky_widget = SkyWidget()  # snow falling widget
+        self.central_widget = QWidget()  # central widget
+        self.view_widget = MyView(self.central_widget)  # view widget
+        self.layout = QVBoxLayout(self.central_widget)  # layout contains two widgets
+        self.sky_widget = SkyWidget(self.view_widget, self.central_widget)  # snow falling widget
         self.UI_Widget()
 
     # 1. basic MainWindow UI setting
@@ -26,11 +28,17 @@ class NoteWindow(QMainWindow):
             (QDesktopWidget().screenGeometry().width() - self.geometry().width()) // 2,
             (QDesktopWidget().screenGeometry().height() - self.geometry().height()) // 2
         )
-        self.setWindowOpacity(0.85)  # set opacity
 
     # 2. basic Widget UI setting
     def UI_Widget(self):
-        self.setCentralWidget(SkyWidget())
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.view_widget)
+        self.central_widget.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setCentralWidget(self.central_widget)
+
+    def resizeEvent(self, a0) -> None:
+        super(NoteWindow, self).resizeEvent(a0)
+        self.sky_widget.resize(self.width(), self.height())
 
 
 if __name__ == '__main__':

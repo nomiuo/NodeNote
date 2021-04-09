@@ -1,10 +1,8 @@
-import sys
-from PyQt5.QtWidgets import QApplication
-from Window.note_window import NoteWindow
+from mainwindow_note_window import *
 
 
 if __name__ == '__main__':
     app = QApplication([])
     window = NoteWindow()
     window.show()
-    sys.exit(app.exec_())
+    app.exec_()

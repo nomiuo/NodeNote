@@ -1,22 +1,24 @@
 import random
 from PyQt5 import sip
 from PyQt5.QtWidgets import QWidget, QGraphicsOpacityEffect, QApplication, QMainWindow
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QParallelAnimationGroup, QPoint, QTimer
-from snow_widget import SnowWidget
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QParallelAnimationGroup, QPoint, QTimer, Qt
+from component_snow_widget import SnowWidget
 
 
-DEBUG = True
+DEBUG = False
 
 
 class SkyWidget(QWidget):
     timer = QTimer()
 
-    def __init__(self, parent=None):
+    def __init__(self, view_widget, parent=None):
         super(SkyWidget, self).__init__(parent)
+        self.view_widget = view_widget
+        self.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.path_list = list()
         self.index = 0
         self.timer.timeout.connect(self.snow_create)
-        self.timer.start(8000)
+        self.timer.start(6000)
 
     def snow_create(self):
         # DEBUG
@@ -59,13 +61,14 @@ class SkyWidget(QWidget):
 
         # falling
         path_group.start()
-        path_group.finished.connect(lambda: self.snow_end(snow_widget))
+        path_group.finished.connect(lambda: self.snow_end(snow_widget, path_group))
 
-    @staticmethod
-    def snow_end(snow_widget):
+    def snow_end(self, snow_widget, path_group):
+        sip.delete(snow_widget)
+        self.index -= 1
+        self.path_list.remove(path_group)
         if DEBUG:
             print("3-Debug:    delete snow widget successfully")
-        sip.delete(snow_widget)
 
 
 if __name__ == '__main__':
