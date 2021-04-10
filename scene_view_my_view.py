@@ -32,11 +32,11 @@ class MyView(QGraphicsView):
     def set_left_btn_beauty(self, event):
         # set widget
         effect_container = QLabel(self)
-        left_btn_effect = QMovie("Templates/20210409_213939.gif")
+        left_btn_effect = QMovie("Templates/left_btn_effect2.gif")
 
         # set style
         effect_container.setScaledContents(True)
-        effect_container.resize(50, 50)
+        effect_container.resize(25, 25)
         effect_container.move(int(event.pos().x() - effect_container.width() / 2),
                               int(event.pos().y() - effect_container.height() / 2))
 
@@ -57,7 +57,16 @@ class MyView(QGraphicsView):
         if frame_number == left_btn_effect.frameCount() - 1:
             effect_container.close()
 
+    # function 4: todo-list
+    def set_todo_list(self, event):
+        print('hello')
+
     def mousePressEvent(self, event) -> None:
         super(MyView, self).mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             self.set_left_btn_beauty(event)
+
+    def keyPressEvent(self, event) -> None:
+        super(MyView, self).keyPressEvent(event)
+        if event.key() == Qt.Key_M and event.modifiers() & Qt.ControlModifier:
+            self.set_todo_list(event)

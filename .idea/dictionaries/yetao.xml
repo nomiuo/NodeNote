@@ -2,6 +2,8 @@
   <dictionary name="yetao">
     <words>
       <w>grwidget</w>
+      <w>learntime</w>
+      <w>todolist</w>
     </words>
   </dictionary>
 </component>
