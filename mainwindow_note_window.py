@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QDesktopWidget, QVBoxLayout
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QCoreApplication
-from component_sky_widget import *
+from component_snow import *
 from scene_view_my_view import MyView
 
 

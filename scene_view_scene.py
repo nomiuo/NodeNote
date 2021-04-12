@@ -9,6 +9,9 @@ class Scene:
         self.set_my_scene_rect()
         self.set_my_scene_background_img()
 
+        # 3. store item in the my_scene
+        self.basic_widget = list()
+
     # 1. set scene size
     def set_my_scene_rect(self):
         width = 64000
@@ -19,3 +22,10 @@ class Scene:
     def set_my_scene_background_img(self):
         img_name = "Templates/girl.jpeg"
         self.my_scene.set_background_img(img_name)
+
+    # 3. store item in the my_scene
+    def add_basic_widget(self, basic_widget):
+        self.basic_widget.append(basic_widget)
+
+    def remove_basic_widget(self, basic_widget):
+        self.basic_widget.remove(basic_widget)
