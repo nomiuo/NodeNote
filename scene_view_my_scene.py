@@ -15,3 +15,4 @@ class MyScene(QGraphicsScene):
     def set_background_img(self, img_name="Templates/night.jpg"):
         background_img = QPixmap(img_name)
         self.setBackgroundBrush(QBrush(background_img))
+# test
