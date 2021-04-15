@@ -1,2 +1,0 @@
-class Todolist:
-    pass

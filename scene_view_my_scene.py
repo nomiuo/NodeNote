@@ -12,6 +12,6 @@ class MyScene(QGraphicsScene):
         self.setSceneRect(-width // 2, -height // 2, width, height)
 
     # 2. interface background
-    def set_background_img(self, img_name="Templates/girl.jpeg"):
+    def set_background_img(self, img_name="Templates/night.jpg"):
         background_img = QPixmap(img_name)
         self.setBackgroundBrush(QBrush(background_img))

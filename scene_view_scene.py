@@ -20,7 +20,7 @@ class Scene:
 
     # 2. set scene background img
     def set_my_scene_background_img(self):
-        img_name = "Templates/girl.jpeg"
+        img_name = "Templates/night.jpg"
         self.my_scene.set_background_img(img_name)
 
     # 3. store item in the my_scene
