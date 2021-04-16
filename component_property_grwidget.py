@@ -1,61 +1,69 @@
-from PyQt5.QtWidgets import QGraphicsItem, QCheckBox, QGraphicsProxyWidget
-from PyQt5.QtCore import QRectF, Qt
-from PyQt5.QtGui import QBrush, QPen, QColor, QPainterPath
+# extended
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem
+from PyQt5.QtGui import QColor, QBrush, QPen, QPainterPath, QPixmap
+from PyQt5.QtCore import Qt, QRectF, QPointF
+
+# size
+width = 120
+height = 40
+egde = 5
+title_height = 20
+title_truth_x = 60
+title_truth_width = 20
+# color
+outline_color = QColor("#FF9999FF")
+outline_selected_color = QColor("#FFCC33FF")
+title_color = QColor("#FF0099CC")
+content_color = QColor("#FF80DFFF")
 
 
 class PropertyGrwidget(QGraphicsItem):
     def __init__(self, parent=None):
         super(PropertyGrwidget, self).__init__(parent)
+        self.gr_function()
+        # add truth
+        self.truth = PropertyGrwidgetTruth(self)
+        self.add_truth()
 
-        # 1.paint
-        #   size
-        self.height = 25
-        self.width = 100
-        self.edge = 10
-        #   checkbox
-        #       paint
-        self.checkbox_height = 25
-        self.checkbox_width = 25
-        self.checkbox_edge = 10
-        self.checkbox_brush = QBrush(QColor("#FF00FFCC"))
-        #       widget
-        self.checkbox = QCheckBox()
-        self.gr_checkbox = QGraphicsProxyWidget(self)
-        self.add_checkbox_widget()
-        #   outline
-        self.outline_color = QColor("#FFCCF5FF")
-        self.outline_selected_color = QColor("#FF3399FF")
-        # 2.function
-        self.set_function()
+    def gr_function(self):
+        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
 
-    def boundingRect(self) -> QRectF:
-        return QRectF(0, 0, self.width, self.height)
+    def boundingRect(self): return QRectF(0, 0, width, height)
 
     def paint(self, painter, option, widget=None) -> None:
-        # checkbox
-        checkbox_path = QPainterPath()
-        checkbox_path.setFillRule(Qt.WindingFill)
-        checkbox_path.addRoundedRect(0, 0, self.checkbox_width, self.checkbox_height,
-                                     self.checkbox_edge, self.checkbox_edge)
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(self.checkbox_brush)
-        painter.drawPath(checkbox_path)
-        # outline
         outline_path = QPainterPath()
-        outline_path.addRoundedRect(0, 0, self.width, self.height, self.edge, self.edge)
-        painter.setPen(QPen(self.outline_color) if not self.isSelected() else QPen(self.outline_selected_color))
-        painter.setBrush(Qt.NoBrush)
+        outline_path.addRoundedRect(0, 0, width, height, egde, egde)
+
+        outline_path.moveTo(0, title_height)
+        outline_path.lineTo(width, title_height)
+
+        painter.setBrush(QBrush(title_color))
+        painter.setPen(outline_color if not self.isSelected() else outline_selected_color)
         painter.drawPath(outline_path)
 
-    def add_checkbox_widget(self):
-        self.checkbox.setGeometry(0, 0, self.checkbox_width, self.checkbox_height)
-        self.gr_checkbox.setWidget(self.checkbox)
+    def add_truth(self):
+        self.truth.setPos(title_truth_x, 0)
 
-    def add_textedit_widget(self):
-        pass
 
-    def add_label_widget(self):
-        pass
+class PropertyGrwidgetTruth(QGraphicsItem):
+    def __init__(self, parent=None):
+        super(PropertyGrwidgetTruth, self).__init__(parent)
+        self.truth = True
 
-    def set_function(self):
-        self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable)
+    def boundingRect(self): return QRectF(0, 0, title_truth_width, title_height)
+
+    def paint(self, painter, option, widget=None) -> None:
+        if self.truth:
+            painter.drawPixmap(self.boundingRect(), QPixmap("Templates/right.png"), QRectF(0, 0, 250, 250))
+        else:
+            painter.drawPixmap(self.boundingRect(), QPixmap("Templates/wrong.png"), QRectF(0, 0, 250, 250))
+
+    def mousePressEvent(self, event) -> None:
+        if event.button() == Qt.LeftButton:
+            self.truth = not self.truth
+            self.update()
+
+
+class PropertyGrwidgetText(QGraphicsTextItem):
+    def __init__(self, parent=None):
+        super(PropertyGrwidgetText, self).__init__(parent)

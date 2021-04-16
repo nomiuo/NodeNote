@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QVariantAnimation, QSize, Qt, QPointF, QPoint
-from PyQt5.QtGui import QColor, QPainter, QBrush, QPainterPath
+from PyQt5.QtGui import QColor, QPainter, QBrush, QPainterPath, QPalette
 
 
 class Water(QWidget):
@@ -19,12 +19,16 @@ class Water(QWidget):
     def design_ui(self):
         self.setFixedSize(QSize(int(self.circle_big_size * 2), int(self.circle_big_size * 2)))
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool)
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(255, 255, 255, 255))
+        self.setPalette(palette)
         self.setAttribute(Qt.WA_DeleteOnClose)
 
     def move(self, a0) -> None:
         true_pos = a0 - QPoint(int(self.circle_big_size), int(self.circle_big_size))
-        super(Water, self).move(true_pos)
+        super(Water, self).move(QPoint(true_pos.x(), true_pos.y()))
 
     def show(self):
         super(Water, self).show()

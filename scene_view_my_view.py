@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QGraphicsView, QLabel, QMenu
+from PyQt5.QtWidgets import QGraphicsView, QLabel, QMenu, QGraphicsProxyWidget
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPainter, QIcon
+from PyQt5.QtGui import QPainter, QIcon, QPixmap, QBrush
 from scene_view_scene import Scene
 from component_property_grwidget import PropertyGrwidget
 from component_water import Water
@@ -33,21 +33,20 @@ class MyView(QGraphicsView):
 
     # function3: left button beauty
     def set_leftbtn_beauty(self, event):
-        water_drop = Water(self)
-        water_drop.move(self.mapToGlobal(event.pos()))
+        water_drop = Water()
+        property_water_drop = QGraphicsProxyWidget()
+        property_water_drop.setWidget(water_drop)
+        self.scene.my_scene.addItem(property_water_drop)
+        # self.scene.my_scene.addWidget(water_drop)
+        water_drop.move(self.mapToScene(event.pos()))
         water_drop.show()
 
-    # function 3: add basic widget
+    # function 4: add basic widget
     def add_basic_widget(self, event):
         basic_widget = PropertyGrwidget()
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.scene.my_scene.addItem(basic_widget)
         self.scene.add_basic_widget(basic_widget)
-
-    def keyPressEvent(self, event) -> None:
-        super(MyView, self).keyPressEvent(event)
-        if event.key() == Qt.Key_M and event.modifiers() & Qt.ControlModifier:
-            self.add_basic_widget(event)
 
     def contextMenuEvent(self, event) -> None:
         super(MyView, self).contextMenuEvent(event)
@@ -63,4 +62,4 @@ class MyView(QGraphicsView):
         super(MyView, self).mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             self.set_leftbtn_beauty(event)
-
+            print(self.items())
