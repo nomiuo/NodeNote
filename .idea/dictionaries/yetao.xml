@@ -1,14 +1,31 @@
 <component name="ProjectDictionaryState">
   <dictionary name="yetao">
     <words>
+      <w>colorpicker</w>
+      <w>consolas</w>
       <w>dfff</w>
       <w>editwidget</w>
       <w>egde</w>
       <w>ffcc</w>
+      <w>groupbox</w>
       <w>grwidget</w>
       <w>learntime</w>
       <w>leftbtn</w>
+      <w>lineedit</w>
       <w>opactiy</w>
+      <w>postion</w>
+      <w>qcheckbox</w>
+      <w>qcombo</w>
+      <w>qcombobox</w>
+      <w>qgraphics</w>
+      <w>qgroupbox</w>
+      <w>qlabel</w>
+      <w>qlineedit</w>
+      <w>qlistview</w>
+      <w>qspinbox</w>
+      <w>qtextedit</w>
+      <w>renamable</w>
+      <w>subcontrol</w>
       <w>tanslate</w>
       <w>textedit</w>
       <w>todolist</w>

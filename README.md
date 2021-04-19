@@ -147,7 +147,7 @@ class SnowWidget(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.drawPixmap(self.rect(), QPixmap('Templates/snow1.png'), QRect())
+        painter.drawPixmap(self.rect(), QPixmap('Resources/snow1.png'), QRect())
 ```
 
 ### 2. 新建`component_sky_widget.py`
@@ -255,7 +255,7 @@ class MyView(QGraphicsView):
 
 ```python
     def set_my_scene_background_img(self):
-        img_name = "Templates/girl.jpeg"
+        img_name = "Resources/girl.jpeg"
         self.my_scene.set_background_img(img_name)
 ```
 
@@ -291,7 +291,7 @@ class MyView(QGraphicsView):
 ```python
     # 2. set scene background img
     def set_my_scene_background_img(self):
-        img_name = "Templates/girl.jpeg"
+        img_name = "Resources/girl.jpeg"
         self.my_scene.set_background_img(img_name)
 ```
 
@@ -302,7 +302,7 @@ class MyView(QGraphicsView):
 ```python
     # 1. basic MainWindow UI setting
     def UI_MainWindow(self):
-        self.setWindowIcon(QIcon('Templates/snow3.svg'))  # set icon
+        self.setWindowIcon(QIcon('Resources/snow3.svg'))  # set icon
         self.setWindowTitle("Snow")  # set title
         self.resize(1200, 1000)  # set size
         self.move(  # set geometry
@@ -334,7 +334,7 @@ class MyView(QGraphicsView):
     def set_left_btn_beauty(self, event):
         # set widget
         effect_container = QLabel(self)
-        left_btn_effect = QMovie("Templates/left_btn_effect.gif")
+        left_btn_effect = QMovie("Resources/left_btn_effect.gif")
 
         # set style
         effect_container.setScaledContents(True)
@@ -614,7 +614,7 @@ if __name__ == '__main__':
 
 ## 2020/04/12
 
-**实现鼠标左键动态特效优化**
+**实现鼠标左键动态特效优化**, (参考博客水滴博客)
 创建`component_water.py`
 
 ```python
@@ -682,3 +682,19 @@ class Water(QWidget):
             water_drop.move(self.mapToGlobal(a0.pos()))
             water_drop.show()
 ```
+
+## 2020/04/17
+
+-   优化水滴特效将其作为代理插入场景中去除黑边框
+-   在`linux-manjaro`测试下发现普通核显存在卡顿情况, 在启动`英威达MX150`后正常运行
+
+架构研究
+
+-   基本控件的创建
+    -   节点
+        -   属性节点
+        -   子节点
+    -   端口
+    -   线条
+-   程序基本框架
+    -   
