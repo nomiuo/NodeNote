@@ -1,23 +1,25 @@
-from PyQt5.QtWidgets import QGraphicsView, QMenu
-from PyQt5.QtGui import QPainter, QIcon, QKeyEvent
+from PyQt5 import QtGui, QtCore, QtWidgets
 from GraphicsView.scene import Scene
-from Components.effect_water import EffectWater
-from Components.tuple_node import *
+from Components import effect_water, attribute, port, pipe
+from Model import constants
 
 
-class MyView(QGraphicsView):
+__all__ = ["View"]
+
+
+class View(QtWidgets.QGraphicsView):
     def __init__(self, parent=None):
-        super(MyView, self).__init__(parent)
+        super(View, self).__init__(parent)
         # BASIC SETTINGS
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
-        self.setRenderHints(QPainter.Antialiasing | QPainter.HighQualityAntialiasing |
-                            QPainter.TextAntialiasing | QPainter.SmoothPixmapTransform)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setDragMode(QGraphicsView.RubberBandDrag)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
+        self.setViewportUpdateMode(QtWidgets.QGraphicsView.FullViewportUpdate)
+        self.setRenderHints(QtGui.QPainter.Antialiasing | QtGui.QPainter.HighQualityAntialiasing |
+                            QtGui.QPainter.TextAntialiasing | QtGui.QPainter.SmoothPixmapTransform)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
         self.scene = Scene(self)
-        self.setScene(self.scene.my_scene)
+        self.setScene(self.scene)
 
         # SCALE FUNCTION
         self.zoomInFactor = 1.25
@@ -25,58 +27,76 @@ class MyView(QGraphicsView):
         self.zoom = 5
         self.zoomStep = 1
         self.zoomRange = [0, 10]
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+
+        # DRAW LINE
+        self.mode = constants.MODE_NOOP
 
     def set_leftbtn_beauty(self, event):
-        water_drop = EffectWater()
-        property_water_drop = QGraphicsProxyWidget()
+        water_drop = effect_water.EffectWater()
+        property_water_drop = QtWidgets.QGraphicsProxyWidget()
         property_water_drop.setWidget(water_drop)
-        self.scene.my_scene.addItem(property_water_drop)
+        self.scene.addItem(property_water_drop)
         water_drop.move(self.mapToScene(event.pos()))
         water_drop.show()
 
     def change_scale(self, event):
-        if DEBUG_VIEW_CHANGE_SCALE:
+        if constants.DEBUG_VIEW_CHANGE_SCALE:
             print("View is zooming! Current zoom: ", self.zoom)
-            print(event.key())
-        if event.key() == Qt.Key_Equal and event.modifiers() & Qt.ControlModifier:
-            self.zoom += self.zoomStep  # 放大次数增加一次
+        if event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier:
+            self.zoom += self.zoomStep
             if self.zoom <= self.zoomRange[1]:
                 self.scale(self.zoomInFactor, self.zoomInFactor)
             else:
                 self.zoom = self.zoomRange[1]
-        elif event.key() == Qt.Key_Minus and event.modifiers() & Qt.ControlModifier:
-            self.zoom -= self.zoomStep  # 缩小次数增加一次
+        elif event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier:
+            self.zoom -= self.zoomStep
             if self.zoom >= self.zoomRange[0]:
                 self.scale(self.zoomOutFactor, self.zoomOutFactor)
             else:
                 self.zoom = self.zoomRange[0]
 
     def add_basic_widget(self, event):
-        basic_widget = Node()
-        self.scene.my_scene.addItem(basic_widget)
+        basic_widget = attribute.LogicWidget(self.scene)
+        self.scene.addItem(basic_widget)
         basic_widget.setPos(self.mapToScene(event.pos()))
-        self.scene.add_basic_widget(basic_widget)
+        self.scene.add_tuple_node_widget(basic_widget)
 
     def contextMenuEvent(self, event) -> None:
-        super(MyView, self).contextMenuEvent(event)
-        context_menu = QMenu(self)
+        super(View, self).contextMenuEvent(event)
+        context_menu = QtWidgets.QMenu(self)
         # context list
         create_truth_widget = context_menu.addAction("Create Truth Widget")
-        create_truth_widget.setIcon(QIcon("Resources/context_menu/truth.png"))
+        create_truth_widget.setIcon(QtGui.QIcon("Resources/context_menu/truth.png"))
 
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
         if action == create_truth_widget:
             self.add_basic_widget(event)
 
     def mousePressEvent(self, event) -> None:
-        super(MyView, self).mousePressEvent(event)
-        if event.button() == Qt.LeftButton:
+        if event.button() == QtCore.Qt.LeftButton:
             self.set_leftbtn_beauty(event)
+            super(View, self).mousePressEvent(event)
+            item = self.itemAt(event.pos())
+            if type(item) is port.Port and self.mode == constants.MODE_NOOP:
+                if constants.DEBUG_DRAW_PIPE:
+                    print("enter the drag mode and set input port")
+                self.mode = constants.MODE_PIPE_DRAG
+                self.drag_pip = pipe.Pipe(input_port=item, output_port=None, parent=None)
+                return
+            if self.mode == constants.MODE_PIPE_DRAG:
+                self.mode = constants.MODE_NOOP
+        else:
+            super(View, self).mousePressEvent(event)
 
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        if (event.key() == Qt.Key_Equal and event.modifiers() & Qt.ControlModifier) or \
-                (event.key() == Qt.Key_Minus and event.modifiers() & Qt.ControlModifier):
+    def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
+        if self.mode == constants.MODE_PIPE_DRAG:
+            scene_pos = self.mapToScene(event.pos())
+        super(View, self).mouseMoveEvent(event)
+
+    def keyPressEvent(self, event) -> None:
+        if (event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier) or \
+                (event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier):
             self.change_scale(event)
         else:
-            super(MyView, self).keyPressEvent(event)
+            super(View, self).keyPressEvent(event)

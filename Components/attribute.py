@@ -246,8 +246,10 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
         self.childItems()[0].widget().resize(self.size().width(), self.size().height())
 
     def mousePressEvent(self, event) -> None:
-        if int(event.modifiers()) & QtCore.Qt.ShiftModifier and type(self.scene.itemAt(event)) in constants.SCALE_WIDGET:
+        if int(event.modifiers()) & QtCore.Qt.ShiftModifier:
             self.resizing = True
+            if constants.DEBUG_TUPLE_NODE_SCALE:
+                print("Node is scaling!")
             self.setCursor(QtCore.Qt.SizeAllCursor)
         else:
             super(LogicWidget, self).mousePressEvent(event)
@@ -299,4 +301,3 @@ class TruthWidget(QtWidgets.QGraphicsProxyWidget):
     def set_value(self, state=False):
         if state != self.get_value():
             self.get_custom_widget().setChecked(state)
-

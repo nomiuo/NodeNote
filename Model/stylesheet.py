@@ -1,18 +1,18 @@
 STYLE_QGROUPBOX = '''
 QGroupBox {
     background-color: rgba(0, 0, 0, 0);
-    border: 0px solid rgba(0, 0, 0, 0);
+    border: 2px solid rgba(0, 0, 0, 255);
     margin-top: 1px;
     padding-top: $PADDING_TOP;
     padding-bottom: 2px;
-    padding-left: 1px;
-    padding-right: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
     font-size: 8pt;
 }
 QGroupBox::title {
     subcontrol-origin: margin;
     subcontrol-position: top center;
-    color: rgba(255, 255, 255, 85);
+    color: rgba(255, 255, 255, 180);
     padding: 0px;
     left:-4px;
 }

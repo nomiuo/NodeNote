@@ -236,7 +236,7 @@ class MyView(QGraphicsView):
         self.set_scene()
 
     def set_scene(self):
-        self.setScene(self.scene.my_scene)
+        self.setScene(self.scene.scene)
 ```
 
 2.实现视图的美化
@@ -256,7 +256,7 @@ class MyView(QGraphicsView):
 ```python
     def set_my_scene_background_img(self):
         img_name = "Resources/girl.jpeg"
-        self.my_scene.set_background_img(img_name)
+        self.scene.set_background_img(img_name)
 ```
 
 2.实现设置场景大小的接口
@@ -271,7 +271,7 @@ class MyView(QGraphicsView):
 1.实现场景的创建
 
 ```python
-        self.my_scene = MyScene(self)
+        self.scene = MyScene(self)
 ```
 
 2.实现场景大小的设置
@@ -283,7 +283,7 @@ class MyView(QGraphicsView):
     def set_my_scene_rect(self):
         width = 64000
         height = 64000
-        self.my_scene.set_my_scene_rect(width, height)
+        self.scene.set_my_scene_rect(width, height)
 ```
 
 3.实现背景的设置
@@ -292,7 +292,7 @@ class MyView(QGraphicsView):
     # 2. set scene background img
     def set_my_scene_background_img(self):
         img_name = "Resources/girl.jpeg"
-        self.my_scene.set_background_img(img_name)
+        self.scene.set_background_img(img_name)
 ```
 
 ### 4. 新建`mainwindow_note_window.py`

@@ -2,9 +2,13 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from Model.constants import *
 
 
+__all__ = ["Pipe"]
+
+
 class Pipe(QtWidgets.QGraphicsPathItem):
-    def __init__(self, parent=None):
+    def __init__(self, input_port=None, output_port=None, parent=None):
         super(Pipe, self).__init__(parent)
+        self.node = parent
         # BASIC SETTINGS
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
         self.setZValue(Z_VAL_PORT)
@@ -18,8 +22,8 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         self.posDestination = [200, 100]
 
         # PORT
-        self.start_port = None
-        self.end_port = None
+        self.input_port = input_port
+        self.output_port = output_port
 
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
         # DEFAULT PEN
@@ -35,7 +39,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         s = self.posSource
         d = self.posDestination
         dist = (d[0] - s[0]) * 0.5
-        sspos = self.start_port.type
+        sspos = self.input_port.type
         s_x = +dist
         s_y = 0
         d_x = -dist
@@ -55,7 +59,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         self.setPath(path)
 
         # PEN
-        if self.end_port is None:
+        if self.output_port is None:
             painter.setPen(dragging_pen)
         else:
             painter.setPen(pen)
@@ -63,3 +67,17 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         # DRAW
         painter.setBrush(QtCore.Qt.NoBrush)
         painter.drawPath(self.path())
+
+    def update_position(self):
+        source_pos = self.node.get_port_position(INPUT_NODE_TYPE)
+        source_pos[0] += self.node.pos().x()
+        source_pos[1] += self.node.pos().y()
+        self.posSource = source_pos
+
+        if self.output_port is not None:
+            destination_pos = self.node.get_port_position(OUTPUT_NODE_TYPE)
+            destination_pos[0] += self.node.pos().x()
+            destination_pos[1] += self.node.pos().y()
+        else:
+            self.posDestination = source_pos
+        self.update()

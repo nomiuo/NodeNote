@@ -1,25 +1,25 @@
-from PyQt5.QtWidgets import QGraphicsLinearLayout
-from PyQt5.QtCore import QRectF
-from PyQt5.QtGui import QColor, QPainterPath, QPen
-from Components.port import Port
-from Components.property import *
-from Model.constants import *
+from PyQt5 import QtWidgets, QtCore, QtGui
+from Components import attribute
+from Model import constants
 
 
-class Node(QGraphicsWidget):
-    display_name_changed = pyqtSignal(str)
+__all__ = ["Node"]
+
+
+class Node(QtWidgets.QGraphicsWidget):
+    display_name_changed = QtCore.pyqtSignal(str)
     draw_label = None
 
     def __init__(self):
         super(Node, self).__init__()
         # SET BASIC FUNCTION.
         self.name = "Default NodeName"
-        self.setFlags(QGraphicsWidget.ItemIsMovable | QGraphicsWidget.ItemIsSelectable |
-                      QGraphicsWidget.ItemIsFocusable | QGraphicsWidget.ItemSendsGeometryChanges)
-        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFlags(QtWidgets.QGraphicsWidget.ItemIsMovable | QtWidgets.QGraphicsWidget.ItemIsSelectable |
+                      QtWidgets.QGraphicsWidget.ItemIsFocusable | QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges)
+        self.setCacheMode(QtWidgets.QGraphicsItem.DeviceCoordinateCache)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setAcceptHoverEvents(True)
-        self.setZValue(Z_VAL_NODE)
+        self.setZValue(constants.Z_VAL_NODE)
 
         # COLOR AND SIZE OPTION
         self.style_properties = {
@@ -28,8 +28,8 @@ class Node(QGraphicsWidget):
             'color': (229, 255, 255, 125),
             'border_color': (46, 57, 66, 255),
             'text_color': (255, 255, 255, 180),
-            'width': NODE_WIDTH,
-            'height': NODE_HEIGHT,
+            'width': constants.NODE_WIDTH,
+            'height': constants.NODE_HEIGHT,
             'type_': 'Node',
             'selected': False,
             'disabled': False,
@@ -37,65 +37,66 @@ class Node(QGraphicsWidget):
         }
         # GUI LAYOUT
         #   OVERALL LAYOUT
-        self.node_layout = QGraphicsLinearLayout(Qt.Vertical)
+        self.node_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.node_layout_margins = 5
         self.node_layout_spacing = 5
         self.node_layout.setContentsMargins(self.node_layout_margins, self.node_layout_margins,
                                             self.node_layout_margins, self.node_layout_margins)
         self.node_layout.setSpacing(self.node_layout_spacing)
         #   HEADER LAYOUT
-        self.header_layout = QGraphicsLinearLayout(Qt.Horizontal)
+        self.header_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.header_layout.setContentsMargins(0, 0, 0, 0)
-        self.node_name = NodeNameWidget(self)
-        self.header_layout.setMaximumHeight(self.node_name.sizeHint().height())
-        self.header_layout.addItem(self.node_name)
+        self.node_name_widget = attribute.NodeNameWidget(self)
+        self.header_layout.setMaximumHeight(self.node_name_widget.sizeHint().height())
+        self.header_layout.addItem(self.node_name_widget)
         self.node_layout.addItem(self.header_layout)
         self.setLayout(self.node_layout)
-        self.node_layout.addItem(TestWidget("hello", self))
         # PORT
-        self.input_port = Port(INPUT_NODE_TYPE, self)
-        self.output_port = Port(OUTPUT_NODE_TYPE, self)
+        self.input_port = attribute.Port(constants.INPUT_NODE_TYPE, self)
+        self.output_port = attribute.Port(constants.OUTPUT_NODE_TYPE, self)
         # RESIZE
         self.resizing = False
+
+        self.node_layout.addItem(attribute.LogicWidget(self))
 
     def paint(self, painter, option, widget=None) -> None:
         painter.save()
         # draw
         bg_border = 1.0
-        rect = QRectF(0.5 - (bg_border / 2),
-                      0.5 - (bg_border / 2),
-                      self.style_properties['width'] + bg_border,
-                      self.style_properties['height'] + bg_border)
+        rect = QtCore.QRectF(0.5 - (bg_border / 2),
+                             0.5 - (bg_border / 2),
+                             self.style_properties['width'] + bg_border,
+                             self.style_properties['height'] + bg_border)
         radius = 2
-        border_color = QColor(*self.style_properties['border_color'])
-        path = QPainterPath()
+        border_color = QtGui.QColor(*self.style_properties['border_color'])
+        path = QtGui.QPainterPath()
         path.addRoundedRect(rect, radius, radius)
 
         # draw background
         rect = self.boundingRect()
-        bg_color = QColor(*self.style_properties['color'])
-        painter.setBrush(bg_color if not self.isSelected() and NODE_SEL_COLOR else QColor(*NODE_SEL_COLOR))
-        painter.setPen(Qt.NoPen)
+        bg_color = QtGui.QColor(*self.style_properties['color'])
+        painter.setBrush(bg_color if not self.isSelected() and constants.NODE_SEL_COLOR else QtGui.QColor(*constants.NODE_SEL_COLOR))
+        painter.setPen(QtCore.Qt.NoPen)
         painter.drawRoundedRect(rect, radius, radius)
 
-        label_rect = QRectF(rect.left(), rect.top(), self.size().width(), 28)
-        path = QPainterPath()
+        label_rect = QtCore.QRectF(rect.left(), rect.top(), self.size().width(), 28)
+        path = QtGui.QPainterPath()
         path.addRoundedRect(label_rect, radius, radius)
-        painter.setBrush(QColor(179, 217, 255, 200))
+        painter.setBrush(QtGui.QColor(179, 217, 255, 200))
         painter.fillPath(path, painter.brush())
 
         border_width = 0.8
-        if self.isSelected() and NODE_SEL_BORDER_COLOR:
+        if self.isSelected() and constants.NODE_SEL_BORDER_COLOR:
             border_width = 1.2
-            border_color = QColor(*NODE_SEL_BORDER_COLOR)
-        border_rect = QRectF(rect.left() - (border_width / 2),
+            border_color = QtGui.QColor(*constants.NODE_SEL_BORDER_COLOR)
+        border_rect = QtCore.QRectF(rect.left() - (border_width / 2),
                              rect.top() - (border_width / 2),
                              rect.width() + border_width,
                              rect.height() + border_width)
-        pen = QPen(border_color, border_width)
-        path = QPainterPath()
+        pen = QtGui.QPen(border_color, border_width)
+        path = QtGui.QPainterPath()
         path.addRoundedRect(border_rect, radius, radius)
-        painter.setBrush(Qt.NoBrush)
+        painter.setBrush(QtCore.Qt.NoBrush)
         painter.setPen(pen)
         painter.drawPath(path)
 
@@ -110,13 +111,18 @@ class Node(QGraphicsWidget):
         self.node_layout.invalidate()
         self.updateGeometry()
         self.update()
-        self.node_name.updateGeometry()
-        self.node_name.update()
+        self.node_name_widget.updateGeometry()
+        self.node_name_widget.update()
+
+    def get_port_position(self, port_type):
+        x = -10 if port_type == constants.INPUT_NODE_TYPE else self.size().width() - 10
+        y = self.size().height() / 2
+        return x, y
 
     def mousePressEvent(self, event) -> None:
-        if int(event.modifiers()) & Qt.ShiftModifier:
+        if int(event.modifiers()) & QtCore.Qt.ShiftModifier:
             self.resizing = True
-            self.setCursor(Qt.SizeAllCursor)
+            self.setCursor(QtCore.Qt.SizeAllCursor)
         else:
             super(Node, self).mousePressEvent(event)
 
@@ -128,8 +134,9 @@ class Node(QGraphicsWidget):
             current_pos = self.mapToScene(event.pos())
             current_width = current_pos.x() - past_pos.x() if current_pos.x() >= past_pos.x() else past_width
             current_height = current_pos.y() - past_pos.y() if current_pos.y() >= past_pos.y() else past_height
+
             self.resize(current_width, current_height)
-            if DEBUG_TUPLE_NODE_SCALE:
+            if constants.DEBUG_TUPLE_NODE_SCALE:
                 print(current_width, current_height)
         else:
             super(Node, self).mouseMoveEvent(event)
@@ -137,6 +144,6 @@ class Node(QGraphicsWidget):
     def mouseReleaseEvent(self, event) -> None:
         if self.resizing:
             self.resizing = False
-            self.setCursor(Qt.ArrowCursor)
+            self.setCursor(QtCore.Qt.ArrowCursor)
         else:
             super(Node, self).mouseReleaseEvent(event)

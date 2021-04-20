@@ -1,47 +1,33 @@
-from PyQt5.QtWidgets import QGraphicsScene
-from PyQt5.QtGui import QPixmap, QBrush
+from PyQt5 import QtWidgets, QtGui
 
 
-class MyScene(QGraphicsScene):
-    def __init__(self, scene, parent=None):
-        super(MyScene, self).__init__(parent)
-        self.scene = scene
-
-    # 1. interface resize
-    def set_my_scene_rect(self, width, height):
-        self.setSceneRect(-width // 2, -height // 2, width, height)
-
-    # 2. interface background
-    def set_background_img(self, img_name="Resources/night.jpg"):
-        background_img = QPixmap(img_name)
-        self.setBackgroundBrush(QBrush(background_img))
+__all__ = ["Scene"]
 
 
-class Scene:
-    def __init__(self, my_view):
-        # 1. set MyScene
-        self.my_scene = MyScene(self)
-        self.my_view = my_view
-        self.set_my_scene_rect()
-        self.set_my_scene_background_img()
+class Scene(QtWidgets.QGraphicsScene):
+    def __init__(self, view, parent=None):
+        super(Scene, self).__init__(parent)
+        self.view = view
+        self.width = 64000
+        self.height = 64000
+        self.setSceneRect(-self.width // 2, -self.height // 2, self.width, self.height)
+        self.background_img = QtGui.QPixmap("Resources/night.jpg")
+        self.setBackgroundBrush(QtGui.QBrush(self.background_img))
 
-        # 3. store item in the my_scene
-        self.basic_widget = list()
+        self.tuple_node_widget = list()
+        self.pipe_widget = list()
 
-    # 1. set scene size
-    def set_my_scene_rect(self):
-        width = 64000
-        height = 64000
-        self.my_scene.set_my_scene_rect(width, height)
+    def add_tuple_node_widget(self, widget):
+        self.tuple_node_widget.append(widget)
 
-    # 2. set scene background img
-    def set_my_scene_background_img(self):
-        img_name = "Resources/night.jpg"
-        self.my_scene.set_background_img(img_name)
+    def remove_tuple_node_widget(self, widget):
+        self.tuple_node_widget.remove(widget)
+        self.removeItem(widget)
 
-    # 3. store item in the my_scene
-    def add_basic_widget(self, basic_widget):
-        self.basic_widget.append(basic_widget)
+    def add_pipe_widget(self, widget):
+        self.pipe_widget.append(widget)
+        self.removeItem(widget)
 
-    def remove_basic_widget(self, basic_widget):
-        self.basic_widget.remove(basic_widget)
+    def remove_pip_widget(self, widget):
+        self.pipe_widget.remove(widget)
+        self.removeItem(widget)

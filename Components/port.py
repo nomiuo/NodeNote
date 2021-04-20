@@ -1,5 +1,7 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
-from Model.constants import *
+from Model import constants
+
+__all__ = ["Port"]
 
 
 class Port(QtWidgets.QGraphicsWidget):
@@ -9,8 +11,8 @@ class Port(QtWidgets.QGraphicsWidget):
         # BASIC SETTINGS
         self.setAcceptHoverEvents(True)
         self.setFlag(self.ItemSendsScenePositionChanges, True)
-        self.setZValue(Z_VAL_PORT)
-        self.setCacheMode(ITEM_CACHE_MODE)
+        self.setZValue(constants.Z_VAL_PORT)
+        self.setCacheMode(constants.ITEM_CACHE_MODE)
 
         # STORE PIPES
         self.pipes = list()
