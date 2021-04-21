@@ -1,8 +1,11 @@
 <component name="ProjectDictionaryState">
   <dictionary name="yetao">
     <words>
+      <w>attwidget</w>
+      <w>chidren</w>
       <w>colorpicker</w>
       <w>consolas</w>
+      <w>defalut</w>
       <w>dfff</w>
       <w>editwidget</w>
       <w>egde</w>
@@ -12,6 +15,7 @@
       <w>learntime</w>
       <w>leftbtn</w>
       <w>lineedit</w>
+      <w>locationwidget</w>
       <w>opactiy</w>
       <w>postion</w>
       <w>proxywidget</w>
@@ -23,6 +27,7 @@
       <w>qlabel</w>
       <w>qlineedit</w>
       <w>qlistview</w>
+      <w>qmenu</w>
       <w>qspinbox</w>
       <w>qtextedit</w>
       <w>renamable</w>
@@ -31,6 +36,7 @@
       <w>tanslate</w>
       <w>textedit</w>
       <w>todolist</w>
+      <w>visiable</w>
     </words>
   </dictionary>
 </component>

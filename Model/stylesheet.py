@@ -86,15 +86,17 @@ QListView::item:selected {
 
 STYLE_QCHECKBOX = '''
 QCheckBox {
-    color: rgba(255, 255, 255, 150);
+    color: rgba(255, 255, 255, 255);
     background-color: transparent;
-    spacing: 8px 2px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    font-size: 8px;
+    spacing: 0px 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    height: 8px;
 }
 QCheckBox::indicator {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
 }
 '''
 
@@ -105,5 +107,18 @@ QTextEdit {
     color: rgba(255, 255, 255, 150);
     background: rgba(0, 0, 0, 80);
     selection-background-color: rgba(255, 198, 10, 155);
+}
+'''
+
+STYLE_QMENU = '''
+QMenu {
+    background-color: rgba(153, 230, 255, 128); /* sets background of the menu */
+    border: 1px solid black;
+}
+QMenu::item {
+    background-color: transparent;
+}
+QMenu::item:selected {
+    background-color: rgba(0, 115, 153, 255);
 }
 '''

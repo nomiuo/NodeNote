@@ -57,21 +57,22 @@ class View(QtWidgets.QGraphicsView):
                 self.zoom = self.zoomRange[0]
 
     def add_basic_widget(self, event):
-        basic_widget = attribute.LogicWidget(self.scene)
+        basic_widget = attribute.AttributeWidget()
         self.scene.addItem(basic_widget)
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.scene.add_tuple_node_widget(basic_widget)
 
     def contextMenuEvent(self, event) -> None:
         super(View, self).contextMenuEvent(event)
-        context_menu = QtWidgets.QMenu(self)
-        # context list
-        create_truth_widget = context_menu.addAction("Create Truth Widget")
-        create_truth_widget.setIcon(QtGui.QIcon("Resources/context_menu/truth.png"))
+        if not event.isAccepted():
+            context_menu = QtWidgets.QMenu(self)
+            # context list
+            create_truth_widget = context_menu.addAction("Create Attribute Widget")
+            create_truth_widget.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Attribute Widget.png"))
 
-        action = context_menu.exec_(self.mapToGlobal(event.pos()))
-        if action == create_truth_widget:
-            self.add_basic_widget(event)
+            action = context_menu.exec_(self.mapToGlobal(event.pos()))
+            if action == create_truth_widget:
+                self.add_basic_widget(event)
 
     def mousePressEvent(self, event) -> None:
         if event.button() == QtCore.Qt.LeftButton:
