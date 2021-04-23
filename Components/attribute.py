@@ -109,11 +109,12 @@ class SubConstituteWidget(QtWidgets.QGraphicsWidget):
         # LABEL ITEM
         self.label_item = InputTextField(self.parentItem().name, parent, self,
                                          single_line=False)
-        self.label_font = QtGui.QFont("Consolas")
         self.label_item.setAcceptHoverEvents(True)
-        self.label_item.document().contentsChanged.connect(self.parentItem().update_node_shape)
+        self.label_item.document().contentsChanged.connect(self.parentItem().text_change_node_shape)
         self.label_item.hoverMoveEvent = self.hoverMoveEvent
-        self.label_font.setPointSize(6)
+        self.label_font = QtGui.QFont("Lucida MAC")
+        self.label_font.setPointSize(8)
+        self.label_item.setFont(self.label_font)
 
         self.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
@@ -276,9 +277,10 @@ class TruthWidget(QtWidgets.QGraphicsWidget):
 
 
 # todo: 1. resize not working, maybe use stretch
-# todo: 2. add two hide-able widgets Done
 # todo: 3. resize parent hide-able size when chidren's hidden widget showed
 # todo: 4. input text over rows and size go wrong when delete row text
+#  and when input first Enter, the size change of  header widget is behind the sub constitute widget
+#  util next input option
 class AttributeWidget(QtWidgets.QGraphicsWidget):
     display_name_changed = QtCore.pyqtSignal(str)
     draw_label = None
@@ -287,8 +289,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         super(AttributeWidget, self).__init__()
         # SET BASIC FUNCTION.
         self.name = "Default Attribute Name"
-        self.setFlags(QtWidgets.QGraphicsWidget.ItemIsMovable | QtWidgets.QGraphicsWidget.ItemIsSelectable |
-                      QtWidgets.QGraphicsWidget.ItemIsFocusable | QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges)
+        self.setFlags(QtWidgets.QGraphicsWidget.ItemIsSelectable | QtWidgets.QGraphicsWidget.ItemIsFocusable |
+                      QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges)
         self.setCacheMode(QtWidgets.QGraphicsItem.DeviceCoordinateCache)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setAcceptHoverEvents(True)
@@ -318,26 +320,27 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
                                             self.node_layout_margins, self.node_layout_margins)
         self.node_layout.setSpacing(self.node_layout_spacing)
         #   HEADER LAYOUT
+        self.header_widget = QtWidgets.QGraphicsWidget()
         self.header_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        self.header_widget.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        self.header_widget.setLayout(self.header_layout)
         self.header_layout.setContentsMargins(0, 0, 0, 0)
         self.sub_constitute_widget = SubConstituteWidget(self)
-        self.hidden_able_pic = QtGui.QPixmap("Resources/down_arrow.png")
-        self.hidden_able_widget = QtWidgets.QGraphicsWidget()
-        self.hidden_able_widget.setMaximumSize(20.0, 20.0)
-        self.hidden_able_widget.setMinimumSize(20.0, 20.0)
-        palette = self.hidden_able_widget.palette()
-        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(self.hidden_able_pic))
-        self.hidden_able_widget.setAutoFillBackground(True)
-        self.hidden_able_widget.setPalette(palette)
+        self.change_text_style_pic = QtGui.QPixmap("Resources/down_arrow.png")
+        self.change_text_style_widget = QtWidgets.QGraphicsWidget()
+        self.change_text_style_widget.setMaximumSize(20.0, 20.0)
+        self.change_text_style_widget.setMinimumSize(20.0, 20.0)
+        palette = self.change_text_style_widget.palette()
+        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(self.change_text_style_pic))
+        self.change_text_style_widget.setAutoFillBackground(True)
+        self.change_text_style_widget.setPalette(palette)
         self.header_layout.addItem(self.sub_constitute_widget)
         self.header_layout.insertStretch(1, 1)
-        self.header_layout.addItem(self.hidden_able_widget)
-        self.header_layout.setAlignment(self.hidden_able_widget, QtCore.Qt.AlignRight)
+        self.header_layout.addItem(self.change_text_style_widget)
+        self.header_layout.setAlignment(self.change_text_style_widget, QtCore.Qt.AlignRight)
         #   STATUS LAYOUT
         self.status_widget = QtWidgets.QGraphicsWidget()
         self.status_widget.setAutoFillBackground(True)
-        self.status_widget_visiable = False
-        self.status_widget.setVisible(self.status_widget_visiable)
         palette = self.status_widget.palette()
         palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(QtGui.QColor(255, 229, 229, 128)))
         self.status_widget.setPalette(palette)
@@ -351,11 +354,13 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.status_layout.setAlignment(self.status_truth, QtCore.Qt.AlignBottom)
         self.status_widget.setLayout(self.status_layout)
         #   ATTRIBUTE LAYOUT
+        self.attribute_widget = QtWidgets.QGraphicsWidget()
         self.attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        self.attribute_widget.setLayout(self.attribute_layout)
         self.attribute_layout.setContentsMargins(0, 0, 0, 0)
         # ALL LAYOUT
-        self.node_layout.addItem(self.header_layout)
-        self.node_layout.addItem(self.attribute_layout)
+        self.node_layout.addItem(self.header_widget)
+        self.node_layout.addItem(self.attribute_widget)
         self.node_layout.addItem(self.status_widget)
         self.setLayout(self.node_layout)
 
@@ -371,7 +376,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
     def paint(self, painter, option, widget=None) -> None:
         painter.save()
-        # draw
+        # draw border
         bg_border = 1.0
         rect = QtCore.QRectF(0.5 - (bg_border / 2),
                              0.5 - (bg_border / 2),
@@ -390,6 +395,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         painter.setPen(QtCore.Qt.NoPen)
         painter.drawRoundedRect(rect, radius, radius)
 
+        # draw label
         label_rect = QtCore.QRectF(rect.left(), rect.top(), self.size().width(),
                                    self.sub_constitute_widget.sizeHint().height())
         path = QtGui.QPainterPath()
@@ -417,15 +423,10 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.input_port.setPos(-12, self.sub_constitute_widget.sizeHint().height() / 2)
         self.output_port.setPos(self.size().width() - 10, self.sub_constitute_widget.sizeHint().height() / 2)
 
-        # RESIZE
-        current_size = QtCore.QSizeF(self.sub_constitute_widget.sizeHint().width(),
-                                     self.sub_constitute_widget.size().height() if self.status_widget_visiable else \
-                                         self.size().height())
-        self.resize(current_size)
-
         painter.restore()
 
-    def update_node_shape(self):
+    def text_change_node_shape(self):
+        #  when text added
         self.prepareGeometryChange()
         self.node_layout.invalidate()
         self.updateGeometry()
@@ -434,26 +435,40 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.sub_constitute_widget.update()
         self.status_time.updateGeometry()
         self.status_time.update()
+        # when text deleted
+        self.sub_constitute_widget.resize(self.sub_constitute_widget.sizeHint().width(),
+                                          self.sub_constitute_widget.sizeHint().height())
+
+        if constants.DEBUG_TEXT_CHANGED:
+            print("DEBUG TEXT CHANGED  SIZE:",
+                  self.size(), self.header_widget.size(), self.sub_constitute_widget.size(),
+                  self.attribute_widget.size(), self.status_widget.size())
+
+        self.adjustSize()
+
+        if constants.DEBUG_TEXT_CHANGED:
+            print("DEBUG TEXT CHANGED  SIZE:",
+                  self.size(), self.header_widget.size(), self.sub_constitute_widget.size(),
+                  self.attribute_widget.size(), self.status_widget.size())
 
     def mouse_update_node_size(self, event):
-        past_pos = self.scenePos()
-        past_width = self.size().width()
-        past_height = self.size().height()
-        current_pos = self.mapToScene(event.pos())
-        current_width = current_pos.x() - past_pos.x() if current_pos.x() >= past_pos.x() else past_width
-        current_height = current_pos.y() - past_pos.y() if current_pos.y() >= past_pos.y() else past_height
+        if event.type() == QtCore.QEvent.GraphicsSceneMousePress and not self.parentItem():
+            self.resizing = True
+            self.setCursor(QtCore.Qt.SizeAllCursor)
+        elif event.type() == QtCore.QEvent.GraphicsSceneMouseRelease and not self.parentItem():
+            self.resizing = False
+            self.setCursor(QtCore.Qt.ArrowCursor)
+        elif event.type() == QtCore.QEvent.GraphicsSceneMouseMove and not self.parentItem():
+            past_pos = self.scenePos()
+            past_width = self.size().width()
+            past_height = self.size().height()
+            current_pos = self.mapToScene(event.pos())
+            current_width = current_pos.x() - past_pos.x() if current_pos.x() >= past_pos.x() else past_width
+            current_height = current_pos.y() - past_pos.y() if current_pos.y() >= past_pos.y() else past_height
+            self.resize(current_width, current_height)
 
-        self.resize(current_width, current_height)
-        if constants.DEBUG_TUPLE_NODE_SCALE:
-            print(current_width, current_height)
-
-    def show_hidden_attributes(self, event):
-        if constants.DEBUG_SHOW_HIDDEN_ATTRIBUTES:
-            print("DEBUG: SHOW HIDDEN ATTRIBUTES")
-        self.status_widget_visiable = not self.status_widget_visiable
-        self.status_widget.setVisible(self.status_widget_visiable)
-        self.update_node_shape()
-        self.mouse_update_node_size(event)
+            if constants.DEBUG_TUPLE_NODE_SCALE:
+                print(current_width, current_height)
 
     def get_port_position(self, port_type):
         x = -10 if port_type == constants.INPUT_NODE_TYPE else self.size().width() - 10
@@ -466,15 +481,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
     def mousePressEvent(self, event) -> None:
         if int(event.modifiers()) & QtCore.Qt.ShiftModifier:
-            self.resizing = True
-            self.setCursor(QtCore.Qt.SizeAllCursor)
-
-        current_widget = self.scene().itemAt(event.scenePos(), QtGui.QTransform())
-        if constants.DEBUG_SHOW_HIDDEN_ATTRIBUTES:
-            print("DEBUG: SHOW CURRENT WIDGET", current_widget, "AT", event.scenePos())
-        if current_widget is self.hidden_able_widget:
-            self.show_hidden_attributes(event)
-            super(AttributeWidget, self).mousePressEvent(event)
+            self.mouse_update_node_size(event)
         else:
             super(AttributeWidget, self).mousePressEvent(event)
 
@@ -483,11 +490,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
             self.mouse_update_node_size(event)
         else:
             super(AttributeWidget, self).mouseMoveEvent(event)
+        if not self.parentItem():
+            self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        else:
+            self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, False)
 
     def mouseReleaseEvent(self, event) -> None:
         if self.resizing:
-            self.resizing = False
-            self.setCursor(QtCore.Qt.ArrowCursor)
+            self.mouse_update_node_size(event)
         else:
             super(AttributeWidget, self).mouseReleaseEvent(event)
 

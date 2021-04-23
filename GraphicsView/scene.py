@@ -11,8 +11,7 @@ class Scene(QtWidgets.QGraphicsScene):
         self.width = 64000
         self.height = 64000
         self.setSceneRect(-self.width // 2, -self.height // 2, self.width, self.height)
-        self.background_img = QtGui.QPixmap("Resources/night.jpg")
-        self.setBackgroundBrush(QtGui.QBrush(self.background_img))
+        self.setBackgroundBrush(QtGui.QBrush(QtGui.QPixmap("Resources/Background/scene_background.jpg")))
 
         self.tuple_node_widget = list()
         self.pipe_widget = list()
