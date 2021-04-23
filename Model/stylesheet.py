@@ -90,13 +90,19 @@ QCheckBox {
     background-color: transparent;
     font-size: 8px;
     spacing: 0px 0px;
-    padding-top: 0px;
+    padding-top: 8px;
     padding-bottom: 0px;
     height: 8px;
 }
 QCheckBox::indicator {
     width: 12px;
     height: 12px;
+}
+QCheckBox::indicator:checked {
+image: url(Resources/TruthWidget/True.png);
+}
+QCheckBox::indicator:unchecked {
+image: url(Resources/TruthWidget/False.png);
 }
 '''
 

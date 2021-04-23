@@ -146,7 +146,7 @@ class SubConstituteWidget(QtWidgets.QGraphicsWidget):
 class GroupWidget(QtWidgets.QGroupBox):
     def __init__(self, label, parent=None):
         super(GroupWidget, self).__init__(parent)
-        layout = QtWidgets.QHBoxLayout(self)
+        layout = QtWidgets.QVBoxLayout(self)
         layout.setSpacing(4)
         self.setTitle(label)
 
@@ -256,11 +256,11 @@ class LogicWidget(AbstractWidget):
 
 
 class TruthWidget(QtWidgets.QGraphicsWidget):
-    def __init__(self, parent=None):
+    def __init__(self, truth=True, parent=None):
         super(TruthWidget, self).__init__(parent)
         # new checkbox
         self.truth_checkbox = QtWidgets.QCheckBox("Truth")
-        self.truth_checkbox.setChecked(True)
+        self.truth_checkbox.setChecked(truth)
         self.truth_checkbox.setStyleSheet(stylesheet.STYLE_QCHECKBOX)
 
         # set font
@@ -272,8 +272,19 @@ class TruthWidget(QtWidgets.QGraphicsWidget):
         proxywidget = QtWidgets.QGraphicsProxyWidget()
         proxywidget.setWidget(self.truth_checkbox)
         self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addItem(proxywidget)
         self.setLayout(self.layout)
+
+    def sizeHint(self, which=None, constraint=None) -> QtCore.QSizeF:
+        width = self.truth_checkbox.width() + 5
+        height = self.truth_checkbox.height() + 5
+        return QtCore.QSizeF(width, height)
+
+    def boundingRect(self) -> QtCore.QRectF:
+        return QtCore.QRectF(0, 0,
+                             self.truth_checkbox.width() + 5,
+                             self.truth_checkbox.height() + 5)
 
 
 # todo: 1. resize not working, maybe use stretch
@@ -296,108 +307,111 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.setAcceptHoverEvents(True)
         self.setZValue(constants.Z_VAL_NODE)
 
-        # COLOR AND SIZE OPTION
-        self.style_properties = {
-            'id': None,
-            'name': self.name.strip(),
-            'color': (229, 255, 255, 125),
-            'border_color': (46, 57, 66, 255),
-            'text_color': (255, 255, 255, 180),
-            'width': constants.NODE_WIDTH,
-            'height': constants.NODE_HEIGHT,
-            'type_': 'Node',
-            'selected': False,
-            'disabled': False,
-            'visible': False,
-        }
+        # COLORS
+        self.color = (229, 255, 255, 125)
+        self.border_color = (46, 57, 66, 255)
+        self.selected_color = (255, 255, 255, 30)
+        self.selected_border_color = (254, 207, 42, 255)
 
-        # GUI LAYOUT
-        #   OVERALL LAYOUT
-        self.node_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
-        self.node_layout_margins = 5
-        self.node_layout_spacing = 5
-        self.node_layout.setContentsMargins(self.node_layout_margins, self.node_layout_margins,
-                                            self.node_layout_margins, self.node_layout_margins)
-        self.node_layout.setSpacing(self.node_layout_spacing)
-        #   HEADER LAYOUT
-        self.header_widget = QtWidgets.QGraphicsWidget()
-        self.header_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
-        self.header_widget.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
-        self.header_widget.setLayout(self.header_layout)
-        self.header_layout.setContentsMargins(0, 0, 0, 0)
-        self.sub_constitute_widget = SubConstituteWidget(self)
-        self.change_text_style_pic = QtGui.QPixmap("Resources/down_arrow.png")
-        self.change_text_style_widget = QtWidgets.QGraphicsWidget()
-        self.change_text_style_widget.setMaximumSize(20.0, 20.0)
-        self.change_text_style_widget.setMinimumSize(20.0, 20.0)
-        palette = self.change_text_style_widget.palette()
-        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(self.change_text_style_pic))
-        self.change_text_style_widget.setAutoFillBackground(True)
-        self.change_text_style_widget.setPalette(palette)
-        self.header_layout.addItem(self.sub_constitute_widget)
-        self.header_layout.insertStretch(1, 1)
-        self.header_layout.addItem(self.change_text_style_widget)
-        self.header_layout.setAlignment(self.change_text_style_widget, QtCore.Qt.AlignRight)
-        #   STATUS LAYOUT
-        self.status_widget = QtWidgets.QGraphicsWidget()
-        self.status_widget.setAutoFillBackground(True)
-        palette = self.status_widget.palette()
-        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(QtGui.QColor(255, 229, 229, 128)))
-        self.status_widget.setPalette(palette)
-        self.status_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
-        self.status_layout.setContentsMargins(0, 0, 0, 0)
-        self.status_truth = TruthWidget()
-        self.status_time = SubConstituteWidget(self)
-        self.status_layout.addItem(self.status_truth)
-        self.status_layout.addItem(self.status_time)
-        self.status_layout.setAlignment(self.status_time, QtCore.Qt.AlignBottom)
-        self.status_layout.setAlignment(self.status_truth, QtCore.Qt.AlignBottom)
-        self.status_widget.setLayout(self.status_layout)
-        #   ATTRIBUTE LAYOUT
-        self.attribute_widget = QtWidgets.QGraphicsWidget()
-        self.attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
-        self.attribute_widget.setLayout(self.attribute_layout)
-        self.attribute_layout.setContentsMargins(0, 0, 0, 0)
-        # ALL LAYOUT
-        self.node_layout.addItem(self.header_widget)
-        self.node_layout.addItem(self.attribute_widget)
-        self.node_layout.addItem(self.status_widget)
-        self.setLayout(self.node_layout)
-
-        # PORT
-        self.input_port = port.Port(constants.INPUT_NODE_TYPE, self)
-        self.output_port = port.Port(constants.OUTPUT_NODE_TYPE, self)
+        # LAYOUTS
+        #   create
+        self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
+        self.title_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        self.self_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
+        self.self_true_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        self.self_false_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        self.sub_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        #   margin
+        self.title_layout.setContentsMargins(0, 0, 0, 0)
+        self.self_attribute_layout.setContentsMargins(0, 0, 0, 0)
+        self.sub_attribute_layout.setContentsMargins(0, 0, 0, 0)
+        self.self_true_attribute_layout.setContentsMargins(0, 0, 0, 0)
+        self.self_false_attribute_layout.setContentsMargins(0, 0, 0, 0)
+        # WIDGETS
+        #   layout widget
+        self.title_widget = QtWidgets.QGraphicsWidget()
+        self.self_attribute_widget = QtWidgets.QGraphicsWidget()
+        self.self_attribute_widget.setMinimumWidth(250)
+        self.sub_attribute_widget = QtWidgets.QGraphicsWidget()
+        #   title name widget
+        self.title_name_widget = SubConstituteWidget(self)
+        #   title setting widget
+        self.title_setting_pic = QtGui.QPixmap("Resources/attribute_setting_img.png")
+        self.title_setting_widget = QtWidgets.QGraphicsWidget()
+        self.title_setting_widget.setMaximumSize(20.0, 20.0)
+        palette = self.title_setting_widget.palette()
+        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(self.title_setting_pic))
+        self.title_setting_widget.setAutoFillBackground(True)
+        self.title_setting_widget.setPalette(palette)
+        #   sub attributes widget
+        self.self_true_widget = TruthWidget()
+        self.self_true_attribute_widget = SubConstituteWidget(self)
+        self.self_false_widget = TruthWidget(False)
+        self.self_false_attribute_widget = SubConstituteWidget(self)
+        #   port widgets
+        self.true_input_port = port.Port(constants.INPUT_NODE_TYPE, self)
+        self.true_output_port = port.Port(constants.OUTPUT_NODE_TYPE, self)
+        self.false_input_port = port.Port(constants.INPUT_NODE_TYPE, self)
+        self.false_output_port = port.Port(constants.OUTPUT_NODE_TYPE, self)
+        # IMPLEMENT WIDGETS
+        #   layout
+        self.setLayout(self.layout)
+        self.title_widget.setLayout(self.title_layout)
+        self.self_attribute_widget.setLayout(self.self_attribute_layout)
+        self.sub_attribute_widget.setLayout(self.sub_attribute_layout)
+        self.layout.addItem(self.title_widget)
+        self.layout.addItem(self.self_attribute_widget)
+        self.layout.addItem(self.sub_attribute_widget)
+        #   title layout
+        self.title_layout.addItem(self.title_name_widget)
+        self.title_layout.addStretch(1)
+        self.title_layout.addItem(self.title_setting_widget)
+        #   self attribute layout
+        self.self_attribute_layout.addItem(self.self_true_attribute_layout)
+        self.self_attribute_layout.addItem(self.self_false_attribute_layout)
+        #       true
+        self.self_true_attribute_layout.addItem(self.true_input_port)
+        self.self_true_attribute_layout.addStretch(1)
+        self.self_true_attribute_layout.addItem(self.self_true_widget)
+        self.self_true_attribute_layout.addItem(self.self_true_attribute_widget)
+        self.self_true_attribute_layout.addStretch(1)
+        self.self_true_attribute_layout.addItem(self.true_output_port)
+        #       false
+        self.self_false_attribute_layout.addItem(self.false_input_port)
+        self.self_false_attribute_layout.addStretch(1)
+        self.self_false_attribute_layout.addItem(self.self_false_widget)
+        self.self_false_attribute_layout.addItem(self.self_false_attribute_widget)
+        self.self_false_attribute_layout.addStretch(1)
+        self.self_false_attribute_layout.addItem(self.false_output_port)
 
         # RESIZE
         self.resizing = False
-        # WIDGET LIST
-
-        self.widget_list = list()
 
     def paint(self, painter, option, widget=None) -> None:
         painter.save()
+
         # draw border
         bg_border = 1.0
-        rect = QtCore.QRectF(0.5 - (bg_border / 2),
-                             0.5 - (bg_border / 2),
-                             self.boundingRect().width() + bg_border,
-                             self.boundingRect().height() + bg_border)
         radius = 2
-        border_color = QtGui.QColor(*self.style_properties['border_color'])
+        rect = QtCore.QRectF(
+            0.5 - (bg_border / 2),
+            0.5 - (bg_border / 2),
+            self.boundingRect().width() + bg_border,
+            self.boundingRect().height() + bg_border
+        )
+        border_color = QtGui.QColor(*self.border_color)
         path = QtGui.QPainterPath()
         path.addRoundedRect(rect, radius, radius)
 
         # draw background
         rect = self.boundingRect()
-        bg_color = QtGui.QColor(*self.style_properties['color'])
-        painter.setBrush(
-            bg_color if not self.isSelected() and constants.NODE_SEL_COLOR else QtGui.QColor(*constants.NODE_SEL_COLOR))
+        painter.setBrush(QtGui.QColor(*self.color) if not self.isSelected() else QtGui.QColor(*self.selected_color))
         painter.setPen(QtCore.Qt.NoPen)
         painter.drawRoundedRect(rect, radius, radius)
 
-        # draw label
+        # draw title
         label_rect = QtCore.QRectF(rect.left(), rect.top(), self.size().width(),
-                                   self.sub_constitute_widget.sizeHint().height())
+                                   self.title_widget.size().height())
         path = QtGui.QPainterPath()
         path.addRoundedRect(label_rect, radius, radius)
         painter.setBrush(QtGui.QColor(179, 217, 255, 200))
@@ -419,37 +433,20 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         painter.setPen(pen)
         painter.drawPath(path)
 
-        # DRAW PORT
-        self.input_port.setPos(-12, self.sub_constitute_widget.sizeHint().height() / 2)
-        self.output_port.setPos(self.size().width() - 10, self.sub_constitute_widget.sizeHint().height() / 2)
-
         painter.restore()
 
     def text_change_node_shape(self):
         #  when text added
-        self.prepareGeometryChange()
-        self.node_layout.invalidate()
-        self.updateGeometry()
-        self.update()
-        self.sub_constitute_widget.updateGeometry()
-        self.sub_constitute_widget.update()
-        self.status_time.updateGeometry()
-        self.status_time.update()
+        # self.prepareGeometryChange()
+        # self.layout.invalidate()
+        # self.updateGeometry()
+        # self.update()
+        # self.sub_constitute_widget.updateGeometry()
+        # self.sub_constitute_widget.update()
+        # self.status_time.updateGeometry()
+        # self.status_time.update()
         # when text deleted
-        self.sub_constitute_widget.resize(self.sub_constitute_widget.sizeHint().width(),
-                                          self.sub_constitute_widget.sizeHint().height())
-
-        if constants.DEBUG_TEXT_CHANGED:
-            print("DEBUG TEXT CHANGED  SIZE:",
-                  self.size(), self.header_widget.size(), self.sub_constitute_widget.size(),
-                  self.attribute_widget.size(), self.status_widget.size())
-
         self.adjustSize()
-
-        if constants.DEBUG_TEXT_CHANGED:
-            print("DEBUG TEXT CHANGED  SIZE:",
-                  self.size(), self.header_widget.size(), self.sub_constitute_widget.size(),
-                  self.attribute_widget.size(), self.status_widget.size())
 
     def mouse_update_node_size(self, event):
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress and not self.parentItem():
@@ -471,13 +468,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
                 print(current_width, current_height)
 
     def get_port_position(self, port_type):
+        # todo: wrong
         x = -10 if port_type == constants.INPUT_NODE_TYPE else self.size().width() - 10
         y = self.size().height() / 2
         return x, y
 
     def add_subwidget(self):
         subwidget = AttributeWidget()
-        self.attribute_layout.addItem(subwidget)
+        self.sub_attribute_layout.addItem(subwidget)
 
     def mousePressEvent(self, event) -> None:
         if int(event.modifiers()) & QtCore.Qt.ShiftModifier:
