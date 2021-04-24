@@ -6,23 +6,20 @@ __all__ = ["SubConstituteWidget", "InputTextField",
            "LogicWidget", "TruthWidget", "AttributeWidget"]
 
 
+# todo: text ContextMenu bug
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
     start_editing = QtCore.pyqtSignal()
 
     def __init__(self, text, node, parent=None, single_line=False):
         super(InputTextField, self).__init__(text, parent)
+        self.setFlags(QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges | QtWidgets.QGraphicsWidget.ItemIsSelectable)
+        self.setObjectName("Nothing")
         self.node = node
         self.single_line = single_line
         self.text_before_editing = ""
         self.origMoveEvent = self.mouseMoveEvent
         self.mouseMoveEvent = self.node.mouseMoveEvent
-        # SET BASIC FUNCTION
-        self.basic_function()
-
-    def basic_function(self):
-        self.setFlags(QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges | QtWidgets.QGraphicsWidget.ItemIsSelectable)
-        self.setObjectName("Nothing")
 
     def keyPressEvent(self, event) -> None:
         # insert key text into text field.
@@ -321,6 +318,13 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.self_true_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.self_false_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.sub_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        #   sapcing
+        self.layout.setSpacing(0)
+        self.title_layout.setSpacing(0)
+        self.self_attribute_layout.setSpacing(0)
+        self.self_true_attribute_layout.setSpacing(0)
+        self.self_false_attribute_layout.setSpacing(0)
+        self.sub_attribute_layout.setSpacing(0)
         #   margin
         self.title_layout.setContentsMargins(0, 0, 0, 0)
         self.self_attribute_layout.setContentsMargins(0, 0, 0, 0)
@@ -331,7 +335,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         #   layout widget
         self.title_widget = QtWidgets.QGraphicsWidget()
         self.self_attribute_widget = QtWidgets.QGraphicsWidget()
-        self.self_attribute_widget.setMinimumWidth(250)
+        self.self_attribute_widget.setMinimumWidth(260)
         self.sub_attribute_widget = QtWidgets.QGraphicsWidget()
         #   title name widget
         self.title_name_widget = SubConstituteWidget(self)
@@ -411,7 +415,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
         # draw title
         label_rect = QtCore.QRectF(rect.left(), rect.top(), self.size().width(),
-                                   self.title_widget.size().height())
+                                   self.title_name_widget.sizeHint().height())
         path = QtGui.QPainterPath()
         path.addRoundedRect(label_rect, radius, radius)
         painter.setBrush(QtGui.QColor(179, 217, 255, 200))
@@ -437,16 +441,28 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
     def text_change_node_shape(self):
         #  when text added
-        # self.prepareGeometryChange()
-        # self.layout.invalidate()
-        # self.updateGeometry()
-        # self.update()
-        # self.sub_constitute_widget.updateGeometry()
-        # self.sub_constitute_widget.update()
-        # self.status_time.updateGeometry()
-        # self.status_time.update()
+        self.prepareGeometryChange()
+        self.layout.invalidate()
+        self.layout.activate()
+        self.updateGeometry()
+        self.update()
+        self.title_widget.updateGeometry()
+        self.title_layout.invalidate()
+        self.title_layout.activate()
+        self.title_widget.update()
+        self.self_attribute_widget.updateGeometry()
+        self.self_attribute_widget.update()
+        self.self_attribute_layout.activate()
+        self.sub_attribute_widget.updateGeometry()
+        self.sub_attribute_layout.activate()
+        self.sub_attribute_widget.update()
+        self.title_name_widget.updateGeometry()
+        self.title_name_widget.update()
         # when text deleted
-        self.adjustSize()
+        if constants.DEBUG_TEXT_CHANGED:
+            print("title name widget width:", self.title_name_widget.size().width(),
+                  "title  width", self.title_widget.size().width(),
+                  "true attribute text width", self.self_true_attribute_widget.size().width())
 
     def mouse_update_node_size(self, event):
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress and not self.parentItem():
