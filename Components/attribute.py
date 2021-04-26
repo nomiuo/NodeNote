@@ -163,6 +163,7 @@ class SyntaxHighlighter(QtGui.QSyntaxHighlighter):
 
 # todo: text ContextMenu bug
 # todo: ctrl+v code to plaintext
+# todo: sub layout
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
     start_editing = QtCore.pyqtSignal()
