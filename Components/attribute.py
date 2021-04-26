@@ -1,4 +1,3 @@
-import sys
 from PyQt5 import QtCore, QtWidgets, QtGui
 from Model import constants, stylesheet
 from Components import port
@@ -7,158 +6,69 @@ __all__ = ["SubConstituteWidget", "InputTextField",
            "LogicWidget", "TruthWidget", "AttributeWidget"]
 
 
-class SyntaxHighlighter(QtGui.QSyntaxHighlighter):
-    Rules = []
-    Formats = {}
+class PythonHighlighter(QtGui.QSyntaxHighlighter):
+    rules = []
 
     def __init__(self, parent=None):
-        super(SyntaxHighlighter, self).__init__(parent)
+        super(PythonHighlighter, self).__init__(parent)
+        # KEYWORD
+        # format
+        keyword_format = QtGui.QTextCharFormat()
+        keyword_format.setForeground(QtCore.Qt.darkBlue)
+        keyword_format.setFontWeight(QtGui.QFont.Bold)
+        # pattern
+        keyword_pattern = [r"\band\b", r"\bas\b", r"\bassert\b", r"\bbreak\b", r"\bclass\b", r"\bcontinue\b",
+                           r"\bdef\b", r"\belif\b", r"\bdel\b", r"\belse\b", r"\bexcept\b", r"\bFalse\b",
+                           r"\bfinally\b",
+                           r"\bfor\b", r"\bfrom\b", r"\bglobal\b", r"\bif\b", r"\bimport\b", r"\bin\b", r"\bis\b",
+                           r"\blambda\b", r"\bNone\b", r"\bnonlocal\b", r"\bnot\b", r"\bor\b", r"\bpass\b",
+                           r"\braise\b", r"\breturn\b", r"\bTrue\b", r"\bwhile\b", r"\bwith\b", r"\byield\b"]
+        for pattern in keyword_pattern:
+            PythonHighlighter.rules.append((QtCore.QRegExp(pattern), keyword_format))
+        # COMMENT
+        # format
+        comment_format = QtGui.QTextCharFormat()
+        comment_format.setForeground(QtGui.QColor(0, 127, 0))
+        comment_format.setFontItalic(True)
+        # pattern
+        PythonHighlighter.rules.append((QtCore.QRegExp(r"#.*"), comment_format))
+        # STRING
+        # format
+        string_format = QtGui.QTextCharFormat()
+        string_format.setForeground(QtCore.Qt.darkYellow)
+        # pattern
+        string_pattern = QtCore.QRegExp(r"""(?:'[^']*''|"[^"]*")""")
+        string_pattern.setMinimal(True)
+        PythonHighlighter.rules.append((string_pattern, string_format))
+        string_pattern = QtCore.QRegExp(r"""(:?"["]".*"["]"|'''.*''')""")
+        string_pattern.setMinimal(True)
+        PythonHighlighter.rules.append((string_pattern, string_format))
+        # PYTHON
+        self.distinguish_python_first = QtCore.QRegExp(r"""```python""")
+        self.distinguish_python_last = QtCore.QRegExp(r"""``(?!`)""")
 
-        self.initializeFormats()
-
-        KEYWORDS = ["and", "as", "assert", "break", "class",
-                    "continue", "def", "del", "elif", "else", "except",
-                    "exec", "finally", "for", "from", "global", "if",
-                    "import", "in", "is", "lambda", "not", "or", "pass",
-                    "print", "raise", "return", "try", "while", "with",
-                    "yield"]
-        BUILTINS = ["abs", "all", "any", "basestring", "bool",
-                    "callable", "chr", "classmethod", "cmp", "compile",
-                    "complex", "delattr", "dict", "dir", "divmod",
-                    "enumerate", "eval", "execfile", "exit", "file",
-                    "filter", "float", "frozenset", "getattr", "globals",
-                    "hasattr", "hex", "id", "int", "isinstance",
-                    "issubclass", "iter", "len", "list", "locals", "map",
-                    "max", "min", "object", "oct", "open", "ord", "pow",
-                    "property", "range", "reduce", "repr", "reversed",
-                    "round", "set", "setattr", "slice", "sorted",
-                    "staticmethod", "str", "sum", "super", "tuple", "type",
-                    "vars", "zip", "self"]
-        CONSTANTS = ["False", "True", "None", "NotImplemented",
-                     "Ellipsis"]
-        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
-            "|".join([r"\b%s\b" % keyword for keyword in KEYWORDS])),
-                                        "keyword"))
-        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
-            "|".join([r"\b%s\b" % builtin for builtin in BUILTINS])),
-                                        "builtin"))
-        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
-            "|".join([r"\b%s\b" % constant
-                      for constant in CONSTANTS])), "constant"))
-        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
-            r"\b[+-]?[0-9]+[lL]?\b"
-            r"|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b"
-            r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b"),
-                                        "number"))
-        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
-            r"\bPyQt4\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt"))
-        SyntaxHighlighter.Rules.append((QtCore.QRegExp(r"\b@\w+\b"),
-                                        "decorator"))
-        stringRe = QtCore.QRegExp(r"""(?:'[^']*'|"[^"]*")""")
-        stringRe.setMinimal(True)
-        SyntaxHighlighter.Rules.append((stringRe, "string"))
-        self.stringRe = QtCore.QRegExp(r"""(:?"["]".*"["]"|'''.*''')""")
-        self.stringRe.setMinimal(True)
-        SyntaxHighlighter.Rules.append((self.stringRe, "string"))
-        self.tripleSingleRe = QtCore.QRegExp(r"""'''(?!")""")
-        self.tripleDoubleRe = QtCore.QRegExp(r'''"""(?!')''')
-
-    @staticmethod
-    def initializeFormats():
-        baseFormat = QtGui.QTextCharFormat()
-        baseFormat.setFontFamily("courier")
-        baseFormat.setFontPointSize(8)
-        for name, color in (("normal", QtCore.Qt.black),
-                            ("keyword", QtCore.Qt.darkBlue), ("builtin", QtCore.Qt.darkRed),
-                            ("constant", QtCore.Qt.darkGreen),
-                            ("decorator", QtCore.Qt.darkBlue), ("comment", QtCore.Qt.darkGreen),
-                            ("string", QtCore.Qt.darkYellow), ("number", QtCore.Qt.darkMagenta),
-                            ("error", QtCore.Qt.darkRed), ("pyqt", QtCore.Qt.darkCyan)):
-            format = QtGui.QTextCharFormat(baseFormat)
-            format.setForeground(QtGui.QColor(color))
-            if name in ("keyword", "decorator"):
-                format.setFontWeight(QtGui.QFont.Bold)
-            if name == "comment":
-                format.setFontItalic(True)
-            SyntaxHighlighter.Formats[name] = format
-
-    def highlightBlock(self, text):
-        NORMAL, TRIPLESINGLE, TRIPLEDOUBLE, ERROR = range(4)
-        pattern = "```[Pp]ython.*```"
-        expression = QtCore.QRegExp(pattern)
-        index = text.find(str(expression))
-        textLength = expression.matchedLength()
-        prevState = self.previousBlockState()
-
-        self.setFormat(index, textLength,
-                       SyntaxHighlighter.Formats["normal"])
-
-        if text.startswith("Traceback") or text.startswith("Error: "):
-            self.setCurrentBlockState(ERROR)
-            self.setFormat(index, textLength,
-                           SyntaxHighlighter.Formats["error"])
-            return
-        if (prevState == ERROR and
-                not (text.startswith(sys.ps1) or text.startswith("#"))):
-            self.setCurrentBlockState(ERROR)
-            self.setFormat(index, textLength,
-                           SyntaxHighlighter.Formats["error"])
-            return
-
-        for regex, format in SyntaxHighlighter.Rules:
-            i = regex.indexIn(text)
-            while i >= 0:
-                length = regex.matchedLength()
-                self.setFormat(i, length,
-                               SyntaxHighlighter.Formats[format])
-                i = regex.indexIn(text, i + length)
-
-        # Slow but good quality highlighting for comments. For more
-        # speed, comment this out and add the following to __init__:
-        # SyntaxHighlighter.Rules.append((QRegExp(r"#.*"), "comment"))
-        if not text:
-            pass
-        elif text[0] == "#":
-            self.setFormat(0, len(text),
-                           SyntaxHighlighter.Formats["comment"])
+    def highlightBlock(self, text: str) -> None:
+        DISTINGUISH = 1
+        NONE = 2
+        # DISTINGUISH PYTHON
+        first_i = self.distinguish_python_first.indexIn(text)
+        last_i = self.distinguish_python_last.indexIn(text)
+        print(first_i, last_i, self.currentBlockState())
+        if self.previousBlockState() == DISTINGUISH and first_i == -1 and last_i == -1:
+            # NORMAL HIGHLIGHT
+            for regex, format in PythonHighlighter.rules:
+                normal_i = regex.indexIn(text)
+                while normal_i >= 0:
+                    length = regex.matchedLength()
+                    self.setFormat(normal_i, length, format)
+                    normal_i = regex.indexIn(text, normal_i + length)
+            self.setCurrentBlockState(DISTINGUISH)
+        elif first_i == 0 and last_i == 1:
+            self.setCurrentBlockState(DISTINGUISH)
+        elif last_i > -1:
+            self.setCurrentBlockState(NONE)
         else:
-            stack = []
-            for i, c in enumerate(text):
-                if c in ('"', "'"):
-                    if stack and stack[-1] == c:
-                        stack.pop()
-                    else:
-                        stack.append(c)
-                elif c == "#" and len(stack) == 0:
-                    self.setFormat(i, len(text),
-                                   SyntaxHighlighter.Formats["comment"])
-                    break
-
-        self.setCurrentBlockState(NORMAL)
-
-        if self.stringRe.indexIn(text) != -1:
-            return
-        # This is fooled by triple quotes inside single quoted strings
-        for i, state in ((self.tripleSingleRe.indexIn(text),
-                          TRIPLESINGLE),
-                         (self.tripleDoubleRe.indexIn(text),
-                          TRIPLEDOUBLE)):
-            if self.previousBlockState() == state:
-                if i == -1:
-                    i = len(text)
-                    self.setCurrentBlockState(state)
-                self.setFormat(0, i + 3,
-                               SyntaxHighlighter.Formats["string"])
-            elif i > -1:
-                self.setCurrentBlockState(state)
-                self.setFormat(i, len(text),
-                               SyntaxHighlighter.Formats["string"])
-
-    def rehighlight(self):
-        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(
-            QtCore.Qt.WaitCursor))
-        QtGui.QSyntaxHighlighter.rehighlight(self)
-        QtWidgets.QApplication.restoreOverrideCursor()
+            self.setCurrentBlockState(NONE)
 
 
 # todo: text ContextMenu bug
@@ -171,6 +81,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
     def __init__(self, text, node, parent=None, single_line=False):
         super(InputTextField, self).__init__(text, parent)
         # BASIC SETTINGS
+        self.installEventFilter(self)
         self.setFlags(QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges | QtWidgets.QGraphicsWidget.ItemIsSelectable)
         self.setObjectName("Nothing")
         self.node = node
@@ -180,7 +91,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         self.mouseMoveEvent = self.node.mouseMoveEvent
         # DOCUMENT SETTINGS
         document = self.document()
-        SyntaxHighlighter(document)
+        PythonHighlighter(document)
         document.setIndentWidth(4)
         self.setDocument(document)
 
@@ -227,17 +138,33 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         cursor.insertList(list_format)
 
     @staticmethod
-    def add_image(cursor):
+    def paste(cursor):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
         if mime_data.hasImage():
             image = QtGui.QImage(mime_data.imageData())
             cursor.insertImage(image)
+        elif mime_data.hasText():
+            mime_data.setData("text/plain", QtCore.QByteArray())
+            text = mime_data.text()
+            cursor.insertText(text)
+
+    def eventFilter(self, target, event) -> bool:
+        if isinstance(target, QtWidgets.QGraphicsTextItem):
+            if event.type() == QtCore.QEvent.KeyPress:
+                if event.key() == QtCore.Qt.Key_V and event.modifiers() & QtCore.Qt.ControlModifier:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+        # super(InputTextField, self).eventFilter(target, event)
 
     def keyPressEvent(self, event) -> None:
         # insert key text into text field.
         current_key = event.key()
         current_cursor = self.textCursor()
-        document = self.document()
 
         # restore text before editing and return.
         if current_key == QtCore.Qt.Key_Escape:
@@ -250,6 +177,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         # if event.modifiers() & QtCore.Qt.TabFocusTextControls:
         #     print("tab")
         #     current_cursor.insertText("    ")
+
+        # todo: rewrite Ctrl + V
+        if current_key == QtCore.Qt.Key_V and event.modifiers() & QtCore.Qt.ControlModifier:
+            self.paste(current_cursor)
 
         # once press enter or return, it will not wrap around
         if self.single_line:
@@ -281,13 +212,8 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             self.table_delete_row(current_table, current_cursor)
 
         # list operation
-        current_list = current_cursor.currentList()
         if current_key == QtCore.Qt.Key_2 and event.modifiers() & QtCore.Qt.ControlModifier:
             self.add_list(current_cursor)
-
-        # image operation
-        if current_key == QtCore.Qt.Key_3 and event.modifiers() & QtCore.Qt.ControlModifier:
-            self.add_image(current_cursor)
 
     def mousePressEvent(self, event) -> None:
         # change focus into node
@@ -525,11 +451,6 @@ class TruthWidget(QtWidgets.QGraphicsWidget):
                              self.truth_checkbox.height() + 5)
 
 
-# todo: 1. resize not working, maybe use stretch
-# todo: 3. resize parent hide-able size when chidren's hidden widget showed
-# todo: 4. input text over rows and size go wrong when delete row text
-#  and when input first Enter, the size change of  header widget is behind the sub constitute widget
-#  util next input option
 class AttributeWidget(QtWidgets.QGraphicsWidget):
     display_name_changed = QtCore.pyqtSignal(str)
     draw_label = None
@@ -555,28 +476,26 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         #   create
         self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.title_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
-        self.self_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
+        # self.self_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.self_true_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.self_false_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.sub_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         #   sapcing
         self.layout.setSpacing(0)
         self.title_layout.setSpacing(0)
-        self.self_attribute_layout.setSpacing(0)
         self.self_true_attribute_layout.setSpacing(0)
         self.self_false_attribute_layout.setSpacing(0)
         self.sub_attribute_layout.setSpacing(0)
         #   margin
         self.title_layout.setContentsMargins(0, 0, 0, 0)
-        self.self_attribute_layout.setContentsMargins(0, 0, 0, 0)
         self.sub_attribute_layout.setContentsMargins(0, 0, 0, 0)
         self.self_true_attribute_layout.setContentsMargins(0, 0, 0, 0)
         self.self_false_attribute_layout.setContentsMargins(0, 0, 0, 0)
         # WIDGETS
         #   layout widget
         self.title_widget = QtWidgets.QGraphicsWidget()
-        self.self_attribute_widget = QtWidgets.QGraphicsWidget()
-        self.self_attribute_widget.setMinimumWidth(260)
+        self.self_true_layout_widget = QtWidgets.QGraphicsWidget()
+        self.self_false_layout_widget = QtWidgets.QGraphicsWidget()
         self.sub_attribute_widget = QtWidgets.QGraphicsWidget()
         #   title name widget
         self.title_name_widget = SubConstituteWidget(self)
@@ -599,30 +518,33 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.true_output_port = port.Port(constants.OUTPUT_NODE_TYPE, self)
         self.false_input_port = port.Port(constants.INPUT_NODE_TYPE, self)
         self.false_output_port = port.Port(constants.OUTPUT_NODE_TYPE, self)
+        self.true_input_port.setMinimumWidth(50)
+        self.true_output_port.setMinimumWidth(50)
+        self.false_input_port.setMinimumWidth(50)
+        self.false_output_port.setMinimumWidth(50)
         # IMPLEMENT WIDGETS
         #   layout
         self.setLayout(self.layout)
         self.title_widget.setLayout(self.title_layout)
-        self.self_attribute_widget.setLayout(self.self_attribute_layout)
+        self.self_true_layout_widget.setLayout(self.self_true_attribute_layout)
+        self.self_false_layout_widget.setLayout(self.self_false_attribute_layout)
         self.sub_attribute_widget.setLayout(self.sub_attribute_layout)
         self.layout.addItem(self.title_widget)
-        self.layout.addItem(self.self_attribute_widget)
+        self.layout.addItem(self.self_true_layout_widget)
+        self.layout.addItem(self.self_false_layout_widget)
         self.layout.addItem(self.sub_attribute_widget)
         #   title layout
         self.title_layout.addItem(self.title_name_widget)
         self.title_layout.addStretch(1)
         self.title_layout.addItem(self.title_setting_widget)
-        #   self attribute layout
-        self.self_attribute_layout.addItem(self.self_true_attribute_layout)
-        self.self_attribute_layout.addItem(self.self_false_attribute_layout)
-        #       true
+        #   true
         self.self_true_attribute_layout.addItem(self.true_input_port)
         self.self_true_attribute_layout.addStretch(1)
         self.self_true_attribute_layout.addItem(self.self_true_widget)
         self.self_true_attribute_layout.addItem(self.self_true_attribute_widget)
         self.self_true_attribute_layout.addStretch(1)
         self.self_true_attribute_layout.addItem(self.true_output_port)
-        #       false
+        #   false
         self.self_false_attribute_layout.addItem(self.false_input_port)
         self.self_false_attribute_layout.addStretch(1)
         self.self_false_attribute_layout.addItem(self.self_false_widget)
@@ -682,7 +604,10 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         painter.restore()
 
     def text_change_node_shape(self):
-        #  when text added
+        # text
+        self.title_name_widget.updateGeometry()
+        self.title_name_widget.update()
+        #  layout
         self.prepareGeometryChange()
         self.layout.invalidate()
         self.layout.activate()
@@ -692,19 +617,27 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.title_layout.invalidate()
         self.title_layout.activate()
         self.title_widget.update()
-        self.self_attribute_widget.updateGeometry()
-        self.self_attribute_widget.update()
-        self.self_attribute_layout.activate()
+        self.self_true_attribute_widget.updateGeometry()
+        self.self_true_attribute_layout.updateGeometry()
+        self.self_true_attribute_layout.invalidate()
+        self.self_true_attribute_layout.activate()
+        self.self_true_attribute_widget.update()
+        self.self_false_attribute_widget.updateGeometry()
+        self.self_false_attribute_layout.updateGeometry()
+        self.self_false_attribute_layout.invalidate()
+        self.self_false_attribute_layout.activate()
+        self.self_false_attribute_widget.update()
         self.sub_attribute_widget.updateGeometry()
         self.sub_attribute_layout.activate()
         self.sub_attribute_widget.update()
-        self.title_name_widget.updateGeometry()
-        self.title_name_widget.update()
+
         # when text deleted
         if constants.DEBUG_TEXT_CHANGED:
             print("title name widget width:", self.title_name_widget.size().width(),
                   "title  width", self.title_widget.size().width(),
-                  "true attribute text width", self.self_true_attribute_widget.size().width())
+                  "true attribute text width", self.self_true_attribute_widget.size().width(),
+                  "true attribute widget size", self.self_true_layout_widget.size().width(),
+                  "port size", self.true_input_port.size())
 
     def mouse_update_node_size(self, event):
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress and not self.parentItem():

@@ -2,6 +2,28 @@
   <dictionary name="yetao">
     <words>
       <w>attwidget</w>
+      <w>bassert</w>
+      <w>bbreak</w>
+      <w>bclass</w>
+      <w>bcontinue</w>
+      <w>bdef</w>
+      <w>bdel</w>
+      <w>belif</w>
+      <w>belse</w>
+      <w>bexcept</w>
+      <w>bfinally</w>
+      <w>bfor</w>
+      <w>bfrom</w>
+      <w>bglobal</w>
+      <w>bimport</w>
+      <w>blambda</w>
+      <w>bnonlocal</w>
+      <w>bnot</w>
+      <w>bpass</w>
+      <w>breturn</w>
+      <w>bwhile</w>
+      <w>bwith</w>
+      <w>byield</w>
       <w>chidren</w>
       <w>classmethod</w>
       <w>colorpicker</w>
