@@ -3,15 +3,18 @@
     <words>
       <w>attwidget</w>
       <w>chidren</w>
+      <w>classmethod</w>
       <w>colorpicker</w>
       <w>consolas</w>
       <w>defalut</w>
       <w>dfff</w>
+      <w>divmod</w>
       <w>editwidget</w>
       <w>egde</w>
       <w>ffcc</w>
       <w>groupbox</w>
       <w>grwidget</w>
+      <w>issubclass</w>
       <w>learntime</w>
       <w>leftbtn</w>
       <w>lineedit</w>
@@ -20,6 +23,7 @@
       <w>opactiy</w>
       <w>postion</w>
       <w>proxywidget</w>
+      <w>pyqt</w>
       <w>qcheckbox</w>
       <w>qcombo</w>
       <w>qcombobox</w>
@@ -31,14 +35,19 @@
       <w>qmenu</w>
       <w>qspinbox</w>
       <w>qtextedit</w>
+      <w>rehighlight</w>
       <w>renamable</w>
+      <w>sapcing</w>
       <w>sspos</w>
       <w>subattribute</w>
       <w>subcontrol</w>
       <w>tanslate</w>
       <w>textedit</w>
       <w>todolist</w>
+      <w>tripledouble</w>
+      <w>triplesingle</w>
       <w>visiable</w>
+      <w>ython</w>
     </words>
   </dictionary>
 </component>

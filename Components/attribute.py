@@ -1,3 +1,4 @@
+import sys
 from PyQt5 import QtCore, QtWidgets, QtGui
 from Model import constants, stylesheet
 from Components import port
@@ -6,40 +7,254 @@ __all__ = ["SubConstituteWidget", "InputTextField",
            "LogicWidget", "TruthWidget", "AttributeWidget"]
 
 
+class SyntaxHighlighter(QtGui.QSyntaxHighlighter):
+    Rules = []
+    Formats = {}
+
+    def __init__(self, parent=None):
+        super(SyntaxHighlighter, self).__init__(parent)
+
+        self.initializeFormats()
+
+        KEYWORDS = ["and", "as", "assert", "break", "class",
+                    "continue", "def", "del", "elif", "else", "except",
+                    "exec", "finally", "for", "from", "global", "if",
+                    "import", "in", "is", "lambda", "not", "or", "pass",
+                    "print", "raise", "return", "try", "while", "with",
+                    "yield"]
+        BUILTINS = ["abs", "all", "any", "basestring", "bool",
+                    "callable", "chr", "classmethod", "cmp", "compile",
+                    "complex", "delattr", "dict", "dir", "divmod",
+                    "enumerate", "eval", "execfile", "exit", "file",
+                    "filter", "float", "frozenset", "getattr", "globals",
+                    "hasattr", "hex", "id", "int", "isinstance",
+                    "issubclass", "iter", "len", "list", "locals", "map",
+                    "max", "min", "object", "oct", "open", "ord", "pow",
+                    "property", "range", "reduce", "repr", "reversed",
+                    "round", "set", "setattr", "slice", "sorted",
+                    "staticmethod", "str", "sum", "super", "tuple", "type",
+                    "vars", "zip", "self"]
+        CONSTANTS = ["False", "True", "None", "NotImplemented",
+                     "Ellipsis"]
+        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
+            "|".join([r"\b%s\b" % keyword for keyword in KEYWORDS])),
+                                        "keyword"))
+        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
+            "|".join([r"\b%s\b" % builtin for builtin in BUILTINS])),
+                                        "builtin"))
+        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
+            "|".join([r"\b%s\b" % constant
+                      for constant in CONSTANTS])), "constant"))
+        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
+            r"\b[+-]?[0-9]+[lL]?\b"
+            r"|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b"
+            r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b"),
+                                        "number"))
+        SyntaxHighlighter.Rules.append((QtCore.QRegExp(
+            r"\bPyQt4\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt"))
+        SyntaxHighlighter.Rules.append((QtCore.QRegExp(r"\b@\w+\b"),
+                                        "decorator"))
+        stringRe = QtCore.QRegExp(r"""(?:'[^']*'|"[^"]*")""")
+        stringRe.setMinimal(True)
+        SyntaxHighlighter.Rules.append((stringRe, "string"))
+        self.stringRe = QtCore.QRegExp(r"""(:?"["]".*"["]"|'''.*''')""")
+        self.stringRe.setMinimal(True)
+        SyntaxHighlighter.Rules.append((self.stringRe, "string"))
+        self.tripleSingleRe = QtCore.QRegExp(r"""'''(?!")""")
+        self.tripleDoubleRe = QtCore.QRegExp(r'''"""(?!')''')
+
+    @staticmethod
+    def initializeFormats():
+        baseFormat = QtGui.QTextCharFormat()
+        baseFormat.setFontFamily("courier")
+        baseFormat.setFontPointSize(8)
+        for name, color in (("normal", QtCore.Qt.black),
+                            ("keyword", QtCore.Qt.darkBlue), ("builtin", QtCore.Qt.darkRed),
+                            ("constant", QtCore.Qt.darkGreen),
+                            ("decorator", QtCore.Qt.darkBlue), ("comment", QtCore.Qt.darkGreen),
+                            ("string", QtCore.Qt.darkYellow), ("number", QtCore.Qt.darkMagenta),
+                            ("error", QtCore.Qt.darkRed), ("pyqt", QtCore.Qt.darkCyan)):
+            format = QtGui.QTextCharFormat(baseFormat)
+            format.setForeground(QtGui.QColor(color))
+            if name in ("keyword", "decorator"):
+                format.setFontWeight(QtGui.QFont.Bold)
+            if name == "comment":
+                format.setFontItalic(True)
+            SyntaxHighlighter.Formats[name] = format
+
+    def highlightBlock(self, text):
+        NORMAL, TRIPLESINGLE, TRIPLEDOUBLE, ERROR = range(4)
+        pattern = "```[Pp]ython.*```"
+        expression = QtCore.QRegExp(pattern)
+        index = text.find(str(expression))
+        textLength = expression.matchedLength()
+        prevState = self.previousBlockState()
+
+        self.setFormat(index, textLength,
+                       SyntaxHighlighter.Formats["normal"])
+
+        if text.startswith("Traceback") or text.startswith("Error: "):
+            self.setCurrentBlockState(ERROR)
+            self.setFormat(index, textLength,
+                           SyntaxHighlighter.Formats["error"])
+            return
+        if (prevState == ERROR and
+                not (text.startswith(sys.ps1) or text.startswith("#"))):
+            self.setCurrentBlockState(ERROR)
+            self.setFormat(index, textLength,
+                           SyntaxHighlighter.Formats["error"])
+            return
+
+        for regex, format in SyntaxHighlighter.Rules:
+            i = regex.indexIn(text)
+            while i >= 0:
+                length = regex.matchedLength()
+                self.setFormat(i, length,
+                               SyntaxHighlighter.Formats[format])
+                i = regex.indexIn(text, i + length)
+
+        # Slow but good quality highlighting for comments. For more
+        # speed, comment this out and add the following to __init__:
+        # SyntaxHighlighter.Rules.append((QRegExp(r"#.*"), "comment"))
+        if not text:
+            pass
+        elif text[0] == "#":
+            self.setFormat(0, len(text),
+                           SyntaxHighlighter.Formats["comment"])
+        else:
+            stack = []
+            for i, c in enumerate(text):
+                if c in ('"', "'"):
+                    if stack and stack[-1] == c:
+                        stack.pop()
+                    else:
+                        stack.append(c)
+                elif c == "#" and len(stack) == 0:
+                    self.setFormat(i, len(text),
+                                   SyntaxHighlighter.Formats["comment"])
+                    break
+
+        self.setCurrentBlockState(NORMAL)
+
+        if self.stringRe.indexIn(text) != -1:
+            return
+        # This is fooled by triple quotes inside single quoted strings
+        for i, state in ((self.tripleSingleRe.indexIn(text),
+                          TRIPLESINGLE),
+                         (self.tripleDoubleRe.indexIn(text),
+                          TRIPLEDOUBLE)):
+            if self.previousBlockState() == state:
+                if i == -1:
+                    i = len(text)
+                    self.setCurrentBlockState(state)
+                self.setFormat(0, i + 3,
+                               SyntaxHighlighter.Formats["string"])
+            elif i > -1:
+                self.setCurrentBlockState(state)
+                self.setFormat(i, len(text),
+                               SyntaxHighlighter.Formats["string"])
+
+    def rehighlight(self):
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(
+            QtCore.Qt.WaitCursor))
+        QtGui.QSyntaxHighlighter.rehighlight(self)
+        QtWidgets.QApplication.restoreOverrideCursor()
+
+
+# todo: text ContextMenu bug
+# todo: ctrl+v code to plaintext
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
     start_editing = QtCore.pyqtSignal()
 
     def __init__(self, text, node, parent=None, single_line=False):
         super(InputTextField, self).__init__(text, parent)
+        # BASIC SETTINGS
+        self.setFlags(QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges | QtWidgets.QGraphicsWidget.ItemIsSelectable)
+        self.setObjectName("Nothing")
         self.node = node
         self.single_line = single_line
         self.text_before_editing = ""
         self.origMoveEvent = self.mouseMoveEvent
         self.mouseMoveEvent = self.node.mouseMoveEvent
-        # SET BASIC FUNCTION
-        self.basic_function()
+        # DOCUMENT SETTINGS
+        document = self.document()
+        SyntaxHighlighter(document)
+        document.setIndentWidth(4)
+        self.setDocument(document)
 
-    def basic_function(self):
-        self.setFlags(QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges | QtWidgets.QGraphicsWidget.ItemIsSelectable)
-        self.setObjectName("Nothing")
+    @staticmethod
+    def add_table(cursor):
+        # create parameters
+        table_format = QtGui.QTextTableFormat()
+
+        # set and insert
+        table_format.setCellPadding(10)
+        table_format.setCellSpacing(2)
+        table_format.setAlignment(QtCore.Qt.AlignCenter)
+        table_format.setBackground(QtGui.QBrush(QtGui.QColor(229, 255, 255, 255)))
+        cursor.insertTable(1, 1, table_format)
+
+    @staticmethod
+    def table_insert_column(table, cursor):
+        column = table.cellAt(cursor).column() + 1
+        table.insertColumns(column, 1)
+
+    @staticmethod
+    def table_insert_row(table, cursor):
+        row = table.cellAt(cursor).row() + 1
+        table.insertRows(row, 1)
+
+    @staticmethod
+    def table_delete_column(table, cursor):
+        column = table.cellAt(cursor).column()
+        table.removeColumns(column, 1)
+
+    @staticmethod
+    def table_delete_row(table, cursor):
+        row = table.cellAt(cursor).row()
+        table.removeRows(row, 1)
+
+    @staticmethod
+    def add_list(cursor):
+        # create parameters
+        list_format = QtGui.QTextListFormat()
+
+        # set and insert
+        list_format.setIndent(4)
+        list_format.setStyle(QtGui.QTextListFormat.ListDecimal)
+        cursor.insertList(list_format)
+
+    @staticmethod
+    def add_image(cursor):
+        mime_data = QtWidgets.QApplication.clipboard().mimeData()
+        if mime_data.hasImage():
+            image = QtGui.QImage(mime_data.imageData())
+            cursor.insertImage(image)
 
     def keyPressEvent(self, event) -> None:
         # insert key text into text field.
         current_key = event.key()
+        current_cursor = self.textCursor()
+        document = self.document()
 
         # restore text before editing and return.
         if current_key == QtCore.Qt.Key_Escape:
-            self.setPlainText(self.text_before_editing)
+            self.setHtml(self.text_before_editing)
             self.clearFocus()
             super(InputTextField, self).keyPressEvent(event)
             return
+
+        # todo: rewrite Tab
+        # if event.modifiers() & QtCore.Qt.TabFocusTextControls:
+        #     print("tab")
+        #     current_cursor.insertText("    ")
 
         # once press enter or return, it will not wrap around
         if self.single_line:
             if current_key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
                 if self.toPlainText() == "":
-                    self.setPlainText(self.text_before_editing)
+                    self.setHtml(self.text_before_editing)
                     event.ignore()
                     self.edit_finished.emit(False)
                     self.clearFocus()
@@ -50,6 +265,28 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 super(InputTextField, self).keyPressEvent(event)
         else:
             super(InputTextField, self).keyPressEvent(event)
+
+        # table operation
+        current_table = current_cursor.currentTable()
+        if current_key == QtCore.Qt.Key_1 and event.modifiers() & QtCore.Qt.ControlModifier:
+            self.add_table(current_cursor)
+        if current_key == QtCore.Qt.Key_T and event.modifiers() & QtCore.Qt.ControlModifier and current_table:
+            self.table_insert_column(current_table, current_cursor)
+        if current_key == QtCore.Qt.Key_R and event.modifiers() & QtCore.Qt.ControlModifier and current_table:
+            self.table_insert_row(current_table, current_cursor)
+        if current_key == QtCore.Qt.Key_D and event.modifiers() & QtCore.Qt.ControlModifier and current_table:
+            self.table_delete_column(current_table, current_cursor)
+        if current_key == QtCore.Qt.Key_F and event.modifiers() & QtCore.Qt.ControlModifier and current_table:
+            self.table_delete_row(current_table, current_cursor)
+
+        # list operation
+        current_list = current_cursor.currentList()
+        if current_key == QtCore.Qt.Key_2 and event.modifiers() & QtCore.Qt.ControlModifier:
+            self.add_list(current_cursor)
+
+        # image operation
+        if current_key == QtCore.Qt.Key_3 and event.modifiers() & QtCore.Qt.ControlModifier:
+            self.add_image(current_cursor)
 
     def mousePressEvent(self, event) -> None:
         # change focus into node
@@ -77,7 +314,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
     def focusInEvent(self, event) -> None:
         self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
         self.setObjectName("MouseLocked")
-        self.text_before_editing = self.toPlainText()
+        self.text_before_editing = self.toHtml()
         self.mouseMoveEvent = self.origMoveEvent
         super(InputTextField, self).focusInEvent(event)
 
@@ -89,7 +326,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         super(InputTextField, self).focusOutEvent(event)
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.setObjectName("Nothing")
-        if self.toPlainText() == "":
+        if self.toHtml() == "":
             self.setPlainText(self.text_before_editing)
             self.edit_finished.emit(False)
         else:
@@ -321,6 +558,13 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.self_true_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.self_false_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.sub_attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        #   sapcing
+        self.layout.setSpacing(0)
+        self.title_layout.setSpacing(0)
+        self.self_attribute_layout.setSpacing(0)
+        self.self_true_attribute_layout.setSpacing(0)
+        self.self_false_attribute_layout.setSpacing(0)
+        self.sub_attribute_layout.setSpacing(0)
         #   margin
         self.title_layout.setContentsMargins(0, 0, 0, 0)
         self.self_attribute_layout.setContentsMargins(0, 0, 0, 0)
@@ -331,7 +575,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         #   layout widget
         self.title_widget = QtWidgets.QGraphicsWidget()
         self.self_attribute_widget = QtWidgets.QGraphicsWidget()
-        self.self_attribute_widget.setMinimumWidth(250)
+        self.self_attribute_widget.setMinimumWidth(260)
         self.sub_attribute_widget = QtWidgets.QGraphicsWidget()
         #   title name widget
         self.title_name_widget = SubConstituteWidget(self)
@@ -339,6 +583,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.title_setting_pic = QtGui.QPixmap("Resources/attribute_setting_img.png")
         self.title_setting_widget = QtWidgets.QGraphicsWidget()
         self.title_setting_widget.setMaximumSize(20.0, 20.0)
+        self.title_setting_widget.setMinimumSize(20.0, 20.0)
         palette = self.title_setting_widget.palette()
         palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(self.title_setting_pic))
         self.title_setting_widget.setAutoFillBackground(True)
@@ -411,7 +656,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
         # draw title
         label_rect = QtCore.QRectF(rect.left(), rect.top(), self.size().width(),
-                                   self.title_widget.size().height())
+                                   self.title_name_widget.sizeHint().height())
         path = QtGui.QPainterPath()
         path.addRoundedRect(label_rect, radius, radius)
         painter.setBrush(QtGui.QColor(179, 217, 255, 200))
@@ -437,16 +682,28 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
     def text_change_node_shape(self):
         #  when text added
-        # self.prepareGeometryChange()
-        # self.layout.invalidate()
-        # self.updateGeometry()
-        # self.update()
-        # self.sub_constitute_widget.updateGeometry()
-        # self.sub_constitute_widget.update()
-        # self.status_time.updateGeometry()
-        # self.status_time.update()
+        self.prepareGeometryChange()
+        self.layout.invalidate()
+        self.layout.activate()
+        self.updateGeometry()
+        self.update()
+        self.title_widget.updateGeometry()
+        self.title_layout.invalidate()
+        self.title_layout.activate()
+        self.title_widget.update()
+        self.self_attribute_widget.updateGeometry()
+        self.self_attribute_widget.update()
+        self.self_attribute_layout.activate()
+        self.sub_attribute_widget.updateGeometry()
+        self.sub_attribute_layout.activate()
+        self.sub_attribute_widget.update()
+        self.title_name_widget.updateGeometry()
+        self.title_name_widget.update()
         # when text deleted
-        self.adjustSize()
+        if constants.DEBUG_TEXT_CHANGED:
+            print("title name widget width:", self.title_name_widget.size().width(),
+                  "title  width", self.title_widget.size().width(),
+                  "true attribute text width", self.self_true_attribute_widget.size().width())
 
     def mouse_update_node_size(self, event):
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress and not self.parentItem():
