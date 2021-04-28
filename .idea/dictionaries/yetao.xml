@@ -21,11 +21,13 @@
       <w>bnot</w>
       <w>bpass</w>
       <w>breturn</w>
+      <w>bself</w>
       <w>bwhile</w>
       <w>bwith</w>
       <w>byield</w>
       <w>chidren</w>
       <w>classmethod</w>
+      <w>codeblock</w>
       <w>colorpicker</w>
       <w>consolas</w>
       <w>defalut</w>
@@ -43,6 +45,7 @@
       <w>locationwidget</w>
       <w>lucida</w>
       <w>opactiy</w>
+      <w>openlink</w>
       <w>postion</w>
       <w>proxywidget</w>
       <w>pyqt</w>
@@ -61,8 +64,10 @@
       <w>renamable</w>
       <w>sapcing</w>
       <w>sspos</w>
+      <w>staticmet</w>
       <w>subattribute</w>
       <w>subcontrol</w>
+      <w>syntaxhightlighter</w>
       <w>tanslate</w>
       <w>textedit</w>
       <w>todolist</w>
