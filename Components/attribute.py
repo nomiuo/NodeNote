@@ -147,8 +147,67 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         codeblock_format.setBackground(QtGui.QBrush(QtGui.QColor(229, 255, 255)))
         cursor.insertFrame(codeblock_format)
 
+    def indent(self):
+        cursor = self.textCursor()
+        if cursor.hasSelection():
+            temp = cursor.blockNumber()
+            cursor.setPosition(cursor.anchor())
+            diff = cursor.blockNumber() - temp
+            direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
+            for _ in range(abs(diff) + 1):
+                cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                cursor.insertText("    ")
+                cursor.movePosition(direction)
+        else:
+            cursor.insertText("    ")
+
+    def dedent(self):
+        cursor = self.textCursor()
+        if cursor.hasSelection():
+            temp = cursor.blockNumber()
+            cursor.setPosition(cursor.anchor())
+            diff = cursor.blockNumber() - temp
+            direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
+            for _ in range(abs(diff) + 1):
+                cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                line = cursor.block().text()
+                if line.startswith("    "):
+                    for _ in range(4):
+                        cursor.deleteChar()
+                else:
+                    for char in line[:4]:
+                        if char != " ":
+                            break
+                        cursor.deleteChar()
+                cursor.movePosition(direction)
+        else:
+            cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+            line = cursor.block().text()
+            if line.startswith("    "):
+                for _ in range(4):
+                    cursor.deleteChar()
+            else:
+                for char in line[:4]:
+                    if char != " ":
+                        break
+                    cursor.deleteChar()
+
+    def align_left(self):
+        cursor = self.textCursor()
+        if cursor.hasSelection():
+            temp = cursor.blockNumber()
+            cursor.setPosition(cursor.anchor())
+            diff = cursor.blockNumber() - temp
+            direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
+            for _ in range(abs(diff) + 1):
+                block_format = cursor.blockFormat()
+                block_format.setAlignment(QtCore.Qt.AlignRight)
+                cursor.setBlockFormat(block_format)
+                cursor.movePosition(direction)
+                self.setTextCursor(cursor)
+
     @staticmethod
-    def paste(document, cursor):
+    def paste(cursor):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
         if mime_data.hasImage():
             image = QtGui.QImage(mime_data.imageData())
@@ -164,9 +223,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             else:
                 return
         elif mime_data.hasText():
-            mime_data.setData("text/plain", QtCore.QByteArray())
             text = mime_data.text()
             cursor.insertText(text)
+            if constants.DEBUG_RICHTEXT:
+                print("PASTE: ", text)
 
     def keyPressEvent(self, event) -> None:
         # insert key text into text field.
@@ -178,9 +238,12 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             self.clearFocus()
             super(InputTextField, self).keyPressEvent(event)
             return
+        elif current_key == QtCore.Qt.Key_BracketLeft and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("ALIGN LEFT")
+            self.align_left()
 
         # todo: anchor and open link
-        # todo: tab selected text
         # todo: delete "\n" before list
         # todo: delete codeblock
         # once press enter or return, it will not wrap around
@@ -227,11 +290,19 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
     def sceneEvent(self, event: QtCore.QEvent) -> bool:
         if event.type() == QtCore.QEvent.KeyPress:
             if event.matches(QtGui.QKeySequence.Paste):
-                self.paste(self.document(), self.textCursor())
+                self.paste(self.textCursor())
                 return False
             elif event.key() == QtCore.Qt.Key_Tab:
-                self.textCursor().insertText("    ")
-                return False
+                if event.modifiers() == QtCore.Qt.ControlModifier:
+                    if constants.DEBUG_RICHTEXT:
+                        print("CTRL + TAB")
+                    self.dedent()
+                    return False
+                else:
+                    if constants.DEBUG_RICHTEXT:
+                        print("TAB")
+                    self.indent()
+                    return False
             else:
                 super(InputTextField, self).sceneEvent(event)
                 return False
@@ -275,9 +346,15 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
 
     def focusOutEvent(self, event) -> None:
         # clear selection
+        cursor = self.textCursor()
         super(InputTextField, self).focusOutEvent(event)
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.setObjectName("Nothing")
+        if cursor.hasSelection():
+            if constants.DEBUG_RICHTEXT:
+                print("DELETE SELECTION")
+            cursor.clearSelection()
+            self.setTextCursor(cursor)
         if self.toHtml() == "":
             self.setHtml(self.text_before_editing)
             self.edit_finished.emit(False)
@@ -503,60 +580,20 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.input_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.output_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
-        self.attribute_settings_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         #   sapcing
         self.layout.setSpacing(0)
         self.input_layout.setSpacing(0)
         self.output_layout.setSpacing(0)
         self.attribute_layout.setSpacing(0)
-        self.attribute_settings_layout.setSpacing(0)
         #   margin
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.input_layout.setContentsMargins(0, 0, 0, 0)
         self.output_layout.setContentsMargins(0, 0, 0, 0)
         self.attribute_layout.setContentsMargins(0, 0, 0, 0)
-        self.attribute_settings_layout.setContentsMargins(0, 0, 0, 0)
 
         # WIDGETS
         #   title name widget
         self.attribute_widget = SubConstituteWidget(self)
-        #   title setting widget
-        #       align
-        self.align_left = QtGui.QPixmap("Resources/TextSettings/left.png")
-        self.align_left_widget = QtWidgets.QGraphicsWidget()
-        self.align_left_widget.setMaximumSize(20.0, 20.0)
-        self.align_left_widget.setMinimumSize(20.0, 20.0)
-        palette = self.align_left_widget.palette()
-        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(self.align_left))
-        self.align_left_widget.setAutoFillBackground(True)
-        self.align_left_widget.setPalette(palette)
-
-        self.align_center = QtGui.QPixmap("Resources/TextSettings/center.png")
-        self.align_center_widget = QtWidgets.QGraphicsWidget()
-        self.align_center_widget.setMaximumSize(20.0, 20.0)
-        self.align_center_widget.setMinimumSize(20.0, 20.0)
-        palette = self.align_center_widget.palette()
-        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(self.align_center))
-        self.align_center_widget.setAutoFillBackground(True)
-        self.align_center_widget.setPalette(palette)
-
-        self.align_right = QtGui.QPixmap("Resources/TextSettings/right.png")
-        self.align_right_widget = QtWidgets.QGraphicsWidget()
-        self.align_right_widget.setMaximumSize(20.0, 20.0)
-        self.align_right_widget.setMinimumSize(20.0, 20.0)
-        palette = self.align_right_widget.palette()
-        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(self.align_right))
-        self.align_right_widget.setAutoFillBackground(True)
-        self.align_right_widget.setPalette(palette)
-        #       setting
-        self.attribute_setting_pic = QtGui.QPixmap("Resources/TextSettings/attribute_setting_img.png")
-        self.attribute_setting_widget = QtWidgets.QGraphicsWidget()
-        self.attribute_setting_widget.setMaximumSize(20.0, 20.0)
-        self.attribute_setting_widget.setMinimumSize(20.0, 20.0)
-        palette = self.attribute_setting_widget.palette()
-        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(self.attribute_setting_pic))
-        self.attribute_setting_widget.setAutoFillBackground(True)
-        self.attribute_setting_widget.setPalette(palette)
         #   port widgets
         self.true_input_port = port.Port(constants.INPUT_NODE_TYPE, self)
         self.true_output_port = port.Port(constants.OUTPUT_NODE_TYPE, self)
@@ -583,14 +620,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.input_layout.addStretch(1)
         self.input_layout.addItem(self.false_input_port)
         # attribute layout
-        self.attribute_layout.addItem(self.attribute_settings_layout)
         self.attribute_layout.addItem(self.attribute_widget)
-        self.attribute_layout.setAlignment(self.attribute_settings_layout, QtCore.Qt.AlignCenter)
         self.attribute_layout.setAlignment(self.attribute_widget, QtCore.Qt.AlignCenter)
-        self.attribute_settings_layout.addItem(self.align_left_widget)
-        self.attribute_settings_layout.addItem(self.align_center_widget)
-        self.attribute_settings_layout.addItem(self.align_right_widget)
-        self.attribute_settings_layout.addItem(self.attribute_setting_widget)
         # output layout
         self.output_layout.addItem(self.true_output_port)
         self.output_layout.addStretch(1)
@@ -684,30 +715,6 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
     def mousePressEvent(self, event) -> None:
         if int(event.modifiers()) & QtCore.Qt.ShiftModifier:
             self.mouse_update_node_size(event)
-        elif self.scene().itemAt(self.mapToScene(event.pos()), QtGui.QTransform()) is self.align_left_widget:
-            cursor = self.attribute_widget.label_item.textCursor()
-            frame = self.attribute_widget.label_item.document().rootFrame()
-            if cursor.hasSelection():
-                format = QtGui.QTextBlockFormat()
-                format.setAlignment(QtCore.Qt.AlignLeft)
-                start_pos = cursor.selectionStart()
-                end_pos = cursor.selectionEnd()
-                print(start_pos, end_pos)
-                it = frame.begin()
-                while it != frame.end():
-                    child_frame = it.currentFrame()
-                    child_block = it.currentBlock()
-                    print(child_block, child_block)
-                    it += 1
-
-                cursor.select(QtGui.QTextCursor.BlockUnderCursor)
-                cursor.mergeBlockFormat(format)
-                cursor.clearSelection()
-                self.attribute_widget.label_item.setTextCursor(cursor)
-        elif self.scene().itemAt(self.mapToScene(event.pos()), QtGui.QTransform()) is self.align_center_widget:
-            print("hello")
-        elif self.scene().itemAt(self.mapToScene(event.pos()), QtGui.QTransform()) is self.align_right_widget:
-            print("hello")
         else:
             super(AttributeWidget, self).mousePressEvent(event)
 
