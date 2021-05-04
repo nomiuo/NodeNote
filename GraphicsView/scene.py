@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 
 
 __all__ = ["Scene"]
@@ -8,10 +8,7 @@ class Scene(QtWidgets.QGraphicsScene):
     def __init__(self, view, parent=None):
         super(Scene, self).__init__(parent)
         self.view = view
-        self.width = 64000
-        self.height = 64000
-        self.setSceneRect(-self.width // 2, -self.height // 2, self.width, self.height)
-        self.setBackgroundBrush(QtGui.QBrush(QtGui.QPixmap("Resources/Background/scene_background.jpg")))
+        self.setSceneRect(self.itemsBoundingRect())
 
         self.tuple_node_widget = list()
         self.pipe_widget = list()

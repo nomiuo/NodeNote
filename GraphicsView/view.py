@@ -1,6 +1,6 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 from GraphicsView.scene import Scene
-from Components import effect_water, attribute, port, pipe
+from Components import effect_water, attribute, port, pipe, effect_background
 from Model import constants
 
 
@@ -15,10 +15,12 @@ class View(QtWidgets.QGraphicsView):
         self.setViewportUpdateMode(QtWidgets.QGraphicsView.FullViewportUpdate)
         self.setRenderHints(QtGui.QPainter.Antialiasing | QtGui.QPainter.HighQualityAntialiasing |
                             QtGui.QPainter.TextAntialiasing | QtGui.QPainter.SmoothPixmapTransform)
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
         self.scene = Scene(self)
+        self.background_image = effect_background.EffectBackground(self)
+        self.background_image.resize(self.size().width(), self.size().height())
+        self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())
+        self.scene.addItem(self.background_image)
         self.setScene(self.scene)
 
         # SCALE FUNCTION
@@ -28,6 +30,78 @@ class View(QtWidgets.QGraphicsView):
         self.zoomStep = 1
         self.zoomRange = [0, 10]
         self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+
+        # SCROLLBAR
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.horizontal_scrollbar = QtWidgets.QScrollBar()
+        self.horizontal_scrollbar.setStyleSheet('''
+                QScrollBar:horizontal {
+                    border: 2px solid grey;
+                    background: #32CC99;
+                    height: 8px;
+                    margin: 0px 20px 0 20px;
+                }
+                QScrollBar::handle:horizontal {
+                    background: rgba(204, 255, 255, 200);
+                    min-width: 20px;
+                }
+                QScrollBar::add-line:horizontal {
+                    border: 2px solid grey;
+                    background: #32CC99;
+                    width: 20px;
+                    subcontrol-position: right;
+                    subcontrol-origin: margin;
+                }
+                
+                QScrollBar::sub-line:horizontal {
+                    border: 2px solid grey;
+                    background: #32CC99;
+                    width: 20px;
+                    subcontrol-position: left;
+                    subcontrol-origin: margin;
+                }
+    ''')
+        self.setHorizontalScrollBar(self.horizontal_scrollbar)
+        self.vertical_scrollbar = QtWidgets.QScrollBar()
+        self.vertical_scrollbar.setStyleSheet('''
+             QScrollBar:vertical {
+                 border: 2px solid grey;
+                 background: #32CC99;
+                 width: 8px;
+                 margin: 22px 0 22px 0;
+             }
+             QScrollBar::handle:vertical {
+                 background: rgba(204, 255, 255, 200);
+                 min-height: 20px;
+             }
+             QScrollBar::add-line:vertical {
+                 border: 2px solid grey;
+                 background: #32CC99;
+                 height: 20px;
+                 subcontrol-position: bottom;
+                 subcontrol-origin: margin;
+             }
+            
+             QScrollBar::sub-line:vertical {
+                 border: 2px solid grey;
+                 background: #32CC99;
+                 height: 20px;
+                 subcontrol-position: top;
+                 subcontrol-origin: margin;
+             }
+             QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+                 border: 2px solid grey;
+                 width: 3px;
+                 height: 3px;
+                 background: white;
+             }
+            
+             QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                 background: none;
+             }
+            ''')
+        self.setVerticalScrollBar(self.vertical_scrollbar)
 
         # DRAW LINE
         self.mode = constants.MODE_NOOP
@@ -62,6 +136,11 @@ class View(QtWidgets.QGraphicsView):
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.scene.add_tuple_node_widget(basic_widget)
 
+    def change_svg_image(self, event):
+        image_name, image_type = QtWidgets.QFileDialog.getOpenFileName(self, "select svg", "", "*.svg")
+        if image_name != "":
+            self.background_image.change_svg(image_name)
+
     def contextMenuEvent(self, event) -> None:
         super(View, self).contextMenuEvent(event)
         if not event.isAccepted():
@@ -69,10 +148,14 @@ class View(QtWidgets.QGraphicsView):
             # context list
             create_truth_widget = context_menu.addAction("Create Attribute Widget")
             create_truth_widget.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Attribute Widget.png"))
+            change_background_image = context_menu.addAction("Change Background Image")
+            change_background_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change Background Image.png"))
 
             action = context_menu.exec_(self.mapToGlobal(event.pos()))
             if action == create_truth_widget:
                 self.add_basic_widget(event)
+            elif action == change_background_image:
+                self.change_svg_image(event)
 
     def mousePressEvent(self, event) -> None:
         if event.button() == QtCore.Qt.LeftButton:
@@ -101,3 +184,8 @@ class View(QtWidgets.QGraphicsView):
             self.change_scale(event)
         else:
             super(View, self).keyPressEvent(event)
+
+    def drawBackground(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None:
+        self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())
+        self.background_image.resize(self.size().width(), self.size().height())
+        self.scene.setSceneRect(self.scene.itemsBoundingRect())

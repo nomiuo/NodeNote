@@ -192,18 +192,142 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                         break
                     cursor.deleteChar()
 
-    def align_left(self):
+    def get_text_maxlength(self):
+        document = self.document()
+        root = document.rootFrame()
+        it = root.begin()
+        maxlength = 0
+        while it != root.end():
+            child_block = it.currentBlock()
+            maxlength = child_block.length() if child_block.length() > maxlength else maxlength
+            it += 1
+        return maxlength
+
+    def align(self, align):
         cursor = self.textCursor()
-        if cursor.hasSelection():
-            temp = cursor.blockNumber()
-            cursor.setPosition(cursor.anchor())
-            diff = cursor.blockNumber() - temp
-            direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
-            for _ in range(abs(diff) + 1):
-                block_format = cursor.blockFormat()
-                block_format.setAlignment(QtCore.Qt.AlignRight)
-                cursor.setBlockFormat(block_format)
-                cursor.movePosition(direction)
+        max_length = self.get_text_maxlength()
+        if align == "Center":
+            self.align("Clean")
+            if cursor.hasSelection():
+                temp = cursor.blockNumber()
+                cursor.setPosition(cursor.anchor())
+                diff = cursor.blockNumber() - temp
+                direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
+                for _ in range(abs(diff) + 1):
+                    line_length = len(cursor.block().text().strip())
+                    blank_number = (max_length - line_length) // 2
+                    print(max_length, line_length)
+                    cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                    cursor.insertText(" " * blank_number)
+                    cursor.movePosition(QtGui.QTextCursor.EndOfLine)
+                    cursor.insertText(" " * blank_number)
+                    cursor.movePosition(direction)
+                    self.setTextCursor(cursor)
+            else:
+                line_length = len(cursor.block().text().strip())
+                blank_number = (max_length - line_length) // 2
+                print(max_length, line_length)
+                cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                cursor.insertText(" " * blank_number)
+                cursor.movePosition(QtGui.QTextCursor.EndOfLine)
+                cursor.insertText(" " * blank_number)
+                self.setTextCursor(cursor)
+        elif align == "Left":
+            self.align("Clean")
+            if cursor.hasSelection():
+                temp = cursor.blockNumber()
+                cursor.setPosition(cursor.anchor())
+                diff = cursor.blockNumber() - temp
+                direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
+                for _ in range(abs(diff) + 1):
+                    cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                    line = cursor.block().text()
+                    for char in line[:]:
+                        if char != " ":
+                            break
+                        cursor.deleteChar()
+                    cursor.movePosition(direction)
+                    self.setTextCursor(cursor)
+            else:
+                cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                line = cursor.block().text()
+                for char in line:
+                    if char != " ":
+                        break
+                    cursor.deleteChar()
+                self.setTextCursor(cursor)
+        elif align == "Right":
+            self.align("Clean")
+            if cursor.hasSelection():
+                temp = cursor.blockNumber()
+                cursor.setPosition(cursor.anchor())
+                diff = cursor.blockNumber() - temp
+                direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
+                for _ in range(abs(diff) + 1):
+                    line_length = len(cursor.block().text())
+                    blank_number = max_length - line_length - 1
+                    cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                    for _ in range(blank_number):
+                        cursor.insertText(" ")
+                    cursor.movePosition(direction)
+                    self.setTextCursor(cursor)
+            else:
+                line_length = len(cursor.block().text())
+                blank_number = max_length - line_length - 1
+                cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                for _ in range(blank_number):
+                    cursor.insertText(" ")
+                self.setTextCursor(cursor)
+        elif align == "Clean":
+            if cursor.hasSelection():
+                temp = cursor.blockNumber()
+                cursor.setPosition(cursor.anchor())
+                diff = cursor.blockNumber() - temp
+                direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
+                for _ in range(abs(diff) + 1):
+                    cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                    line = cursor.block().text()
+                    for char in line:
+                        if char != " ":
+                            break
+                        cursor.deleteChar()
+                        if constants.DEBUG_RICHTEXT:
+                            print("line: ", cursor.block().text(), len(cursor.block().text()))
+                    index = len(line.strip())
+                    if constants.DEBUG_RICHTEXT:
+                        print("Before move: ", cursor.position(), index)
+                    cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.MoveAnchor, index)
+                    if constants.DEBUG_RICHTEXT:
+                        print("After move: ", cursor.position(), index, line.lstrip()[index:])
+                    for char in line.lstrip()[index:]:
+                        if char != " ":
+                            break
+                        cursor.deleteChar()
+                        if constants.DEBUG_RICHTEXT:
+                            print("line: ", cursor.block().text(), len(cursor.block().text()))
+                    cursor.movePosition(direction)
+                    self.setTextCursor(cursor)
+            else:
+                cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                line = cursor.block().text()
+                for char in line:
+                    if char != " ":
+                        break
+                    cursor.deleteChar()
+                    if constants.DEBUG_RICHTEXT:
+                        print("line: ", cursor.block().text(), len(cursor.block().text()))
+                index = len(line.strip())
+                if constants.DEBUG_RICHTEXT:
+                    print("Before move: ", cursor.position(), index)
+                cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.MoveAnchor, index)
+                if constants.DEBUG_RICHTEXT:
+                    print("After move: ", cursor.position(), index, line.lstrip()[index:])
+                for char in line.lstrip()[index:]:
+                    if char != " ":
+                        break
+                    cursor.deleteChar()
+                    if constants.DEBUG_RICHTEXT:
+                        print("line: ", cursor.block().text(), len(cursor.block().text()))
                 self.setTextCursor(cursor)
 
     @staticmethod
@@ -241,7 +365,19 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         elif current_key == QtCore.Qt.Key_BracketLeft and event.modifiers() & QtCore.Qt.ControlModifier:
             if constants.DEBUG_RICHTEXT:
                 print("ALIGN LEFT")
-            self.align_left()
+            self.align("Left")
+        elif current_key == QtCore.Qt.Key_BracketRight and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("ALIGN RIGHT")
+            self.align("Right")
+        elif current_key == QtCore.Qt.Key_Backslash and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("ALIGN CENTER")
+            self.align("Center")
+        elif current_key == QtCore.Qt.Key_P and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("ALIGN Clean")
+            self.align("Clean")
 
         # todo: anchor and open link
         # todo: delete "\n" before list
@@ -378,8 +514,8 @@ class SubConstituteWidget(QtWidgets.QGraphicsWidget):
         self.label_item.setAcceptHoverEvents(True)
         self.label_item.document().contentsChanged.connect(self.parentItem().text_change_node_shape)
         self.label_item.hoverMoveEvent = self.hoverMoveEvent
-        self.label_font = QtGui.QFont("Lucida MAC")
-        self.label_font.setPointSize(8)
+        self.label_font = QtGui.QFont("Inconsolata Black")
+        self.label_font.setPointSize(10)
         self.label_item.setFont(self.label_font)
 
         self.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
