@@ -1,11 +1,53 @@
+import re
+import os
+
 from PyQt5 import QtCore, QtWidgets, QtGui
 from Model import constants, stylesheet
 from Components import port
 
-import os
-
 __all__ = ["SubConstituteWidget", "InputTextField",
            "LogicWidget", "TruthWidget", "AttributeWidget"]
+
+
+class SizeDialog(QtWidgets.QDialog):
+    def __init__(self, parent=None):
+        super(SizeDialog, self).__init__(parent)
+        self.resize(100, 80)
+        self.setWindowTitle("Set Image Width and Height")
+        self.setWindowIcon(QtGui.QIcon("Resources/Dialog_icon/Plane.png"))
+
+        self.num_width = QtWidgets.QLineEdit(parent=self)
+        self.num_width.setValidator(QtGui.QDoubleValidator())
+        self.num_height = QtWidgets.QLineEdit(parent=self)
+        self.num_height.setValidator(QtGui.QDoubleValidator())
+        grid = QtWidgets.QGridLayout()
+        grid.addWidget(QtWidgets.QLabel("Width: ", parent=self), 0, 0, 1, 1)
+        grid.addWidget(QtWidgets.QLabel("Height: ", parent=self), 1, 0, 1, 1)
+        grid.addWidget(self.num_width, 0, 1, 1, 1)
+        grid.addWidget(self.num_height, 1, 1, 1, 1)
+
+        button_box = QtWidgets.QDialogButtonBox(parent=self)
+        button_box.setOrientation(QtCore.Qt.Horizontal)
+        button_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel |
+                                      QtWidgets.QDialogButtonBox.Ok)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addLayout(grid)
+        spacerItem = QtWidgets.QSpacerItem(20, 48, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        layout.addItem(spacerItem)
+        layout.addWidget(button_box)
+        self.setLayout(layout)
+
+    def closeEvent(self, event):
+        reply = QtWidgets.QMessageBox.question(self, 'Close Message',
+                                               "Are you sure to quit?", QtWidgets.QMessageBox.Yes |
+                                               QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+        if reply == QtWidgets.QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 class PythonHighlighter(QtGui.QSyntaxHighlighter):
@@ -91,6 +133,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         self.mouseMoveEvent = self.node.mouseMoveEvent
         # DOCUMNET SETTINGS
         self.document().setIndentWidth(4)
+        self.document().setDefaultFont(QtGui.QFont("Inconsolata", 8))
 
     @staticmethod
     def add_table(cursor):
@@ -379,11 +422,23 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 text_format.setFontStrikeOut(True)
             cursor.mergeCharFormat(text_format)
         elif font_type == "Up":
-            point_size = cursor.charFormat().fontPointSize() + 5
+            if constants.DEBUG_RICHTEXT:
+                print("Font size: ", cursor.charFormat().fontPointSize())
+            if cursor.charFormat().fontPointSize() == 0:
+                font_point_size = 8
+            else:
+                font_point_size = cursor.charFormat().fontPointSize()
+            point_size = font_point_size + 2
             text_format.setFontPointSize(point_size)
             cursor.mergeCharFormat(text_format)
         elif font_type == "Down":
-            point_size = cursor.charFormat().fontPointSize() - 5 if cursor.charFormat().fontPointSize() - 5 > 0 else 5
+            if constants.DEBUG_RICHTEXT:
+                print("Font size: ", cursor.charFormat().fontPointSize())
+            if cursor.charFormat().fontPointSize() == 0:
+                font_point_size = 8
+            else:
+                font_point_size = cursor.charFormat().fontPointSize()
+            point_size = font_point_size - 2 if font_point_size - 2 > 0 else 2
             text_format.setFontPointSize(point_size)
             cursor.mergeCharFormat(text_format)
         elif font_type == "Color":
@@ -392,20 +447,30 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if color:
                 text_format.setForeground(color)
             cursor.mergeCharFormat(text_format)
+        elif font_type == "Clear":
+            cursor.setCharFormat(text_format)
 
-    def image_format(self, image_type):
+    def image_format(self):
         cursor = self.textCursor()
-        text = cursor.selection().toPlainText()
-        if constants.DEBUG_RICHTEXT:
-            print("Html image: ", cursor.selection())
-        if text:
-            if constants.DEBUG_RICHTEXT:
-                print("Html image: ", text)
-        else:
-            print("Html image is None")
+        image_width = self.get_text_maxlength()
+        image_height = 50
         if cursor.hasSelection():
-            if cursor.selection().toHtml().find("img src=") != -1:
-                pass
+            size_dialog = SizeDialog()
+            text = cursor.selection().toHtml(bytes())
+            if text.find(r'<img src=') != -1:
+                cursor.removeSelectedText()
+                if size_dialog.exec_():
+                    image_width = size_dialog.num_width.text() if size_dialog.num_width.text() else image_width
+                    image_height = size_dialog.num_height.text() if size_dialog.num_height.text() else image_height
+                if constants.DEBUG_RICHTEXT:
+                    print("image size: ", image_width, image_height)
+                pattern = re.compile(r'<img src="(.+?)".+?/>')
+                text = pattern.sub(r'<img src="\1" width="%s" height="%s" />' % (image_width, image_height), text)
+                print("*****************text***********************\n", text, "\n**************************************")
+                cursor.insertHtml(text)
+            else:
+                cursor.clearSelection()
+                self.setTextCursor(cursor)
 
     @staticmethod
     def paste(cursor):
@@ -484,6 +549,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Color")
+        elif current_key == QtCore.Qt.Key_L and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Clear")
 
         # todo: anchor and open link
         # todo: delete "\n" before list
@@ -530,10 +599,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             self.add_codeblock(current_cursor)
 
         # image
-        if current_key == QtCore.Qt.Key_K and event.modifiers() & QtCore.Qt.ControlModifier:
+        if current_key == QtCore.Qt.Key_U and event.modifiers() & QtCore.Qt.ControlModifier:
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Image")
-            self.image_format("Up")
+            self.image_format()
 
     def sceneEvent(self, event: QtCore.QEvent) -> bool:
         if event.type() == QtCore.QEvent.KeyPress:
@@ -629,10 +698,6 @@ class SubConstituteWidget(QtWidgets.QGraphicsWidget):
         self.label_item.setAcceptHoverEvents(True)
         self.label_item.document().contentsChanged.connect(self.parentItem().text_change_node_shape)
         self.label_item.hoverMoveEvent = self.hoverMoveEvent
-        self.label_font = QtGui.QFont("Inconsolata")
-        self.label_font.setPointSize(10)
-        self.label_item.setFont(self.label_font)
-
         self.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.layout.setContentsMargins(0, 0, 0, 0)
