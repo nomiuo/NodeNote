@@ -17,6 +17,7 @@
       <w>bglobal</w>
       <w>bimport</w>
       <w>blambda</w>
+      <w>blod</w>
       <w>bnonlocal</w>
       <w>bnot</w>
       <w>bpass</w>
@@ -31,8 +32,10 @@
       <w>colorpicker</w>
       <w>consolas</w>
       <w>defalut</w>
+      <w>deleteline</w>
       <w>dfff</w>
       <w>divmod</w>
+      <w>documnet</w>
       <w>editwidget</w>
       <w>egde</w>
       <w>ffcc</w>
@@ -42,6 +45,7 @@
       <w>learntime</w>
       <w>leftbtn</w>
       <w>lineedit</w>
+      <w>linelength</w>
       <w>locationwidget</w>
       <w>lucida</w>
       <w>opactiy</w>

@@ -4,7 +4,6 @@ from Components import port
 
 import os
 
-
 __all__ = ["SubConstituteWidget", "InputTextField",
            "LogicWidget", "TruthWidget", "AttributeWidget"]
 
@@ -90,7 +89,8 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         self.text_before_editing = ""
         self.origMoveEvent = self.mouseMoveEvent
         self.mouseMoveEvent = self.node.mouseMoveEvent
-        # DOCUMENT SETTINGS
+        # DOCUMNET SETTINGS
+        self.document().setIndentWidth(4)
 
     @staticmethod
     def add_table(cursor):
@@ -199,9 +199,27 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         maxlength = 0
         while it != root.end():
             child_block = it.currentBlock()
-            maxlength = child_block.length() if child_block.length() > maxlength else maxlength
+            line_length = 0
+            for char in child_block.text():
+                if '\u4e00' <= char <= '\u9fa5':
+                    line_length += 2
+                    if constants.DEBUG_RICHTEXT:
+                        print("Chinese: ", char)
+                else:
+                    line_length += 1
+            maxlength = line_length if line_length > maxlength else maxlength
             it += 1
         return maxlength
+
+    @staticmethod
+    def get_line_length(line):
+        line_length = 0
+        for char in line:
+            if '\u4e00' <= char <= '\u9fa5':
+                line_length += 2
+            else:
+                line_length += 1
+        return line_length
 
     def align(self, align):
         cursor = self.textCursor()
@@ -214,9 +232,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 diff = cursor.blockNumber() - temp
                 direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
                 for _ in range(abs(diff) + 1):
-                    line_length = len(cursor.block().text().strip())
+                    line_length = self.get_line_length(cursor.block().text().strip())
                     blank_number = (max_length - line_length) // 2
-                    print(max_length, line_length)
+                    if constants.DEBUG_RICHTEXT:
+                        print("maxlength adn linelength", max_length, line_length)
                     cursor.movePosition(QtGui.QTextCursor.StartOfLine)
                     cursor.insertText(" " * blank_number)
                     cursor.movePosition(QtGui.QTextCursor.EndOfLine)
@@ -224,9 +243,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                     cursor.movePosition(direction)
                     self.setTextCursor(cursor)
             else:
-                line_length = len(cursor.block().text().strip())
+                line_length = self.get_line_length(cursor.block().text().strip())
                 blank_number = (max_length - line_length) // 2
-                print(max_length, line_length)
+                if constants.DEBUG_RICHTEXT:
+                    print("maxlength adn linelength", max_length, line_length)
                 cursor.movePosition(QtGui.QTextCursor.StartOfLine)
                 cursor.insertText(" " * blank_number)
                 cursor.movePosition(QtGui.QTextCursor.EndOfLine)
@@ -264,7 +284,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 diff = cursor.blockNumber() - temp
                 direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
                 for _ in range(abs(diff) + 1):
-                    line_length = len(cursor.block().text())
+                    line_length = self.get_line_length(cursor.block().text())
                     blank_number = max_length - line_length - 1
                     cursor.movePosition(QtGui.QTextCursor.StartOfLine)
                     for _ in range(blank_number):
@@ -272,7 +292,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                     cursor.movePosition(direction)
                     self.setTextCursor(cursor)
             else:
-                line_length = len(cursor.block().text())
+                line_length = self.get_line_length(cursor.block().text())
                 blank_number = max_length - line_length - 1
                 cursor.movePosition(QtGui.QTextCursor.StartOfLine)
                 for _ in range(blank_number):
@@ -330,6 +350,63 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                         print("line: ", cursor.block().text(), len(cursor.block().text()))
                 self.setTextCursor(cursor)
 
+    def font_format(self, font_type):
+        cursor = self.textCursor()
+        text_format = QtGui.QTextCharFormat()
+        if font_type == "Italic":
+            if cursor.charFormat().fontItalic():
+                text_format.setFontItalic(False)
+            else:
+                text_format.setFontItalic(True)
+            cursor.mergeCharFormat(text_format)
+        elif font_type == "Blod":
+            if cursor.charFormat().fontWeight() == 50:
+                text_format.setFontWeight(100)
+            else:
+                text_format.setFontWeight(50)
+            cursor.mergeCharFormat(text_format)
+        elif font_type == "Underline":
+            if cursor.charFormat().fontUnderline():
+                text_format.setFontUnderline(False)
+            else:
+                text_format.setFontUnderline(True)
+                text_format.setUnderlineColor(QtGui.QColor(133, 255, 255))
+            cursor.mergeCharFormat(text_format)
+        elif font_type == "Deleteline":
+            if cursor.charFormat().fontStrikeOut():
+                text_format.setFontStrikeOut(False)
+            else:
+                text_format.setFontStrikeOut(True)
+            cursor.mergeCharFormat(text_format)
+        elif font_type == "Up":
+            point_size = cursor.charFormat().fontPointSize() + 5
+            text_format.setFontPointSize(point_size)
+            cursor.mergeCharFormat(text_format)
+        elif font_type == "Down":
+            point_size = cursor.charFormat().fontPointSize() - 5 if cursor.charFormat().fontPointSize() - 5 > 0 else 5
+            text_format.setFontPointSize(point_size)
+            cursor.mergeCharFormat(text_format)
+        elif font_type == "Color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                text_format.setForeground(color)
+            cursor.mergeCharFormat(text_format)
+
+    def image_format(self, image_type):
+        cursor = self.textCursor()
+        text = cursor.selection().toPlainText()
+        if constants.DEBUG_RICHTEXT:
+            print("Html image: ", cursor.selection())
+        if text:
+            if constants.DEBUG_RICHTEXT:
+                print("Html image: ", text)
+        else:
+            print("Html image is None")
+        if cursor.hasSelection():
+            if cursor.selection().toHtml().find("img src=") != -1:
+                pass
+
     @staticmethod
     def paste(cursor):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
@@ -339,8 +416,9 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         elif mime_data.hasUrls():
             for u in mime_data.urls():
                 file_ext = os.path.splitext(str(u.toLocalFile()))[1].lower()
-                print(file_ext, u.isLocalFile())
-                if u.isLocalFile() and file_ext in ('.jpg', '.png', '.bmp', '.icon', '.jpeg'):
+                if constants.DEBUG_RICHTEXT:
+                    print(file_ext, u.isLocalFile())
+                if u.isLocalFile() and file_ext in ('.jpg', '.png', '.bmp', '.icon', '.jpeg', 'gif'):
                     cursor.insertImage(u.toLocalFile())
                 else:
                     break
@@ -378,6 +456,34 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if constants.DEBUG_RICHTEXT:
                 print("ALIGN Clean")
             self.align("Clean")
+        elif current_key == QtCore.Qt.Key_Q and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Italic")
+        elif current_key == QtCore.Qt.Key_W and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Blod")
+        elif current_key == QtCore.Qt.Key_R and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Underline")
+        elif current_key == QtCore.Qt.Key_F and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Deleteline")
+        elif current_key == QtCore.Qt.Key_G and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Up")
+        elif current_key == QtCore.Qt.Key_H and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Down")
+        elif current_key == QtCore.Qt.Key_N and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Color")
 
         # todo: anchor and open link
         # todo: delete "\n" before list
@@ -408,7 +514,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             self.table_insert_row(current_table, current_cursor)
         if current_key == QtCore.Qt.Key_D and event.modifiers() & QtCore.Qt.ControlModifier and current_table:
             self.table_delete_column(current_table, current_cursor)
-        if current_key == QtCore.Qt.Key_F and event.modifiers() & QtCore.Qt.ControlModifier and current_table:
+        if current_key == QtCore.Qt.Key_M and event.modifiers() & QtCore.Qt.ControlModifier and current_table:
             self.table_delete_row(current_table, current_cursor)
 
         # list operation
@@ -422,6 +528,12 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         # code
         if current_key == QtCore.Qt.Key_4 and event.modifiers() & QtCore.Qt.ControlModifier:
             self.add_codeblock(current_cursor)
+
+        # image
+        if current_key == QtCore.Qt.Key_K and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Image")
+            self.image_format("Up")
 
     def sceneEvent(self, event: QtCore.QEvent) -> bool:
         if event.type() == QtCore.QEvent.KeyPress:
@@ -495,6 +607,9 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             self.setHtml(self.text_before_editing)
             self.edit_finished.emit(False)
         else:
+            self.setHtml(self.toHtml())
+            if constants.DEBUG_RICHTEXT:
+                print("Html contents:\n", self.toHtml())
             self.edit_finished.emit(True)
         self.mouseMoveEvent = self.node.mouseMoveEvent
 
@@ -514,7 +629,7 @@ class SubConstituteWidget(QtWidgets.QGraphicsWidget):
         self.label_item.setAcceptHoverEvents(True)
         self.label_item.document().contentsChanged.connect(self.parentItem().text_change_node_shape)
         self.label_item.hoverMoveEvent = self.hoverMoveEvent
-        self.label_font = QtGui.QFont("Inconsolata Black")
+        self.label_font = QtGui.QFont("Inconsolata")
         self.label_font.setPointSize(10)
         self.label_item.setFont(self.label_font)
 
