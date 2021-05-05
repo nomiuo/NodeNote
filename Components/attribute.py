@@ -10,8 +10,9 @@ __all__ = ["SubConstituteWidget", "InputTextField",
 
 
 class SizeDialog(QtWidgets.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, edit, parent=None):
         super(SizeDialog, self).__init__(parent)
+        self.edit = edit
         self.resize(100, 80)
         self.setWindowTitle("Set Image Width and Height")
         self.setWindowIcon(QtGui.QIcon("Resources/Dialog_icon/Plane.png"))
@@ -116,7 +117,6 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             self.setCurrentBlockState(NONE)
 
 
-# todo: align wrong when font point size changed
 # todo: foucus wrong when font color changed
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
@@ -251,7 +251,8 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             it += 1
         return maxlength
 
-    def get_line_length(self, cursor):
+    @staticmethod
+    def get_line_length(cursor):
         if constants.DEBUG_RICHTEXT:
             print("cursor postion: ", cursor.position())
         line_type = list()
@@ -459,7 +460,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if color:
                 text_format.setForeground(color)
             cursor.mergeCharFormat(text_format)
-            cursor.clearSelection()
         elif font_type == "Clear":
             cursor.setCharFormat(text_format)
         cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
@@ -483,7 +483,8 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 pattern = re.compile(r'<img src="(.+?)".+?/>')
                 text = pattern.sub(r'<img src="\1" width="%s" height="%s" />' % (image_width, image_height), text)
                 if constants.DEBUG_RICHTEXT:
-                    print("*****************text***********************\n", text, "\n**************************************")
+                    print("*****************text***********************\n", text, "\n** \
+                                                                                  ************************************")
                 cursor.insertHtml(text)
             else:
                 cursor.clearSelection()
@@ -574,7 +575,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         # todo: anchor and open link
         # todo: delete "\n" before list
         # todo: delete codeblock
-        # once press enter or return, it will not wrap around
         if self.single_line:
             if current_key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
                 if self.toPlainText() == "":
@@ -684,19 +684,8 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         super(InputTextField, self).focusOutEvent(event)
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.setObjectName("Nothing")
-        if cursor.hasSelection():
-            if constants.DEBUG_RICHTEXT:
-                print("DELETE SELECTION")
-            cursor.clearSelection()
-            self.setTextCursor(cursor)
-        if self.toHtml() == "":
-            self.setHtml(self.text_before_editing)
-            self.edit_finished.emit(False)
-        else:
-            self.setHtml(self.toHtml())
-            if constants.DEBUG_RICHTEXT:
-                print("Html contents:\n", self.toHtml())
-            self.edit_finished.emit(True)
+        if constants.DEBUG_RICHTEXT:
+            print("Html contents:\n", self.toHtml())
         self.mouseMoveEvent = self.node.mouseMoveEvent
 
 
