@@ -116,6 +116,8 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             self.setCurrentBlockState(NONE)
 
 
+# todo: align wrong when font point size changed
+# todo: foucus wrong when font color changed
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
     start_editing = QtCore.pyqtSignal()
@@ -237,36 +239,46 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
 
     def get_text_maxlength(self):
         document = self.document()
+        cursor = self.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.Start)
         root = document.rootFrame()
         it = root.begin()
         maxlength = 0
         while it != root.end():
-            child_block = it.currentBlock()
-            line_length = 0
-            for char in child_block.text():
-                if '\u4e00' <= char <= '\u9fa5':
-                    line_length += 2
-                    if constants.DEBUG_RICHTEXT:
-                        print("Chinese: ", char)
-                else:
-                    line_length += 1
-            maxlength = line_length if line_length > maxlength else maxlength
+            line_length = self.get_line_length(cursor)
+            maxlength = maxlength if maxlength > line_length else line_length
+            cursor.movePosition(QtGui.QTextCursor.Down)
             it += 1
         return maxlength
 
-    @staticmethod
-    def get_line_length(line):
-        line_length = 0
-        for char in line:
+    def get_line_length(self, cursor):
+        if constants.DEBUG_RICHTEXT:
+            print("cursor postion: ", cursor.position())
+        line_type = list()
+        for char in cursor.block().text():
             if '\u4e00' <= char <= '\u9fa5':
-                line_length += 2
+                line_type.append(1)
+                if constants.DEBUG_RICHTEXT:
+                    print("Chinese: ", char)
             else:
-                line_length += 1
-        return line_length
+                line_type.append(0)
+
+        line_position = 0
+        line_point = 0
+        cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+        while not cursor.atBlockEnd():
+            point_size = cursor.charFormat().fontPointSize()
+            font_point_size = point_size if point_size != 0 else 8
+            if line_type[line_position]:
+                font_point_size = font_point_size * 2
+            line_point += font_point_size
+            line_position += 1
+            cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, 1)
+        return line_point
 
     def align(self, align):
-        cursor = self.textCursor()
         max_length = self.get_text_maxlength()
+        cursor = self.textCursor()
         if align == "Center":
             self.align("Clean")
             if cursor.hasSelection():
@@ -275,10 +287,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 diff = cursor.blockNumber() - temp
                 direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
                 for _ in range(abs(diff) + 1):
-                    line_length = self.get_line_length(cursor.block().text().strip())
-                    blank_number = (max_length - line_length) // 2
+                    line_length = self.get_line_length(cursor)
+                    blank_number = int(((max_length - line_length) // 2) // 8)
                     if constants.DEBUG_RICHTEXT:
-                        print("maxlength adn linelength", max_length, line_length)
+                        print("max length, line length, blank number", max_length, line_length, blank_number)
                     cursor.movePosition(QtGui.QTextCursor.StartOfLine)
                     cursor.insertText(" " * blank_number)
                     cursor.movePosition(QtGui.QTextCursor.EndOfLine)
@@ -286,10 +298,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                     cursor.movePosition(direction)
                     self.setTextCursor(cursor)
             else:
-                line_length = self.get_line_length(cursor.block().text().strip())
-                blank_number = (max_length - line_length) // 2
+                line_length = self.get_line_length(cursor)
+                blank_number = int(((max_length - line_length) // 2) // 8)
                 if constants.DEBUG_RICHTEXT:
-                    print("maxlength adn linelength", max_length, line_length)
+                    print("max length, line length, blank number", max_length, line_length, blank_number)
                 cursor.movePosition(QtGui.QTextCursor.StartOfLine)
                 cursor.insertText(" " * blank_number)
                 cursor.movePosition(QtGui.QTextCursor.EndOfLine)
@@ -327,16 +339,16 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 diff = cursor.blockNumber() - temp
                 direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
                 for _ in range(abs(diff) + 1):
-                    line_length = self.get_line_length(cursor.block().text())
-                    blank_number = max_length - line_length - 1
+                    line_length = self.get_line_length(cursor)
+                    blank_number = int((max_length - line_length) // 8)
                     cursor.movePosition(QtGui.QTextCursor.StartOfLine)
                     for _ in range(blank_number):
                         cursor.insertText(" ")
                     cursor.movePosition(direction)
                     self.setTextCursor(cursor)
             else:
-                line_length = self.get_line_length(cursor.block().text())
-                blank_number = max_length - line_length - 1
+                line_length = self.get_line_length(cursor)
+                blank_number = int((max_length - line_length) // 8)
                 cursor.movePosition(QtGui.QTextCursor.StartOfLine)
                 for _ in range(blank_number):
                     cursor.insertText(" ")
@@ -447,8 +459,12 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if color:
                 text_format.setForeground(color)
             cursor.mergeCharFormat(text_format)
+            cursor.clearSelection()
         elif font_type == "Clear":
             cursor.setCharFormat(text_format)
+        cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
+        cursor.setCharFormat(QtGui.QTextCharFormat())
+        self.setTextCursor(cursor)
 
     def image_format(self):
         cursor = self.textCursor()
@@ -466,7 +482,8 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                     print("image size: ", image_width, image_height)
                 pattern = re.compile(r'<img src="(.+?)".+?/>')
                 text = pattern.sub(r'<img src="\1" width="%s" height="%s" />' % (image_width, image_height), text)
-                print("*****************text***********************\n", text, "\n**************************************")
+                if constants.DEBUG_RICHTEXT:
+                    print("*****************text***********************\n", text, "\n**************************************")
                 cursor.insertHtml(text)
             else:
                 cursor.clearSelection()
