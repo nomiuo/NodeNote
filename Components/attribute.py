@@ -1,5 +1,6 @@
 import re
 import os
+import validators
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from Model import constants, stylesheet
@@ -10,9 +11,8 @@ __all__ = ["SubConstituteWidget", "InputTextField",
 
 
 class SizeDialog(QtWidgets.QDialog):
-    def __init__(self, edit, parent=None):
+    def __init__(self, parent=None):
         super(SizeDialog, self).__init__(parent)
-        self.edit = edit
         self.resize(100, 80)
         self.setWindowTitle("Set Image Width and Height")
         self.setWindowIcon(QtGui.QIcon("Resources/Dialog_icon/Plane.png"))
@@ -117,7 +117,6 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             self.setCurrentBlockState(NONE)
 
 
-# todo: foucus wrong when font color changed
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
     start_editing = QtCore.pyqtSignal()
@@ -460,6 +459,15 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if color:
                 text_format.setForeground(color)
             cursor.mergeCharFormat(text_format)
+        elif font_type == "Hyperlink":
+            if not cursor.charFormat().isAnchor():
+                text_format.setAnchor(True)
+                text_format.setForeground(QtGui.QColor("Blue"))
+                text_format.setAnchorHref(cursor.selection().toPlainText())
+            else:
+                text_format.setAnchor(False)
+                text_format.setForeground(QtGui.QColor("Black"))
+            cursor.mergeCharFormat(text_format)
         elif font_type == "Clear":
             cursor.setCharFormat(text_format)
         cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
@@ -567,14 +575,17 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Color")
+        elif current_key == QtCore.Qt.Key_O and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Hyperlink")
         elif current_key == QtCore.Qt.Key_L and event.modifiers() & QtCore.Qt.ControlModifier:
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Clear")
 
         # todo: anchor and open link
-        # todo: delete "\n" before list
-        # todo: delete codeblock
+        # todo: how to delete codeblock
         if self.single_line:
             if current_key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
                 if self.toPlainText() == "":
@@ -646,6 +657,9 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
 
     def mousePressEvent(self, event) -> None:
         # change focus into node
+        hyperlink = self.textCursor().charFormat().isAnchor()
+        if hyperlink:
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.PointingHandCursor)
         if self.objectName() == "MouseLocked":
             super(InputTextField, self).mousePressEvent(event)
         else:
@@ -658,6 +672,16 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
 
     def mouseReleaseEvent(self, event) -> None:
         # change focus into node
+        hyperlink = self.textCursor().charFormat().isAnchor()
+        if hyperlink:
+            url = self.textCursor().charFormat().anchorHref()
+            try:
+                if validators.url(url):
+                    QtGui.QDesktopServices.openUrl(QtCore.QUrl())
+            except:
+                if constants.DEBUG_RICHTEXT:
+                    print("Valid hyperlink\n")
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
         if self.objectName() == "MouseLocked":
             super(InputTextField, self).mouseReleaseEvent(event)
         else:
@@ -679,8 +703,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         super(InputTextField, self).focusInEvent(event)
 
     def focusOutEvent(self, event) -> None:
-        # clear selection
-        cursor = self.textCursor()
         super(InputTextField, self).focusOutEvent(event)
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.setObjectName("Nothing")
