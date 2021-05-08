@@ -27,6 +27,7 @@
       <w>bwith</w>
       <w>byield</w>
       <w>chidren</w>
+      <w>chtml</w>
       <w>classmethod</w>
       <w>codeblock</w>
       <w>colorpicker</w>
@@ -51,8 +52,10 @@
       <w>linelength</w>
       <w>locationwidget</w>
       <w>lucida</w>
+      <w>mathjax</w>
       <w>opactiy</w>
       <w>openlink</w>
+      <w>pixmap</w>
       <w>postion</w>
       <w>proxywidget</w>
       <w>pyqt</w>
@@ -70,6 +73,7 @@
       <w>qtextedit</w>
       <w>rehighlight</w>
       <w>renamable</w>
+      <w>richtext</w>
       <w>sapcing</w>
       <w>sspos</w>
       <w>staticmet</w>

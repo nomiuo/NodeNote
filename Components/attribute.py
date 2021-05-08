@@ -1,7 +1,11 @@
 import re
 import os
-import validators
+import io
 
+import validators
+import matplotlib.pyplot as plt
+import pylab
+import numpy as np
 from PyQt5 import QtCore, QtWidgets, QtGui
 from Model import constants, stylesheet
 from Components import port
@@ -221,6 +225,8 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             return False
 
 
+# TODO: edit status to control focus
+# TODO: ctrl + c mime data support
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
     start_editing = QtCore.pyqtSignal()
@@ -240,6 +246,8 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         self.document().setIndentWidth(4)
         self.document().setDefaultFont(QtGui.QFont("Inconsolata", 8))
         self.pythonlighter = PythonHighlighter(self.document())
+        self.editing_state = False
+        self.font_size_editing = True
 
     @staticmethod
     def add_table(cursor):
@@ -505,6 +513,34 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                         print("line: ", cursor.block().text(), len(cursor.block().text()))
                 self.setTextCursor(cursor)
 
+    @staticmethod
+    def latex_formula(str_latex):
+        font_size = 8
+        dpi = 300
+        fig = pylab.figure()
+        text = fig.text(0, 0, str_latex, fontsize=font_size)
+
+        buff = io.BytesIO()
+        fig.savefig(buff, format="png", dpi=dpi)
+        bbox = text.get_window_extent()
+        width, height = bbox.size / float(dpi) + 0.005
+        fig.set_size_inches((width, height))
+        dy = (bbox.ymin / float(dpi)) / height
+        text.set_position((0, -dy))
+        buff = io.BytesIO()
+        fig.savefig(buff, format="png", dpi=dpi)
+
+        buff.seek(0)
+        img = plt.imread(buff)
+        im = img.mean(axis=2)
+        im = ((im - im.min()) / (im.ptp() / 255.0)).astype(np.uint8)
+        temp_img = QtGui.QImage(im, im.shape[1], im.shape[0], im.shape[1], QtGui.QImage.Format_Indexed8)
+        image = QtGui.QPixmap(temp_img).toImage()
+        size = image.size()
+        image = image.scaled(size.width() * 0.5, size.height() * 0.5,
+                             QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
+        return image
+
     def font_format(self, font_type):
         cursor = self.textCursor()
         text_format = QtGui.QTextCharFormat()
@@ -514,12 +550,14 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             else:
                 text_format.setFontItalic(True)
             cursor.mergeCharFormat(text_format)
+            self.editing_state = False
         elif font_type == "Blod":
             if cursor.charFormat().fontWeight() == 50:
                 text_format.setFontWeight(100)
             else:
                 text_format.setFontWeight(50)
             cursor.mergeCharFormat(text_format)
+            self.editing_state = False
         elif font_type == "Underline":
             if cursor.charFormat().fontUnderline():
                 text_format.setFontUnderline(False)
@@ -527,12 +565,14 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 text_format.setFontUnderline(True)
                 text_format.setUnderlineColor(QtGui.QColor(133, 255, 255))
             cursor.mergeCharFormat(text_format)
+            self.editing_state = False
         elif font_type == "Deleteline":
             if cursor.charFormat().fontStrikeOut():
                 text_format.setFontStrikeOut(False)
             else:
                 text_format.setFontStrikeOut(True)
             cursor.mergeCharFormat(text_format)
+            self.editing_state = False
         elif font_type == "Up":
             if constants.DEBUG_RICHTEXT:
                 print("Font size: ", cursor.charFormat().fontPointSize())
@@ -543,6 +583,8 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             point_size = font_point_size + 2
             text_format.setFontPointSize(point_size)
             cursor.mergeCharFormat(text_format)
+            self.editing_state = True
+            self.font_size_editing = True
         elif font_type == "Down":
             if constants.DEBUG_RICHTEXT:
                 print("Font size: ", cursor.charFormat().fontPointSize())
@@ -553,12 +595,15 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             point_size = font_point_size - 2 if font_point_size - 2 > 0 else 2
             text_format.setFontPointSize(point_size)
             cursor.mergeCharFormat(text_format)
+            self.editing_state = True
+            self.font_size_editing = True
         elif font_type == "Color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
             if color:
                 text_format.setForeground(color)
             cursor.mergeCharFormat(text_format)
+            self.editing_state = False
         elif font_type == "Hyperlink":
             if not cursor.charFormat().isAnchor():
                 text_format.setAnchor(True)
@@ -568,11 +613,22 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 text_format.setAnchor(False)
                 text_format.setForeground(QtGui.QColor("Black"))
             cursor.mergeCharFormat(text_format)
+            self.editing_state = False
+        elif font_type == "Mathjax":
+            str_latex = cursor.selection().toPlainText()
+            if str_latex.startswith("$") and str_latex.endswith("$") and str_latex.count("$") == 2:
+                img = self.latex_formula(str_latex)
+                cursor.clearSelection()
+                cursor.insertText("\n")
+                cursor.insertImage(img)
+                self.editing_state = False
         elif font_type == "Clear":
             cursor.setCharFormat(text_format)
-        cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
-        cursor.setCharFormat(QtGui.QTextCharFormat())
-        self.setTextCursor(cursor)
+            self.editing_state = False
+        if not self.editing_state:
+            cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
+            cursor.setCharFormat(QtGui.QTextCharFormat())
+            self.setTextCursor(cursor)
 
     def image_format(self):
         cursor = self.textCursor()
@@ -679,6 +735,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Hyperlink")
+        elif current_key == QtCore.Qt.Key_Y and event.modifiers() & QtCore.Qt.ControlModifier:
+            if constants.DEBUG_RICHTEXT:
+                print("Rich Format: Title")
+            self.font_format("Mathjax")
         elif current_key == QtCore.Qt.Key_L and event.modifiers() & QtCore.Qt.ControlModifier:
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
@@ -776,11 +836,10 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         if hyperlink:
             url = self.textCursor().charFormat().anchorHref()
             try:
-                if validators.url(url):
-                    QtGui.QDesktopServices.openUrl(QtCore.QUrl())
-            except:
-                if constants.DEBUG_RICHTEXT:
-                    print("Valid hyperlink\n")
+                validators.url(url)
+                QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+            except Exception as e:
+                print("Valid hyperlink: ", e)
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
         if self.objectName() == "MouseLocked":
             super(InputTextField, self).mouseReleaseEvent(event)
@@ -808,6 +867,11 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         self.setObjectName("Nothing")
         if constants.DEBUG_RICHTEXT:
             print("Html contents:\n", self.toHtml())
+        if not self.editing_state or self.font_size_editing:
+            cursor = self.textCursor()
+            cursor.clearSelection()
+            self.setTextCursor(cursor)
+            self.font_size_editing = False
         self.mouseMoveEvent = self.node.mouseMoveEvent
 
 
