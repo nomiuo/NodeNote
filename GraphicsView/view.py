@@ -21,6 +21,7 @@ class View(QtWidgets.QGraphicsView):
         self.background_image.resize(self.size().width(), self.size().height())
         self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())
         self.scene.addItem(self.background_image)
+        self.background_image.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
         self.setScene(self.scene)
 
         # SCALE FUNCTION
@@ -188,4 +189,3 @@ class View(QtWidgets.QGraphicsView):
     def drawBackground(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None:
         self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())
         self.background_image.resize(self.size().width(), self.size().height())
-        self.scene.setSceneRect(self.scene.itemsBoundingRect())
