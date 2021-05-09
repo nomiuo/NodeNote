@@ -119,9 +119,6 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, document):
         QtGui.QSyntaxHighlighter.__init__(self, document)
 
-        # Multi-line strings (expression, flag, style)
-        # FIXME: The triple-quotes in these two lines will mess up the
-        # syntax highlighting from this point onward
         self.tri_single = (QtCore.QRegExp("'''"), 1, STYLES['string2'])
         self.tri_double = (QtCore.QRegExp('"""'), 2, STYLES['string2'])
 
@@ -225,7 +222,6 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             return False
 
 
-# TODO: edit status to control focus
 # TODO: ctrl + c mime data support
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
@@ -290,14 +286,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         list_format.setIndent(4)
         list_format.setStyle(QtGui.QTextListFormat.ListDecimal)
         cursor.insertList(list_format)
-
-    @staticmethod
-    def add_codeblock(cursor):
-        codeblock_format = QtGui.QTextFrameFormat()
-        codeblock_format.setBorder(5)
-        codeblock_format.setPadding(10)
-        codeblock_format.setBackground(QtGui.QBrush(QtGui.QColor(229, 255, 255)))
-        cursor.insertFrame(codeblock_format)
 
     def indent(self):
         cursor = self.textCursor()
@@ -744,8 +732,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 print("Rich Format: Title")
             self.font_format("Clear")
 
-        # todo: anchor and open link
-        # todo: how to delete codeblock
         if self.single_line:
             if current_key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
                 if self.toPlainText() == "":
@@ -782,9 +768,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         if current_key == QtCore.Qt.Key_3 and event.modifiers() & QtCore.Qt.ControlModifier:
             self.add_openlink(current_cursor)
 
-        # code
-        if current_key == QtCore.Qt.Key_4 and event.modifiers() & QtCore.Qt.ControlModifier:
-            self.add_codeblock(current_cursor)
 
         # image
         if current_key == QtCore.Qt.Key_U and event.modifiers() & QtCore.Qt.ControlModifier:
@@ -920,7 +903,7 @@ class SubConstituteWidget(QtWidgets.QGraphicsWidget):
 class GroupWidget(QtWidgets.QGroupBox):
     def __init__(self, label, parent=None):
         super(GroupWidget, self).__init__(parent)
-        layout = QtWidgets.QVBoxLayout(self)
+        layout = QtWidgets.QHBoxLayout(self)
         layout.setSpacing(4)
         self.setTitle(label)
 
@@ -980,14 +963,13 @@ class AbstractWidget(QtWidgets.QGraphicsWidget):
             super(AbstractWidget, self).mouseReleaseEvent(event)
 
 
-class LogicWidget(AbstractWidget):
-    def __init__(self, scene, parent=None):
+class LogicWidget(QtWidgets.QGraphicsWidget):
+    def __init__(self, parent=None):
         super(LogicWidget, self).__init__(parent)
         self.resizing = False
-        self.scene = scene
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable | QtWidgets.QGraphicsItem.ItemIsSelectable)
-        self.input_port = port.Port(constants.INPUT_NODE_TYPE, self)
-        self.output_port = port.Port(constants.OUTPUT_NODE_TYPE, self)
+        self.input_port = port.Port(constants.INPUT_NODE_TYPE, True, self)
+        self.output_port = port.Port(constants.OUTPUT_NODE_TYPE, True, self)
         self.layout = QtWidgets.QGraphicsLinearLayout()
         self.design_ui()
 
@@ -1027,6 +1009,10 @@ class LogicWidget(AbstractWidget):
         painter.setPen(QtGui.QPen(QtGui.QColor(15, 242, 254, 255), 3))
         painter.setBrush(QtCore.Qt.NoBrush)
         painter.drawRoundedRect(0, 0, self.size().width(), self.size().height(), 2, 2)
+
+    def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
+        super(LogicWidget, self).moveEvent(event)
+        self.scene().setSceneRect(self.scene().itemsBoundingRect())
 
 
 class TruthWidget(QtWidgets.QGraphicsWidget):
@@ -1103,10 +1089,10 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         #   title name widget
         self.attribute_widget = SubConstituteWidget(self)
         #   port widgets
-        self.true_input_port = port.Port(constants.INPUT_NODE_TYPE, self)
-        self.true_output_port = port.Port(constants.OUTPUT_NODE_TYPE, self)
-        self.false_input_port = port.Port(constants.INPUT_NODE_TYPE, self)
-        self.false_output_port = port.Port(constants.OUTPUT_NODE_TYPE, self)
+        self.true_input_port = port.Port(constants.INPUT_NODE_TYPE, True, self)
+        self.true_output_port = port.Port(constants.OUTPUT_NODE_TYPE, True, self)
+        self.false_input_port = port.Port(constants.INPUT_NODE_TYPE, False, self)
+        self.false_output_port = port.Port(constants.OUTPUT_NODE_TYPE, False, self)
         self.true_input_port.setMaximumSize(25, 25)
         self.true_input_port.setMinimumSize(25, 25)
         self.true_output_port.setMaximumSize(25, 25)
@@ -1210,15 +1196,32 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
             if constants.DEBUG_TUPLE_NODE_SCALE:
                 print(current_width, current_height)
 
-    def get_port_position(self, port_type):
-        # todo: wrong
-        x = -10 if port_type == constants.INPUT_NODE_TYPE else self.size().width() - 10
-        y = self.size().height() / 2
-        return x, y
+    def get_port_position(self, port_type, port_truth):
+        pos = QtCore.QPointF(0, 0)
+        if port_type == constants.INPUT_NODE_TYPE:
+            if port_truth:
+                pos = self.true_input_port.scenePos() + QtCore.QPointF(11, 11)
+            else:
+                pos = self.false_input_port.scenePos() + QtCore.QPointF(11, 11)
+        elif port_type == constants.OUTPUT_NODE_TYPE:
+            if port_truth:
+                pos = self.true_output_port.scenePos() + QtCore.QPointF(11, 11)
+            else:
+                pos = self.false_output_port.scenePos() + QtCore.QPointF(11, 11)
+        return pos
 
     def add_subwidget(self):
         subwidget = AttributeWidget()
         self.attribute_layout.addItem(subwidget)
+
+    def update_scene_rect(self):
+        self.scene().setSceneRect(self.scene().itemsBoundingRect())
+
+    def update_pipe_position(self, event):
+        self.true_input_port.update_pipes(event)
+        self.true_output_port.update_pipes(event)
+        self.false_input_port.update_pipes(event)
+        self.false_output_port.update_pipes(event)
 
     def mousePressEvent(self, event) -> None:
         if int(event.modifiers()) & QtCore.Qt.ShiftModifier:
@@ -1251,3 +1254,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         if result == add_subwidget:
             self.add_subwidget()
         event.setAccepted(True)
+
+    def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
+        super(AttributeWidget, self).moveEvent(event)
+        self.update_scene_rect()
+        self.update_pipe_position(event)

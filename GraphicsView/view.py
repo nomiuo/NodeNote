@@ -3,7 +3,6 @@ from GraphicsView.scene import Scene
 from Components import effect_water, attribute, port, pipe, effect_background
 from Model import constants
 
-
 __all__ = ["View"]
 
 
@@ -105,7 +104,13 @@ class View(QtWidgets.QGraphicsView):
         self.setVerticalScrollBar(self.vertical_scrollbar)
 
         # DRAW LINE
+        self.drag_pipe = None
+        self.item = None
         self.mode = constants.MODE_NOOP
+
+        # STORE
+        self.attribute_widgets = list()
+        self.truth_widgets = list()
 
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
@@ -114,7 +119,14 @@ class View(QtWidgets.QGraphicsView):
         self.scene.addItem(property_water_drop)
         water_drop.move(self.mapToScene(event.pos()))
         water_drop.show()
+        super(View, self).mousePressEvent(event)
 
+    def change_svg_image(self):
+        image_name, image_type = QtWidgets.QFileDialog.getOpenFileName(self, "select svg", "", "*.svg")
+        if image_name != "":
+            self.background_image.change_svg(image_name)
+
+    # todo: debug scale
     def change_scale(self, event):
         if constants.DEBUG_VIEW_CHANGE_SCALE:
             print("View is zooming! Current zoom: ", self.zoom)
@@ -131,52 +143,83 @@ class View(QtWidgets.QGraphicsView):
             else:
                 self.zoom = self.zoomRange[0]
 
-    def add_basic_widget(self, event):
+    def add_attribute_widget(self, event):
         basic_widget = attribute.AttributeWidget()
         self.scene.addItem(basic_widget)
         basic_widget.setPos(self.mapToScene(event.pos()))
-        self.scene.add_tuple_node_widget(basic_widget)
+        self.attribute_widgets.append(basic_widget)
+        self.scene.setSceneRect(self.scene.itemsBoundingRect())
 
-    def change_svg_image(self, event):
-        image_name, image_type = QtWidgets.QFileDialog.getOpenFileName(self, "select svg", "", "*.svg")
-        if image_name != "":
-            self.background_image.change_svg(image_name)
+    def add_truth_widget(self, event):
+        basic_widget = attribute.LogicWidget()
+        self.scene.addItem(basic_widget)
+        basic_widget.setPos(self.mapToScene(event.pos()))
+        self.truth_widgets.append(basic_widget)
+        self.scene.setSceneRect(self.scene.itemsBoundingRect())
 
-    def contextMenuEvent(self, event) -> None:
-        super(View, self).contextMenuEvent(event)
-        if not event.isAccepted():
-            context_menu = QtWidgets.QMenu(self)
-            # context list
-            create_truth_widget = context_menu.addAction("Create Attribute Widget")
-            create_truth_widget.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Attribute Widget.png"))
-            change_background_image = context_menu.addAction("Change Background Image")
-            change_background_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change Background Image.png"))
+    def add_drag_pipe(self, port_widget, pipe_widget):
+        port_widget.add_pipes(pipe_widget)
+        self.scene.addItem(pipe_widget)
 
-            action = context_menu.exec_(self.mapToGlobal(event.pos()))
-            if action == create_truth_widget:
-                self.add_basic_widget(event)
-            elif action == change_background_image:
-                self.change_svg_image(event)
+    def remove_attribute_widget(self, widget):
+        self.scene.removeItem(widget)
+        self.attribute_widgets.remove(widget)
+
+    def remove_truth_widget(self, widget):
+        self.scene.removeItem(widget)
+        self.truth_widgets.remove(widget)
+
+    def remove_drag_pipe(self, port_widget, pipe_widget):
+        port_widget.remove_pipes(pipe_widget)
+        self.scene.removeItem(pipe_widget)
+
+    def drag_pipe_press(self, event):
+        if self.mode == constants.MODE_NOOP:
+            self.item = self.itemAt(event.pos())
+            if isinstance(self.item, port.Port):
+                if constants.DEBUG_DRAW_PIPE:
+                    print("enter the drag mode and set input port: ", self.item)
+                self.mode = constants.MODE_PIPE_DRAG
+                self.drag_pipe = pipe.Pipe(input_port=self.item, output_port=None, node=self.item.parentItem())
+                self.add_drag_pipe(self.item, self.drag_pipe)
+                return
+        if self.mode == constants.MODE_PIPE_DRAG:
+            self.mode = constants.MODE_NOOP
+            item = self.itemAt(event.pos())
+            if constants.DEBUG_DRAW_PIPE:
+                print("end the drag mode and set output port or not: ", item)
+            self.drag_pipe_release(item)
+
+    def drag_pipe_release(self, item):
+        if isinstance(item, port.Port):
+            if constants.DEBUG_DRAW_PIPE:
+                print("start port type: ", self.item.port_type, "end port type: ", item.port_type)
+            if item.port_type != self.item.port_type:
+                self.mode = constants.MODE_NOOP
+                self.drag_pipe.output_port = item
+                item.add_pipes(self.drag_pipe)
+                self.drag_pipe.update_position()
+            else:
+                if constants.DEBUG_DRAW_PIPE:
+                    print("delete drag pipe")
+                self.remove_drag_pipe(self.item, self.drag_pipe)
+                self.item = None
+        elif not isinstance(item, port.Port):
+            if constants.DEBUG_DRAW_PIPE:
+                print("delete drag pipe")
+            self.remove_drag_pipe(self.item, self.drag_pipe)
+            self.item = None
 
     def mousePressEvent(self, event) -> None:
         if event.button() == QtCore.Qt.LeftButton:
             self.set_leftbtn_beauty(event)
-            super(View, self).mousePressEvent(event)
-            item = self.itemAt(event.pos())
-            if type(item) is port.Port and self.mode == constants.MODE_NOOP:
-                if constants.DEBUG_DRAW_PIPE:
-                    print("enter the drag mode and set input port")
-                self.mode = constants.MODE_PIPE_DRAG
-                self.drag_pip = pipe.Pipe(input_port=item, output_port=None, parent=None)
-                return
-            if self.mode == constants.MODE_PIPE_DRAG:
-                self.mode = constants.MODE_NOOP
+            self.drag_pipe_press(event)
         else:
             super(View, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.mode == constants.MODE_PIPE_DRAG:
-            scene_pos = self.mapToScene(event.pos())
+            self.drag_pipe.update_position(self.mapToScene(event.pos()))
         super(View, self).mouseMoveEvent(event)
 
     def keyPressEvent(self, event) -> None:
@@ -185,6 +228,26 @@ class View(QtWidgets.QGraphicsView):
             self.change_scale(event)
         else:
             super(View, self).keyPressEvent(event)
+
+    def contextMenuEvent(self, event) -> None:
+        super(View, self).contextMenuEvent(event)
+        if not event.isAccepted():
+            context_menu = QtWidgets.QMenu(self)
+            # context list
+            create_attribute_widget = context_menu.addAction("Create Attribute Widget")
+            create_attribute_widget.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Attribute Widget.png"))
+            create_truth_widget = context_menu.addAction("Create Truth Widget")
+            create_truth_widget.setIcon((QtGui.QIcon("Resources/ViewContextMenu/Truth Widget.png")))
+            change_background_image = context_menu.addAction("Change Background Image")
+            change_background_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change Background Image.png"))
+
+            action = context_menu.exec_(self.mapToGlobal(event.pos()))
+            if action == create_attribute_widget:
+                self.add_attribute_widget(event)
+            elif action == create_truth_widget:
+                self.add_truth_widget(event)
+            elif action == change_background_image:
+                self.change_svg_image()
 
     def drawBackground(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None:
         self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())

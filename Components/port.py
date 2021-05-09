@@ -5,9 +5,10 @@ __all__ = ["Port"]
 
 
 class Port(QtWidgets.QGraphicsWidget):
-    def __init__(self, port_type, parent):
+    def __init__(self, port_type, port_truth, parent):
         super(Port, self).__init__(parent)
-        self.type = port_type
+        self.port_type = port_type
+        self.port_truth = port_truth
         # BASIC SETTINGS
         self.setAcceptHoverEvents(True)
         self.setFlag(self.ItemSendsScenePositionChanges, True)
@@ -28,6 +29,16 @@ class Port(QtWidgets.QGraphicsWidget):
         self.hovered_border_color = (136, 255, 35, 255)
         self.activated_color = (14, 45, 59, 255)
         self.activated_border_color = (107, 166, 193, 255)
+
+    def add_pipes(self, pipe_widget):
+        self.pipes.append(pipe_widget)
+
+    def remove_pipes(self, pipe_widget):
+        self.pipes.remove(pipe_widget)
+
+    def update_pipes(self, event):
+        for pipe in self.pipes:
+            pipe.update_position()
 
     def boundingRect(self) -> QtCore.QRectF:
         return QtCore.QRectF(0.0, 0.0, self.width, self.height)
