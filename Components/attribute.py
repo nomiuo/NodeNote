@@ -10,6 +10,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from Model import constants, stylesheet
 from Components import port
 
+
 __all__ = ["SubConstituteWidget", "InputTextField",
            "LogicWidget", "TruthWidget", "AttributeWidget"]
 
@@ -220,6 +221,25 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             return True
         else:
             return False
+
+
+class SimpleTextField(QtWidgets.QGraphicsTextItem):
+    def __init__(self, text, parent):
+        super(SimpleTextField, self).__init__(text, parent)
+        self.setFlags(QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges | QtWidgets.QGraphicsWidget.ItemIsSelectable)
+
+    def mouseDoubleClickEvent(self, event) -> None:
+        super(SimpleTextField, self).mouseDoubleClickEvent(event)
+        self.setFlag(QtWidgets.QGraphicsWidget.ItemIsFocusable, True)
+        self.setFocus()
+
+    def focusInEvent(self, event) -> None:
+        self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
+        super(SimpleTextField, self).focusInEvent(event)
+
+    def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
+        self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+        super(SimpleTextField, self).focusOutEvent(event)
 
 
 # TODO: ctrl + c mime data support
@@ -768,7 +788,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         if current_key == QtCore.Qt.Key_3 and event.modifiers() & QtCore.Qt.ControlModifier:
             self.add_openlink(current_cursor)
 
-
         # image
         if current_key == QtCore.Qt.Key_U and event.modifiers() & QtCore.Qt.ControlModifier:
             if constants.DEBUG_RICHTEXT:
@@ -1074,6 +1093,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.input_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.output_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
+        self.attribute_sub_widgets = list()
         #   sapcing
         self.layout.setSpacing(0)
         self.input_layout.setSpacing(0)
@@ -1123,6 +1143,11 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
         # RESIZE
         self.resizing = False
+
+        # ANAMATION
+        self.attribute_animation = False
+        self.next_attribute = list()
+        self.last_attribute = list()
 
     def paint(self, painter, option, widget=None) -> None:
         painter.save()
@@ -1200,9 +1225,9 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         pos = QtCore.QPointF(0, 0)
         if port_type == constants.INPUT_NODE_TYPE:
             if port_truth:
-                pos = self.true_input_port.scenePos() + QtCore.QPointF(11, 11)
+                pos = self.true_input_port.scenePos() + QtCore.QPointF(0, 11)
             else:
-                pos = self.false_input_port.scenePos() + QtCore.QPointF(11, 11)
+                pos = self.false_input_port.scenePos() + QtCore.QPointF(0, 11)
         elif port_type == constants.OUTPUT_NODE_TYPE:
             if port_truth:
                 pos = self.true_output_port.scenePos() + QtCore.QPointF(11, 11)
@@ -1213,15 +1238,44 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
     def add_subwidget(self):
         subwidget = AttributeWidget()
         self.attribute_layout.addItem(subwidget)
+        self.attribute_sub_widgets.append(subwidget)
+        self.text_change_node_shape()
+        self.update_pipe_position()
 
     def update_scene_rect(self):
         self.scene().setSceneRect(self.scene().itemsBoundingRect())
 
-    def update_pipe_position(self, event):
-        self.true_input_port.update_pipes(event)
-        self.true_output_port.update_pipes(event)
-        self.false_input_port.update_pipes(event)
-        self.false_output_port.update_pipes(event)
+    def update_pipe_position(self):
+        self.true_input_port.update_pipes_position()
+        self.true_output_port.update_pipes_position()
+        self.false_input_port.update_pipes_position()
+        self.false_output_port.update_pipes_position()
+        for sub_widget in self.attribute_sub_widgets:
+            sub_widget.update_pipe_position()
+
+    def start_pipe_animation(self):
+        self.true_output_port.start_pipes_animation()
+        self.false_output_port.start_pipes_animation()
+        self.attribute_animation = True
+
+    def end_pipe_animation(self):
+        self.true_output_port.end_pipes_animation()
+        self.false_output_port.end_pipes_animation()
+        self.true_input_port.end_pipes_animation()
+        self.false_input_port.end_pipes_animation()
+        self.attribute_animation = False
+
+    def add_next_attribute(self, widget):
+        self.next_attribute.append(widget)
+
+    def add_last_attribute(self, widget):
+        self.last_attribute.append(widget)
+
+    def remove_next_attribute(self, widget):
+        self.next_attribute.remove(widget)
+
+    def remove_last_attribute(self, widget):
+        self.last_attribute.remove(widget)
 
     def mousePressEvent(self, event) -> None:
         if int(event.modifiers()) & QtCore.Qt.ShiftModifier:
@@ -1258,4 +1312,4 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
         super(AttributeWidget, self).moveEvent(event)
         self.update_scene_rect()
-        self.update_pipe_position(event)
+        self.update_pipe_position()

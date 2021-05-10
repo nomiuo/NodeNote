@@ -143,6 +143,15 @@ class View(QtWidgets.QGraphicsView):
             else:
                 self.zoom = self.zoomRange[0]
 
+    def view_update_pipe_animation(self):
+        if len(self.scene.selectedItems()) == 1:
+            item = self.scene.selectedItems()[0]
+            if isinstance(item, attribute.AttributeWidget):
+                if not item.attribute_animation:
+                    item.start_pipe_animation()
+                else:
+                    item.end_pipe_animation()
+
     def add_attribute_widget(self, event):
         basic_widget = attribute.AttributeWidget()
         self.scene.addItem(basic_widget)
@@ -183,6 +192,13 @@ class View(QtWidgets.QGraphicsView):
                 self.drag_pipe = pipe.Pipe(input_port=self.item, output_port=None, node=self.item.parentItem())
                 self.add_drag_pipe(self.item, self.drag_pipe)
                 return
+            if isinstance(self.item, pipe.Pipe):
+                self.mode = constants.MODE_PIPE_DRAG
+                if constants.DEBUG_DRAW_PIPE:
+                    print("delete the output port and drag again")
+                self.drag_pipe = self.item
+                self.item.delete_input_type_port(self.mapToScene(event.pos()))
+                return
         if self.mode == constants.MODE_PIPE_DRAG:
             self.mode = constants.MODE_NOOP
             item = self.itemAt(event.pos())
@@ -191,31 +207,60 @@ class View(QtWidgets.QGraphicsView):
             self.drag_pipe_release(item)
 
     def drag_pipe_release(self, item):
+        if self.drag_pipe.get_output_type_port():
+            self.item = self.drag_pipe.get_output_type_port()
+        else:
+            self.item = self.drag_pipe.get_input_type_port()
         if isinstance(item, port.Port):
-            if constants.DEBUG_DRAW_PIPE:
-                print("start port type: ", self.item.port_type, "end port type: ", item.port_type)
-            if item.port_type != self.item.port_type:
-                self.mode = constants.MODE_NOOP
-                self.drag_pipe.output_port = item
+            if item.port_type != self.item.port_type and not self.judge_same_pipe(item):
+                self.drag_pipe.end_port = item
                 item.add_pipes(self.drag_pipe)
                 self.drag_pipe.update_position()
+                if self.judge_animation(self.item):
+                    node = item.get_node()
+                    base_node = self.item.get_node()
+                    node.start_pipe_animation()
+                    base_node.start_pipe_animation()
+                    print(base_node)
+                    node.true_input_port.start_pipes_animation()
+                    # todo: ctrl + 0  end animation
+                    node.false_input_port.start_pipes_animation()
             else:
                 if constants.DEBUG_DRAW_PIPE:
-                    print("delete drag pipe")
+                    print("delete drag pipe case 1")
                 self.remove_drag_pipe(self.item, self.drag_pipe)
                 self.item = None
         elif not isinstance(item, port.Port):
             if constants.DEBUG_DRAW_PIPE:
-                print("delete drag pipe")
+                print("delete drag pipe case 2 from port: ", self.item)
             self.remove_drag_pipe(self.item, self.drag_pipe)
             self.item = None
+
+    def judge_same_pipe(self, item):
+        for same_pipe in item.pipes:
+            if same_pipe in self.item.pipes:
+                return True
+        return False
+
+    @staticmethod
+    def judge_animation(item):
+        node = item.get_node()
+        if node.attribute_animation:
+            return True
+        else:
+            return False
 
     def mousePressEvent(self, event) -> None:
         if event.button() == QtCore.Qt.LeftButton:
             self.set_leftbtn_beauty(event)
-            self.drag_pipe_press(event)
         else:
             super(View, self).mousePressEvent(event)
+
+    def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
+        if event.button() == QtCore.Qt.LeftButton:
+            self.drag_pipe_press(event)
+        else:
+            super(View, self).mouseDoubleClickEvent(event)
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.mode == constants.MODE_PIPE_DRAG:
@@ -223,6 +268,8 @@ class View(QtWidgets.QGraphicsView):
         super(View, self).mouseMoveEvent(event)
 
     def keyPressEvent(self, event) -> None:
+        if event.key() == QtCore.Qt.Key_0 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            self.view_update_pipe_animation()
         if (event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier) or \
                 (event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier):
             self.change_scale(event)
