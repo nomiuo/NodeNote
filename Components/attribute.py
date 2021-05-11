@@ -1073,7 +1073,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
     def __init__(self):
         super(AttributeWidget, self).__init__()
         # SET BASIC FUNCTION.
-        self.name = "Default Attribute Name"
+        self.name = "Node"
         self.setFlags(QtWidgets.QGraphicsWidget.ItemIsSelectable | QtWidgets.QGraphicsWidget.ItemIsFocusable |
                       QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges)
         self.setCacheMode(QtWidgets.QGraphicsItem.DeviceCoordinateCache)
@@ -1256,7 +1256,12 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
     def start_pipe_animation(self):
         self.true_output_port.start_pipes_animation()
         self.false_output_port.start_pipes_animation()
+        self.true_input_port.start_pipes_animation()
+        self.false_input_port.start_pipes_animation()
         self.attribute_animation = True
+        for node in self.next_attribute:
+            if not node.attribute_animation:
+                node.start_pipe_animation()
 
     def end_pipe_animation(self):
         self.true_output_port.end_pipes_animation()
@@ -1264,6 +1269,9 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.true_input_port.end_pipes_animation()
         self.false_input_port.end_pipes_animation()
         self.attribute_animation = False
+        for node in self.next_attribute:
+            if node.attribute_animation:
+                node.end_pipe_animation()
 
     def add_next_attribute(self, widget):
         self.next_attribute.append(widget)

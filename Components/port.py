@@ -45,19 +45,11 @@ class Port(QtWidgets.QGraphicsWidget):
 
     def start_pipes_animation(self):
         for pipe in self.pipes:
-            node = pipe.get_input_node()
             pipe.perform_evaluation_feedback()
-            node.attribute_animation = True
-            node = pipe.get_output_node()
-            node.attribute_animation = True
 
     def end_pipes_animation(self):
         for pipe in self.pipes:
             pipe.end_evaluation_feedback()
-            node = pipe.get_input_node()
-            node.attribute_animation = False
-            node = pipe.get_output_node()
-            node.attribute_animation = False
 
     def boundingRect(self) -> QtCore.QRectF:
         return QtCore.QRectF(0.0, 0.0, self.width, self.height)

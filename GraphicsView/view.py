@@ -213,18 +213,27 @@ class View(QtWidgets.QGraphicsView):
             self.item = self.drag_pipe.get_input_type_port()
         if isinstance(item, port.Port):
             if item.port_type != self.item.port_type and not self.judge_same_pipe(item):
+
                 self.drag_pipe.end_port = item
                 item.add_pipes(self.drag_pipe)
                 self.drag_pipe.update_position()
+
+                node = self.drag_pipe.get_output_node()
+                if item.get_node() is node:
+                    item.get_node().add_next_attribute(self.item.get_node())
+                    self.item.get_node().add_last_attribute(item.get_node())
+                else:
+                    item.get_node().add_last_attribute(self.item.get_node())
+                    self.item.get_node().add_next_attribute(item.get_node())
+
                 if self.judge_animation(self.item):
                     node = item.get_node()
                     base_node = self.item.get_node()
                     node.start_pipe_animation()
                     base_node.start_pipe_animation()
-                    print(base_node)
                     node.true_input_port.start_pipes_animation()
-                    # todo: ctrl + 0  end animation
                     node.false_input_port.start_pipes_animation()
+
             else:
                 if constants.DEBUG_DRAW_PIPE:
                     print("delete drag pipe case 1")
