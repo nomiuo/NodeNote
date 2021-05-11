@@ -1093,7 +1093,6 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.input_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.output_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
-        self.attribute_sub_widgets = list()
         #   sapcing
         self.layout.setSpacing(0)
         self.input_layout.setSpacing(0)
@@ -1148,6 +1147,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.attribute_animation = False
         self.next_attribute = list()
         self.last_attribute = list()
+        self.attribute_sub_widgets = list()
 
     def paint(self, painter, option, widget=None) -> None:
         painter.save()
@@ -1259,9 +1259,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.true_input_port.start_pipes_animation()
         self.false_input_port.start_pipes_animation()
         self.attribute_animation = True
+
         for node in self.next_attribute:
             if not node.attribute_animation:
                 node.start_pipe_animation()
+
+        for sub_node in self.attribute_sub_widgets:
+            if not sub_node.attribute_animation:
+                sub_node.start_pipe_animation()
 
     def end_pipe_animation(self):
         self.true_output_port.end_pipes_animation()
@@ -1269,9 +1274,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.true_input_port.end_pipes_animation()
         self.false_input_port.end_pipes_animation()
         self.attribute_animation = False
+
         for node in self.next_attribute:
             if node.attribute_animation:
                 node.end_pipe_animation()
+
+        for sub_node in self.attribute_sub_widgets:
+            if not sub_node.attribute_animation:
+                sub_node.end_pipe_animation()
 
     def add_next_attribute(self, widget):
         self.next_attribute.append(widget)
