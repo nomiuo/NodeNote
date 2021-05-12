@@ -1,7 +1,7 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 from GraphicsView.scene import Scene
 from Components import effect_water, attribute, port, pipe, effect_background
-from Model import constants
+from Model import constants, stylesheet
 
 __all__ = ["View"]
 
@@ -37,72 +37,10 @@ class View(QtWidgets.QGraphicsView):
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.horizontal_scrollbar = QtWidgets.QScrollBar()
-        self.horizontal_scrollbar.setStyleSheet('''
-                QScrollBar:horizontal {
-                    border: 2px solid grey;
-                    background: #32CC99;
-                    height: 8px;
-                    margin: 0px 20px 0 20px;
-                }
-                QScrollBar::handle:horizontal {
-                    background: rgba(204, 255, 255, 200);
-                    min-width: 20px;
-                }
-                QScrollBar::add-line:horizontal {
-                    border: 2px solid grey;
-                    background: #32CC99;
-                    width: 20px;
-                    subcontrol-position: right;
-                    subcontrol-origin: margin;
-                }
-                
-                QScrollBar::sub-line:horizontal {
-                    border: 2px solid grey;
-                    background: #32CC99;
-                    width: 20px;
-                    subcontrol-position: left;
-                    subcontrol-origin: margin;
-                }
-    ''')
+        self.horizontal_scrollbar.setStyleSheet(stylesheet.STYLE_HSCROLLBAR)
         self.setHorizontalScrollBar(self.horizontal_scrollbar)
         self.vertical_scrollbar = QtWidgets.QScrollBar()
-        self.vertical_scrollbar.setStyleSheet('''
-             QScrollBar:vertical {
-                 border: 2px solid grey;
-                 background: #32CC99;
-                 width: 8px;
-                 margin: 22px 0 22px 0;
-             }
-             QScrollBar::handle:vertical {
-                 background: rgba(204, 255, 255, 200);
-                 min-height: 20px;
-             }
-             QScrollBar::add-line:vertical {
-                 border: 2px solid grey;
-                 background: #32CC99;
-                 height: 20px;
-                 subcontrol-position: bottom;
-                 subcontrol-origin: margin;
-             }
-            
-             QScrollBar::sub-line:vertical {
-                 border: 2px solid grey;
-                 background: #32CC99;
-                 height: 20px;
-                 subcontrol-position: top;
-                 subcontrol-origin: margin;
-             }
-             QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
-                 border: 2px solid grey;
-                 width: 3px;
-                 height: 3px;
-                 background: white;
-             }
-            
-             QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-                 background: none;
-             }
-            ''')
+        self.vertical_scrollbar.setStyleSheet(stylesheet.STYLE_VSCROLLBAR)
         self.setVerticalScrollBar(self.vertical_scrollbar)
 
         # DRAW LINE
