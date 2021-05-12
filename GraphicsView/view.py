@@ -101,8 +101,6 @@ class View(QtWidgets.QGraphicsView):
             print("All pipes: ", self.pipes)
         for ix in range(len(self.cutline.line_points) - 1):
             for pipe_widget in self.pipes:
-                if constants.DEBUG_CUT_LINE:
-                    print("Get pipe", pipe_widget)
                 p1 = self.cutline.line_points[ix]
                 p2 = self.cutline.line_points[ix + 1]
                 if pipe_widget.intersect_with(p1, p2):
@@ -267,13 +265,28 @@ class View(QtWidgets.QGraphicsView):
                 item.add_pipes(self.drag_pipe)
                 self.drag_pipe.update_position()
 
-                node = self.drag_pipe.get_output_node()
-                if item.get_node() is node:
-                    item.get_node().add_next_attribute(self.item.get_node())
-                    self.item.get_node().add_last_attribute(item.get_node())
+                if item.get_node() is self.drag_pipe.get_output_node():
+                    output_node = item.get_node()
+                    input_node = self.item.get_node()
                 else:
-                    item.get_node().add_last_attribute(self.item.get_node())
-                    self.item.get_node().add_next_attribute(item.get_node())
+                    output_node = self.item.get_node()
+                    input_node = item.get_node()
+                if isinstance(output_node, attribute.AttributeWidget) \
+                        and isinstance(input_node, attribute.AttributeWidget):
+                    output_node.add_next_attribute(input_node)
+                    input_node.add_last_attribute(output_node)
+                elif isinstance(output_node, attribute.AttributeWidget) \
+                        and isinstance(input_node, attribute.LogicWidget):
+                    output_node.add_next_logic(input_node)
+                    input_node.add_last_attribute(output_node)
+                elif isinstance(output_node, attribute.LogicWidget) \
+                        and isinstance(input_node, attribute.AttributeWidget):
+                    output_node.add_next_attribute(input_node)
+                    input_node.add_last_logic(output_node)
+                elif isinstance(output_node, attribute.LogicWidget) \
+                        and isinstance(input_node, attribute.LogicWidget):
+                    output_node.add_next_logic(input_node)
+                    input_node.add_last_logic(output_node)
 
                 if self.judge_animation(self.item):
                     node = item.get_node()
