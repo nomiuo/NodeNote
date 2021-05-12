@@ -53,7 +53,7 @@ QComboBox::drop-down {
     width: 20px;
 }
 QComboBox::down-arrow {
-    image: url("Resources/down_arrow.png");
+    image: url("Resources/ComboBox_image/down_arrow.png");
 }
 QComboBox::down-arrow:on {
     /* shift the arrow when popup is open */
