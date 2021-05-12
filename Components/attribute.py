@@ -1117,7 +1117,6 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
 
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
         super(LogicWidget, self).moveEvent(event)
-        self.scene().setSceneRect(self.scene().itemsBoundingRect())
         self.update_pipe_position()
 
 
@@ -1455,5 +1454,4 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
         super(AttributeWidget, self).moveEvent(event)
-        self.update_scene_rect()
         self.update_pipe_position()

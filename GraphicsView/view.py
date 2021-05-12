@@ -97,14 +97,12 @@ class View(QtWidgets.QGraphicsView):
         self.scene.addItem(basic_widget)
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.attribute_widgets.append(basic_widget)
-        self.scene.setSceneRect(self.scene.itemsBoundingRect())
 
     def add_truth_widget(self, event):
         basic_widget = attribute.LogicWidget()
         self.scene.addItem(basic_widget)
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.truth_widgets.append(basic_widget)
-        self.scene.setSceneRect(self.scene.itemsBoundingRect())
 
     def add_drag_pipe(self, port_widget, pipe_widget):
         port_widget.add_pipes(pipe_widget)
@@ -207,6 +205,7 @@ class View(QtWidgets.QGraphicsView):
             return False
 
     def mousePressEvent(self, event) -> None:
+        self.itemAt(event.pos()).scenePos()  # debug for scale, i don't understand but it work
         if constants.DEBUG_DRAW_PIPE:
             print("mouse press at", self.itemAt(event.pos()))
         if event.button() == QtCore.Qt.LeftButton:
