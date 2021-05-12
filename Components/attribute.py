@@ -991,6 +991,14 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
         self.output_port = port.Port(constants.OUTPUT_NODE_TYPE, True, self)
         self.layout = QtWidgets.QGraphicsLinearLayout()
         self.design_ui()
+        self.setZValue(constants.Z_VAL_NODE)
+
+        # Animation
+        self.next_attribute = list()
+        self.last_attribute = list()
+        self.next_logic = list()
+        self.last_logic = list()
+        self.attribute_animation = False
 
     def design_ui(self):
         # select logic
@@ -1020,18 +1028,81 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
         self.layout.addItem(proxywidget)
         self.setLayout(self.layout)
 
+    def get_port_position(self, port_type, port_truth):
+        if port_truth:
+            if port_type == constants.INPUT_NODE_TYPE:
+                return self.input_port.scenePos() + QtCore.QPointF(0, 11)
+            else:
+                return self.output_port.scenePos() + QtCore.QPointF(0, 11)
+
+    def update_pipe_position(self):
+        self.input_port.update_pipes_position()
+        self.output_port.update_pipes_position()
+
+    def add_next_attribute(self, widget):
+        self.next_attribute.append(widget)
+
+    def add_last_attribute(self, widget):
+        self.last_attribute.append(widget)
+
+    def add_next_logic(self, widget):
+        self.next_logic.append(widget)
+
+    def add_last_logic(self, widget):
+        self.last_logic.append(widget)
+
+    def remove_next_attribute(self, widget):
+        self.next_attribute.remove(widget)
+
+    def remove_last_attribute(self, widget):
+        self.last_attribute.remove(widget)
+
+    def remove_next_logic(self, widget):
+        self.next_logic.remove(widget)
+
+    def remove_last_logic(self, widget):
+        self.last_logic.remove(widget)
+
+    def start_pipe_animation(self):
+        self.output_port.start_pipes_animation()
+        self.input_port.start_pipes_animation()
+        self.attribute_animation = True
+
+        for node in self.next_attribute:
+            if not node.attribute_animation:
+                node.start_pipe_animation()
+
+        for logic in self.next_logic:
+            if not logic.attribute_animation:
+                logic.start_pipe_animation()
+
+    def end_pipe_animation(self):
+        self.output_port.end_pipes_animation()
+        self.input_port.end_pipes_animation()
+        self.attribute_animation = False
+
+        for node in self.next_attribute:
+            if node.attribute_animation:
+                node.end_pipe_animation()
+
+        for logic in self.next_logic:
+            if logic.attribute_animation:
+                logic.end_pipe_animation()
+
     def paint(self, painter, option, widget=None) -> None:
         super(LogicWidget, self).paint(painter, option, widget)
         self.input_port.setPos(-12, self.size().height() / 2 - 3)
         self.output_port.setPos(self.size().width() - 12, self.size().height() / 2 - 3)
 
-        painter.setPen(QtGui.QPen(QtGui.QColor(15, 242, 254, 255), 3))
+        painter.setPen(QtGui.QPen(QtGui.QColor(15, 242, 254, 255), 1) if not self.isSelected() else
+                       QtGui.QPen(QtGui.QColor(255, 229, 153, 255), 2))
         painter.setBrush(QtCore.Qt.NoBrush)
         painter.drawRoundedRect(0, 0, self.size().width(), self.size().height(), 2, 2)
 
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
         super(LogicWidget, self).moveEvent(event)
         self.scene().setSceneRect(self.scene().itemsBoundingRect())
+        self.update_pipe_position()
 
 
 class TruthWidget(QtWidgets.QGraphicsWidget):
@@ -1147,6 +1218,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.attribute_animation = False
         self.next_attribute = list()
         self.last_attribute = list()
+        self.next_logic = list()
+        self.last_logic = list()
         self.attribute_sub_widgets = list()
 
     def paint(self, painter, option, widget=None) -> None:
@@ -1217,6 +1290,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
             current_width = current_pos.x() - past_pos.x() if current_pos.x() >= past_pos.x() else past_width
             current_height = current_pos.y() - past_pos.y() if current_pos.y() >= past_pos.y() else past_height
             self.resize(current_width, current_height)
+            self.update_pipe_position()
 
             if constants.DEBUG_TUPLE_NODE_SCALE:
                 print(current_width, current_height)
@@ -1253,6 +1327,30 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         for sub_widget in self.attribute_sub_widgets:
             sub_widget.update_pipe_position()
 
+    def add_next_attribute(self, widget):
+        self.next_attribute.append(widget)
+
+    def add_last_attribute(self, widget):
+        self.last_attribute.append(widget)
+
+    def add_next_logic(self, widget):
+        self.next_logic.append(widget)
+
+    def add_last_logic(self, widget):
+        self.last_logic.append(widget)
+
+    def remove_next_attribute(self, widget):
+        self.next_attribute.remove(widget)
+
+    def remove_last_attribute(self, widget):
+        self.last_attribute.remove(widget)
+
+    def remove_next_logic(self, widget):
+        self.next_logic.remove(widget)
+
+    def remove_last_logic(self, widget):
+        self.last_logic.remove(widget)
+
     def start_pipe_animation(self):
         self.true_output_port.start_pipes_animation()
         self.false_output_port.start_pipes_animation()
@@ -1263,6 +1361,10 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         for node in self.next_attribute:
             if not node.attribute_animation:
                 node.start_pipe_animation()
+
+        for logic in self.next_logic:
+            if not logic.attribute_animation:
+                logic.start_pipe_animation()
 
         for sub_node in self.attribute_sub_widgets:
             if not sub_node.attribute_animation:
@@ -1279,21 +1381,13 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
             if node.attribute_animation:
                 node.end_pipe_animation()
 
+        for logic in self.next_logic:
+            if logic.attribute_animation:
+                logic.end_pipe_animation()
+
         for sub_node in self.attribute_sub_widgets:
             if not sub_node.attribute_animation:
                 sub_node.end_pipe_animation()
-
-    def add_next_attribute(self, widget):
-        self.next_attribute.append(widget)
-
-    def add_last_attribute(self, widget):
-        self.last_attribute.append(widget)
-
-    def remove_next_attribute(self, widget):
-        self.next_attribute.remove(widget)
-
-    def remove_last_attribute(self, widget):
-        self.last_attribute.remove(widget)
 
     def mousePressEvent(self, event) -> None:
         if int(event.modifiers()) & QtCore.Qt.ShiftModifier:

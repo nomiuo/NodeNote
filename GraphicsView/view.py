@@ -16,12 +16,14 @@ class View(QtWidgets.QGraphicsView):
                             QtGui.QPainter.TextAntialiasing | QtGui.QPainter.SmoothPixmapTransform)
         self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
         self.scene = Scene(self)
+        self.setScene(self.scene)
+
+        # BACKGROUND IMAGE
         self.background_image = effect_background.EffectBackground(self)
         self.background_image.resize(self.size().width(), self.size().height())
         self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())
         self.scene.addItem(self.background_image)
         self.background_image.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
-        self.setScene(self.scene)
 
         # SCALE FUNCTION
         self.zoomInFactor = 1.25
@@ -183,8 +185,11 @@ class View(QtWidgets.QGraphicsView):
         self.scene.removeItem(pipe_widget)
 
     def drag_pipe_press(self, event):
+        super(View, self).mouseDoubleClickEvent(event)
         if self.mode == constants.MODE_NOOP:
             self.item = self.itemAt(event.pos())
+            if constants.DEBUG_DRAW_PIPE:
+                print("mouse double pressed at", self.item)
             if isinstance(self.item, port.Port):
                 if constants.DEBUG_DRAW_PIPE:
                     print("enter the drag mode and set input port: ", self.item)
@@ -231,8 +236,12 @@ class View(QtWidgets.QGraphicsView):
                     base_node = self.item.get_node()
                     node.start_pipe_animation()
                     base_node.start_pipe_animation()
-                    node.true_input_port.start_pipes_animation()
-                    node.false_input_port.start_pipes_animation()
+                    if hasattr(node, "true_input_port"):
+                        node.true_input_port.start_pipes_animation()
+                        node.false_input_port.start_pipes_animation()
+                    else:
+                        node.input_port.start_pipes_animation()
+                        node.output_port.start_pipes_animation()
 
             else:
                 if constants.DEBUG_DRAW_PIPE:
@@ -260,6 +269,8 @@ class View(QtWidgets.QGraphicsView):
             return False
 
     def mousePressEvent(self, event) -> None:
+        if constants.DEBUG_DRAW_PIPE:
+            print("mouse press at", self.itemAt(event.pos()))
         if event.button() == QtCore.Qt.LeftButton:
             self.set_leftbtn_beauty(event)
         else:
