@@ -1072,7 +1072,15 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
             if not node.attribute_animation:
                 node.start_pipe_animation()
 
+        for node in self.last_attribute:
+            if not node.attribute_animation:
+                node.start_pipe_animation()
+
         for logic in self.next_logic:
+            if not logic.attribute_animation:
+                logic.start_pipe_animation()
+
+        for logic in self.last_logic:
             if not logic.attribute_animation:
                 logic.start_pipe_animation()
 
@@ -1085,7 +1093,15 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
             if node.attribute_animation:
                 node.end_pipe_animation()
 
+        for node in self.last_attribute:
+            if node.attribute_animation:
+                node.end_pipe_animation()
+
         for logic in self.next_logic:
+            if logic.attribute_animation:
+                logic.end_pipe_animation()
+
+        for logic in self.last_logic:
             if logic.attribute_animation:
                 logic.end_pipe_animation()
 
@@ -1362,7 +1378,15 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
             if not node.attribute_animation:
                 node.start_pipe_animation()
 
+        for node in self.last_attribute:
+            if not node.attribute_animation:
+                node.start_pipe_animation()
+
         for logic in self.next_logic:
+            if not logic.attribute_animation:
+                logic.start_pipe_animation()
+
+        for logic in self.last_logic:
             if not logic.attribute_animation:
                 logic.start_pipe_animation()
 
@@ -1381,7 +1405,15 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
             if node.attribute_animation:
                 node.end_pipe_animation()
 
+        for node in self.last_attribute:
+            if node.attribute_animation:
+                node.end_pipe_animation()
+
         for logic in self.next_logic:
+            if logic.attribute_animation:
+                logic.end_pipe_animation()
+
+        for logic in self.last_logic:
             if logic.attribute_animation:
                 logic.end_pipe_animation()
 

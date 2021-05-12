@@ -148,7 +148,7 @@ class View(QtWidgets.QGraphicsView):
     def view_update_pipe_animation(self):
         if len(self.scene.selectedItems()) == 1:
             item = self.scene.selectedItems()[0]
-            if isinstance(item, attribute.AttributeWidget):
+            if isinstance(item, attribute.AttributeWidget) or isinstance(item, attribute.LogicWidget):
                 if not item.attribute_animation:
                     item.start_pipe_animation()
                 else:
