@@ -99,6 +99,11 @@ class Pipe(QtWidgets.QGraphicsPathItem):
             self.end_port = None
         self.update_position(pos_destination)
 
+    def intersect_with(self, p1, p2):
+        cut_path = QtGui.QPainterPath(p1)
+        cut_path.lineTo(p2)
+        return cut_path.intersects(self.path())
+
     def update_position(self, pos_destination=None):
         self.pos_source = self.node.get_port_position(self.start_port.port_type, self.start_port.port_truth)
         if self.end_port is not None:

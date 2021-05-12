@@ -1331,6 +1331,12 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.text_change_node_shape()
         self.update_pipe_position()
 
+    def delete_subwidget(self, subwidget):
+        self.attribute_layout.removeItem(subwidget)
+        self.attribute_sub_widgets.remove(subwidget)
+        self.text_change_node_shape()
+        self.update_pipe_position()
+
     def update_scene_rect(self):
         self.scene().setSceneRect(self.scene().itemsBoundingRect())
 

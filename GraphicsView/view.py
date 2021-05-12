@@ -1,6 +1,6 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 from GraphicsView.scene import Scene
-from Components import effect_water, attribute, port, pipe, effect_background
+from Components import effect_water, attribute, port, pipe, effect_background, effect_cutline
 from Model import constants, stylesheet
 
 __all__ = ["View"]
@@ -50,7 +50,12 @@ class View(QtWidgets.QGraphicsView):
 
         # STORE
         self.attribute_widgets = list()
-        self.truth_widgets = list()
+        self.logic_widgets = list()
+        self.pipes = list()
+
+        # CUT LINE
+        self.cutline = effect_cutline.EffectCutline()
+        self.scene.addItem(self.cutline)
 
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
@@ -66,7 +71,6 @@ class View(QtWidgets.QGraphicsView):
         if image_name != "":
             self.background_image.change_svg(image_name)
 
-    # todo: debug scale
     def change_scale(self, event):
         if constants.DEBUG_VIEW_CHANGE_SCALE:
             print("View is zooming! Current zoom: ", self.zoom)
@@ -92,6 +96,108 @@ class View(QtWidgets.QGraphicsView):
                 else:
                     item.end_pipe_animation()
 
+    def cut_interacting_edges(self):
+        if constants.DEBUG_CUT_LINE:
+            print("All pipes: ", self.pipes)
+        for ix in range(len(self.cutline.line_points) - 1):
+            for pipe_widget in self.pipes:
+                if constants.DEBUG_CUT_LINE:
+                    print("Get pipe", pipe_widget)
+                p1 = self.cutline.line_points[ix]
+                p2 = self.cutline.line_points[ix + 1]
+                if pipe_widget.intersect_with(p1, p2):
+                    if constants.DEBUG_CUT_LINE:
+                        print("Delete pipe", pipe_widget)
+                    self.delete_pipe(pipe_widget)
+
+    def delete_connections(self, item):
+        if isinstance(item, attribute.AttributeWidget):
+            for pipe_widget in item.true_input_port.pipes:
+                output_port = pipe_widget.get_output_type_port()
+                output_port.remove_pipes(pipe_widget)
+                self.scene.removeItem(pipe_widget)
+                self.pipes.remove(pipe_widget)
+            for pipe_widget in item.true_output_port.pipes:
+                input_port = pipe_widget.get_input_type_port()
+                input_port.remove_pipes(pipe_widget)
+                self.scene.removeItem(pipe_widget)
+                self.pipes.remove(pipe_widget)
+            for pipe_widget in item.false_input_port.pipes:
+                output_port = pipe_widget.get_output_type_port()
+                output_port.remove_pipes(pipe_widget)
+                self.scene.removeItem(pipe_widget)
+                self.pipes.remove(pipe_widget)
+            for pipe_widget in item.false_output_port.pipes:
+                input_port = pipe_widget.get_input_type_port()
+                input_port.remove_pipes(pipe_widget)
+                self.scene.removeItem(pipe_widget)
+                self.pipes.remove(pipe_widget)
+        elif isinstance(item, attribute.LogicWidget):
+            for pipe_widget in item.input_port.pipes:
+                output_port = pipe_widget.get_output_type_port()
+                output_port.remove_pipes(pipe_widget)
+                self.scene.removeItem(pipe_widget)
+                self.pipes.remove(pipe_widget)
+            for pipe_widget in item.output_port.pipes:
+                input_port = pipe_widget.get_input_type_port()
+                input_port.remove_pipes(pipe_widget)
+                self.scene.removeItem(pipe_widget)
+                self.pipes.remove(pipe_widget)
+
+    def delete_widgets(self, event):
+        if event.key() == QtCore.Qt.Key_Delete:
+            for item in self.scene.selectedItems():
+                if item in self.scene.selectedItems():
+                    if isinstance(item, attribute.AttributeWidget):
+                        self.delete_connections(item)
+                        for next_widget in item.next_attribute:
+                            next_widget.remove_last_attribute(item)
+                        for next_widget in item.next_logic:
+                            next_widget.remove_last_logic(item)
+                        for last_widget in item.last_attribute:
+                            last_widget.remove_next_attribute(item)
+                        for last_widget in item.last_logic:
+                            last_widget.remove_next_logic(item)
+                        if item.parentItem():
+                            parent_item = item.parentItem()
+                            parent_item.delete_subwidget(item)
+                            self.remove_attribute_widget(item)
+                        else:
+                            self.remove_attribute_widget(item)
+                    elif isinstance(item, attribute.LogicWidget):
+                        self.delete_connections(item)
+                        for next_widget in item.next_attribute:
+                            next_widget.remove_last_attribute(item)
+                        for next_widget in item.next_logic:
+                            next_widget.remove_last_logic(item)
+                        for last_widget in item.last_attribute:
+                            last_widget.remove_next_attribute(item)
+                        for last_widget in item.last_logic:
+                            last_widget.remove_next_logic(item)
+                        self.remove_logic_widget(item)
+                    elif isinstance(item, pipe.Pipe):
+                        self.delete_pipe(item)
+
+    def delete_pipe(self, item):
+        end_node = item.get_input_node()
+        start_node = item.get_output_node()
+        if isinstance(end_node, attribute.AttributeWidget):
+            start_node.remove_next_attribute(end_node)
+        else:
+            start_node.remove_next_logic(end_node)
+        if isinstance(start_node, attribute.AttributeWidget):
+            end_node.remove_last_attribute(start_node)
+        else:
+            end_node.remove_last_logic(start_node)
+
+        input_port = item.get_input_type_port()
+        output_port = item.get_output_type_port()
+        input_port.remove_pipes(item)
+        output_port.remove_pipes(item)
+
+        self.scene.removeItem(item)
+        self.pipes.remove(item)
+
     def add_attribute_widget(self, event):
         basic_widget = attribute.AttributeWidget()
         self.scene.addItem(basic_widget)
@@ -102,22 +208,24 @@ class View(QtWidgets.QGraphicsView):
         basic_widget = attribute.LogicWidget()
         self.scene.addItem(basic_widget)
         basic_widget.setPos(self.mapToScene(event.pos()))
-        self.truth_widgets.append(basic_widget)
+        self.logic_widgets.append(basic_widget)
 
     def add_drag_pipe(self, port_widget, pipe_widget):
         port_widget.add_pipes(pipe_widget)
+        self.pipes.append(pipe_widget)
         self.scene.addItem(pipe_widget)
 
     def remove_attribute_widget(self, widget):
         self.scene.removeItem(widget)
         self.attribute_widgets.remove(widget)
 
-    def remove_truth_widget(self, widget):
+    def remove_logic_widget(self, widget):
         self.scene.removeItem(widget)
-        self.truth_widgets.remove(widget)
+        self.logic_widgets.remove(widget)
 
     def remove_drag_pipe(self, port_widget, pipe_widget):
         port_widget.remove_pipes(pipe_widget)
+        self.pipes.remove(pipe_widget)
         self.scene.removeItem(pipe_widget)
 
     def drag_pipe_press(self, event):
@@ -208,10 +316,22 @@ class View(QtWidgets.QGraphicsView):
         self.itemAt(event.pos()).scenePos()  # debug for scale, i don't understand but it work
         if constants.DEBUG_DRAW_PIPE:
             print("mouse press at", self.itemAt(event.pos()))
+        if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            self.mode = constants.MODE_PIPE_CUT
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
+            return
         if event.button() == QtCore.Qt.LeftButton:
             self.set_leftbtn_beauty(event)
+
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
+        if self.mode == constants.MODE_PIPE_CUT:
+            self.cut_interacting_edges()
+            self.cutline.line_points = list()
+            self.cutline.update()
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
+            self.mode = constants.MODE_NOOP
         else:
-            super(View, self).mousePressEvent(event)
+            super(View, self).mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         if event.button() == QtCore.Qt.LeftButton:
@@ -222,11 +342,17 @@ class View(QtWidgets.QGraphicsView):
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.mode == constants.MODE_PIPE_DRAG:
             self.drag_pipe.update_position(self.mapToScene(event.pos()))
+        elif self.mode == constants.MODE_PIPE_CUT:
+            self.cutline.line_points.append(self.mapToScene(event.pos()))
+            self.cutline.update()
         super(View, self).mouseMoveEvent(event)
 
     def keyPressEvent(self, event) -> None:
         if event.key() == QtCore.Qt.Key_0 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.view_update_pipe_animation()
+        if event.key() == QtCore.Qt.Key_Delete or \
+                (event.key() == QtCore.Qt.Key_Delete and int(event.modifiers()) & QtCore.Qt.ControlModifier):
+            self.delete_widgets(event)
         if (event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier) or \
                 (event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier):
             self.change_scale(event)

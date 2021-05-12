@@ -108,11 +108,6 @@ class Port(QtWidgets.QGraphicsWidget):
                                  w, h)
             painter.drawEllipse(rect)
 
-    # def itemChange(self, change: QGraphicsItem.GraphicsItemChange, value):
-    #     if change == self.ItemScenePositionHasChanged:
-    #         self.redraw_pipes()
-    #     return super(Port, self).itemChange(change, value)
-
     def hoverEnterEvent(self, event: QtWidgets.QGraphicsSceneHoverEvent) -> None:
         self.hovered = True
         super(Port, self).hoverEnterEvent(event)
