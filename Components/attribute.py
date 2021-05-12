@@ -1328,6 +1328,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         subwidget = AttributeWidget()
         self.attribute_layout.addItem(subwidget)
         self.attribute_sub_widgets.append(subwidget)
+        self.scene().view.attribute_widgets.append(subwidget)
         self.text_change_node_shape()
         self.update_pipe_position()
 
