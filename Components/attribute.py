@@ -1161,7 +1161,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         # SET BASIC FUNCTION.
         self.name = "Node"
         self.setFlags(QtWidgets.QGraphicsWidget.ItemIsSelectable | QtWidgets.QGraphicsWidget.ItemIsFocusable |
-                      QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges)
+                      QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges | QtWidgets.QGraphicsItem.ItemIsMovable)
         self.setCacheMode(QtWidgets.QGraphicsItem.DeviceCoordinateCache)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setAcceptHoverEvents(True)
@@ -1188,7 +1188,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.input_layout.setContentsMargins(0, 0, 0, 0)
         self.output_layout.setContentsMargins(0, 0, 0, 0)
-        self.attribute_layout.setContentsMargins(0, 0, 0, 0)
+        self.attribute_layout.setContentsMargins(0, 0, 0, 5)
 
         # WIDGETS
         #   title name widget
@@ -1228,6 +1228,13 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
         # RESIZE
         self.resizing = False
+
+        # MOVE
+        self.moving = False
+        self.colliding_co = False
+        self.colliding_parent = False
+        self.colliding_child = False
+        self.colliding_inside = False
 
         # ANAMATION
         self.attribute_animation = False
@@ -1272,7 +1279,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         path = QtGui.QPainterPath()
         path.addRoundedRect(border_rect, radius, radius)
         painter.setBrush(QtCore.Qt.NoBrush)
-        painter.setPen(pen)
+        painter.setPen(pen if not self.colliding_co else
+                       QtGui.QPen(QtGui.QColor(230, 0, 0, 100), 2))
         painter.drawPath(path)
 
         painter.restore()
@@ -1324,7 +1332,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
                 pos = self.false_output_port.scenePos() + QtCore.QPointF(11, 11)
         return pos
 
-    def add_subwidget(self):
+    def add_new_subwidget(self):
         subwidget = AttributeWidget()
         self.attribute_layout.addItem(subwidget)
         self.attribute_sub_widgets.append(subwidget)
@@ -1332,11 +1340,81 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.text_change_node_shape()
         self.update_pipe_position()
 
+    def add_exist_subwidget(self, subwidget):
+        self.attribute_layout.addItem(subwidget)
+        self.attribute_sub_widgets.append(subwidget)
+        subwidget.setParentItem(self)
+        self.text_change_node_shape()
+        self.update_pipe_position()
+
     def delete_subwidget(self, subwidget):
         self.attribute_layout.removeItem(subwidget)
         self.attribute_sub_widgets.remove(subwidget)
+        subwidget.setParentItem(None)
         self.text_change_node_shape()
         self.update_pipe_position()
+
+    def colliding_judge_sub(self, parent_widget, item):
+        while parent_widget.attribute_sub_widgets:
+            for sub_widget in parent_widget.attribute_sub_widgets:
+                if sub_widget is item:
+                    self.colliding_child = True
+                    self.update()
+                    return 1
+                parent_widget = sub_widget
+                if self.colliding_judge_sub(parent_widget, item):
+                    return 1
+
+    def colliding_judge_parent(self, parent_widget, item):
+        while parent_widget.parentItem():
+            parent_widget = parent_widget.parentItem()
+            if parent_widget is item:
+                self.colliding_parent = True
+                self.update()
+                return 1
+
+    def colliding_detection(self):
+        colliding_items = self.scene().collidingItems(self, QtCore.Qt.IntersectsItemBoundingRect)
+        for item in colliding_items:
+            if isinstance(item, AttributeWidget):
+                flag_child = self.colliding_judge_sub(self, item)
+                flag_parent = self.colliding_judge_parent(self, item)
+                if not flag_parent and not flag_child:
+                    self.colliding_co = True
+                if flag_parent:
+                    self.colliding_inside = True
+                self.update()
+                if not flag_child:
+                    if constants.DEBUG_COLLIDING:
+                        print("**********************************************")
+                        print("DEBUG COLLIDING status: ", "\nchild: ", self.colliding_child,
+                              "\nparent: ", self.colliding_parent, "\ncommon co: ", self.colliding_co,
+                              "\ninside: ", self.colliding_inside, "\nreturn item: ", item)
+                        print("**********************************************")
+                    return item
+            else:
+                self.colliding_co = False
+                self.colliding_inside = False
+        self.update()
+
+    def colliding_release(self, event):
+        if self.colliding_co and self.colliding_parent:
+            item = self.colliding_detection()
+            self.parentItem().delete_subwidget(self)
+            item.add_exist_subwidget(self)
+        elif not self.colliding_co and self.colliding_parent and not self.colliding_inside:
+            self.parentItem().delete_subwidget(self)
+            self.setPos(event.scenePos())
+        elif not self.colliding_co and self.colliding_parent and self.colliding_inside:
+            self.parentItem().text_change_node_shape()
+        elif self.colliding_co and not self.colliding_parent:
+            self.colliding_detection().add_exist_subwidget(self)
+        self.colliding_co = False
+        self.colliding_parent = False
+        self.colliding_child = False
+        self.colliding_inside = False
+        self.moving = False
+        self.update()
 
     def update_scene_rect(self):
         self.scene().setSceneRect(self.scene().itemsBoundingRect())
@@ -1434,16 +1512,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
             super(AttributeWidget, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:
+        self.moving = True
         if self.resizing:
             self.mouse_update_node_size(event)
         else:
             super(AttributeWidget, self).mouseMoveEvent(event)
-        if not self.parentItem():
-            self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
-        else:
-            self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, False)
 
     def mouseReleaseEvent(self, event) -> None:
+        self.colliding_release(event)
         if self.resizing:
             self.mouse_update_node_size(event)
         else:
@@ -1456,9 +1532,11 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         add_subwidget.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/ADD SUBWIDGET.PNG"))
         result = menu.exec(event.screenPos())
         if result == add_subwidget:
-            self.add_subwidget()
+            self.add_new_subwidget()
         event.setAccepted(True)
 
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
         super(AttributeWidget, self).moveEvent(event)
+        if self.moving:
+            self.colliding_detection()
         self.update_pipe_position()

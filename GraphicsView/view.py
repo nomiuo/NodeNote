@@ -151,11 +151,11 @@ class View(QtWidgets.QGraphicsView):
                         for next_widget in item.next_attribute:
                             next_widget.remove_last_attribute(item)
                         for next_widget in item.next_logic:
-                            next_widget.remove_last_logic(item)
+                            next_widget.remove_last_attribute(item)
                         for last_widget in item.last_attribute:
                             last_widget.remove_next_attribute(item)
                         for last_widget in item.last_logic:
-                            last_widget.remove_next_logic(item)
+                            last_widget.remove_next_attribute(item)
                         if item.parentItem():
                             parent_item = item.parentItem()
                             parent_item.delete_subwidget(item)
@@ -165,11 +165,11 @@ class View(QtWidgets.QGraphicsView):
                     elif isinstance(item, attribute.LogicWidget):
                         self.delete_connections(item)
                         for next_widget in item.next_attribute:
-                            next_widget.remove_last_attribute(item)
+                            next_widget.remove_last_logic(item)
                         for next_widget in item.next_logic:
                             next_widget.remove_last_logic(item)
                         for last_widget in item.last_attribute:
-                            last_widget.remove_next_attribute(item)
+                            last_widget.remove_next_logic(item)
                         for last_widget in item.last_logic:
                             last_widget.remove_next_logic(item)
                         self.remove_logic_widget(item)
