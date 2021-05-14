@@ -1,3 +1,5 @@
+import math
+
 from PyQt5 import QtGui, QtCore, QtWidgets
 from Model.constants import *
 from Components import attribute
@@ -23,6 +25,9 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         # POS
         self.pos_source = self.node.get_port_position(self.start_port.port_type, self.start_port.port_truth)
         self.pos_destination = self.pos_source
+        self.control_start_point = QtCore.QPointF()
+        self.control_end_point = QtCore.QPointF()
+        self.status = PIPE_STATUS_NEW
 
         # ANIMATION
         self.timeline = QtCore.QTimeLine(2000)
@@ -143,10 +148,13 @@ class Pipe(QtWidgets.QGraphicsPathItem):
             d_x *= -1  # < 0, d_y = 0  | > 0
 
         path = QtGui.QPainterPath(self.pos_source)
+        if self.status == PIPE_STATUS_NEW:
+            self.control_start_point = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
+            self.control_end_point = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
         path.cubicTo(
-            s.x() + s_x, s.y() + s_y,  # CONTROL POINT
-            d.x() + d_x, d.y() + d_y,  # CONTROL POINT
-            d.x(), d.y()
+            self.control_start_point,  # CONTROL POINT
+            self.control_end_point,  # CONTROL POINT
+            self.pos_destination
         )
         self.setPath(path)
 
@@ -174,3 +182,17 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         bound_rect_width, bound_rect_height = self.edit.boundingRect().width(), self.edit.boundingRect().height()
         self.edit.setPos(self.path().pointAtPercent(0.5).x() - (bound_rect_width // 2),
                          self.path().pointAtPercent(0.5).y() - (bound_rect_height // 2))
+
+    def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
+        if self.isSelected():
+            self.status = PIPE_STATUS_CHANGE
+            current_pos = event.scenePos()
+            distance_start = (current_pos.x() - self.control_start_point.x()) ** 2 + \
+                             (current_pos.y() - self.control_start_point.y()) ** 2
+            distance_end = (current_pos.x() - self.control_end_point.x()) ** 2 + \
+                           (current_pos.y() - self.control_end_point.y()) ** 2
+            if distance_start > distance_end:
+                self.control_end_point = current_pos
+            else:
+                self.control_start_point = current_pos
+            self.update()

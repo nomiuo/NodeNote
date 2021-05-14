@@ -10,7 +10,8 @@ __all__ = ["DEBUG_DRAW_PIPE", "DEBUG_EFFECT_SNOW", "DEBUG_VIEW_CHANGE_SCALE", "D
            "ITEM_CACHE_MODE",
            "INPUT_NODE_TYPE", "OUTPUT_NODE_TYPE",
            "MODE_PIPE_DRAG", "MODE_NOOP", "MODE_PIPE_CUT", "MODE_CONTAINER",
-           "SCALE_WIDGET"]
+           "SCALE_WIDGET",
+           "PIPE_STATUS_NEW", "PIPE_STATUS_CHANGE"]
 
 
 # === DEBUG ===
@@ -55,3 +56,7 @@ MODE_CONTAINER = 4
 
 # === WIDGET ===
 SCALE_WIDGET = (attribute.LogicWidget,)
+
+# === PIPE ===
+PIPE_STATUS_NEW = 0
+PIPE_STATUS_CHANGE = 1

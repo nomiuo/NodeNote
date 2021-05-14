@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QApplication
 
 
 # todo: setConrnerWidget
-# todo: draw containers
 # todo: clone node
 # todo: change control point with pipe
 if __name__ == '__main__':
