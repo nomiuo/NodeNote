@@ -4,7 +4,8 @@ from PyQt5.QtWidgets import QApplication
 
 # todo: setConrnerWidget
 # todo: clone node
-# todo: change control point with pipe
+# todo: animation added in the front
+# todo: pipe + not set
 if __name__ == '__main__':
     app = QApplication([])
     window = NoteWindow()

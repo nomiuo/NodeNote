@@ -1,22 +1,20 @@
-import math
-
 from PyQt5 import QtGui, QtCore, QtWidgets
-from Model.constants import *
+from Model import constants
 from Components import attribute
 
 __all__ = ["Pipe"]
 
 
 class Pipe(QtWidgets.QGraphicsPathItem):
-    def __init__(self, input_port=None, output_port=None, node=None):
+    def __init__(self, start_port=None, end_port=None, node=None):
         super(Pipe, self).__init__()
         self.node = node
-        self.start_port = input_port
-        self.end_port = output_port
+        self.start_port = start_port
+        self.end_port = end_port
 
         # BASIC SETTINGS
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
-        self.setZValue(Z_VAL_PIPE)
+        self.setZValue(constants.Z_VAL_PIPE)
 
         # DRAW PARAMETERS
         self.color = QtGui.QColor(0, 255, 204, 128)
@@ -27,7 +25,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         self.pos_destination = self.pos_source
         self.control_start_point = QtCore.QPointF()
         self.control_end_point = QtCore.QPointF()
-        self.status = PIPE_STATUS_NEW
+        self.status = constants.PIPE_STATUS_NEW
 
         # ANIMATION
         self.timeline = QtCore.QTimeLine(2000)
@@ -42,7 +40,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         self.ellips_item = QtWidgets.QGraphicsEllipseItem(ellips_size, self)
         self.ellips_item.setBrush(ellips_color)
         self.ellips_item.setPen(ellips_pen)
-        if input_port.port_type == OUTPUT_NODE_TYPE:
+        if start_port.port_type == constants.OUTPUT_NODE_TYPE:
             self.ellips_item.setPos(self.path().pointAtPercent(0.0))
             self.timeline.setFrameRange(0, 100)
         else:
@@ -68,38 +66,38 @@ class Pipe(QtWidgets.QGraphicsPathItem):
             self.timeline.stop()
 
     def timeline_frame_changed(self, frame_num):
-        if self.start_port.port_type == OUTPUT_NODE_TYPE:
+        if self.start_port.port_type == constants.OUTPUT_NODE_TYPE:
             point = self.path().pointAtPercent(float(frame_num) / float(self.timeline.endFrame()))
         else:
             point = self.path().pointAtPercent(float(frame_num) / float(self.timeline.startFrame()))
         self.ellips_item.setPos(point)
 
     def get_input_node(self):
-        if self.start_port.port_type == OUTPUT_NODE_TYPE:
+        if self.start_port.port_type == constants.OUTPUT_NODE_TYPE:
             return self.end_port.get_node()
         else:
             return self.start_port.get_node()
 
     def get_output_node(self):
-        if self.start_port.port_type == INPUT_NODE_TYPE:
+        if self.start_port.port_type == constants.INPUT_NODE_TYPE:
             return self.end_port.get_node()
         else:
             return self.start_port.get_node()
 
     def get_output_type_port(self):
-        if self.start_port.port_type == OUTPUT_NODE_TYPE:
+        if self.start_port.port_type == constants.OUTPUT_NODE_TYPE:
             return self.start_port
         else:
             return self.end_port
 
     def get_input_type_port(self):
-        if self.start_port.port_type == INPUT_NODE_TYPE:
+        if self.start_port.port_type == constants.INPUT_NODE_TYPE:
             return self.start_port
         else:
             return self.end_port
 
     def delete_input_type_port(self, pos_destination=None):
-        if self.start_port.port_type == OUTPUT_NODE_TYPE and self.end_port is not None:
+        if self.start_port.port_type == constants.OUTPUT_NODE_TYPE and self.end_port is not None:
             self.end_port.remove_pipes(self)
             self.end_port = None
         self.update_position(pos_destination)
@@ -107,7 +105,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
     def intersect_with(self, p1, p2):
         cut_path = QtGui.QPainterPath(p1)
         cut_path.lineTo(p2)
-        if DEBUG_CUT_LINE:
+        if constants.DEBUG_CUT_LINE:
             print(self, ": ", cut_path.intersects(self.path()))
         return cut_path.intersects(self.path())
 
@@ -142,13 +140,13 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         d_x = -dist
         d_y = 0
 
-        if ((s.x() > d.x()) and sspos == OUTPUT_NODE_TYPE) or \
-                ((s.x() < d.x()) and sspos == INPUT_NODE_TYPE):
+        if ((s.x() > d.x()) and sspos == constants.OUTPUT_NODE_TYPE) or \
+                ((s.x() < d.x()) and sspos == constants.INPUT_NODE_TYPE):
             s_x *= -1  # > 0, s_y = 0  | < 0
             d_x *= -1  # < 0, d_y = 0  | > 0
 
         path = QtGui.QPainterPath(self.pos_source)
-        if self.status == PIPE_STATUS_NEW:
+        if self.status == constants.PIPE_STATUS_NEW:
             self.control_start_point = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
             self.control_end_point = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
         path.cubicTo(
@@ -172,9 +170,9 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         image = QtGui.QPixmap("Resources/Pipe/arrow.png")
         image_rectf = QtCore.QRectF(image.rect().x(), image.rect().y(), image.rect().width(), image.rect().height())
         target_rectf = QtCore.QRectF(0, 0, 0, 0)
-        if self.start_port.port_type == OUTPUT_NODE_TYPE:
+        if self.start_port.port_type == constants.OUTPUT_NODE_TYPE:
             target_rectf = QtCore.QRectF(d.x() - 11, d.y() - 11, image.width(), image.height())
-        elif self.start_port.port_type == INPUT_NODE_TYPE:
+        elif self.start_port.port_type == constants.INPUT_NODE_TYPE:
             target_rectf = QtCore.QRectF(s.x() - 11, s.y() - 11, image.width(), image.height())
         painter.drawPixmap(target_rectf, image, image_rectf)
 
@@ -185,7 +183,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
         if self.isSelected():
-            self.status = PIPE_STATUS_CHANGE
+            self.status = constants.PIPE_STATUS_CHANGE
             current_pos = event.scenePos()
             distance_start = (current_pos.x() - self.control_start_point.x()) ** 2 + \
                              (current_pos.y() - self.control_start_point.y()) ** 2

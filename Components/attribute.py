@@ -8,7 +8,7 @@ import pylab
 import numpy as np
 from PyQt5 import QtCore, QtWidgets, QtGui
 from Model import constants, stylesheet
-from Components import port
+from Components import port, pipe
 
 
 __all__ = ["SubConstituteWidget", "InputTextField",
@@ -1000,6 +1000,10 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
         self.last_logic = list()
         self.attribute_animation = False
 
+        # Colliding
+        self.moving = False
+        self.colliding_co = False
+
     def design_ui(self):
         # select logic
         logic_combobox_input = QtWidgets.QComboBox()
@@ -1105,18 +1109,96 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
             if logic.attribute_animation:
                 logic.end_pipe_animation()
 
+    @staticmethod
+    def colliding_judge_pipe(logic_widget, item):
+        for pipe_widget in logic_widget.input_port.pipes:
+            if pipe_widget is item:
+                return True
+        for pipe_widget in logic_widget.output_port.pipes:
+            if pipe_widget is item:
+                return True
+        return False
+
+    def colliding_detection(self):
+        colliding_items = self.scene().collidingItems(self, QtCore.Qt.IntersectsItemBoundingRect)
+        for colliding_item in colliding_items:
+            if isinstance(colliding_item, pipe.Pipe):
+                if not self.colliding_judge_pipe(self, colliding_item):
+                    self.colliding_co = True
+                    self.update()
+                    return colliding_item
+            self.colliding_co = False
+            self.update()
+
+    def colliding_release(self):
+        if self.colliding_co:
+            pipe_item = self.colliding_detection()
+
+            output_node = pipe_item.get_output_node()
+            input_node = pipe_item.get_input_node()
+            if isinstance(input_node, AttributeWidget):
+                output_node.remove_next_attribute(input_node)
+                self.add_next_attribute(input_node)
+            else:
+                output_node.remove_next_logic(input_node)
+                self.add_next_logic(input_node)
+            output_node.add_next_logic(self)
+            if isinstance(output_node, AttributeWidget):
+                input_node.remove_last_attribute(output_node)
+                self.add_last_attribute(output_node)
+            else:
+                input_node.remove_last_logic(output_node)
+                self.add_last_logic(output_node)
+            input_node.add_last_logic(self)
+
+            input_port = pipe_item.get_input_type_port()
+            pipe_widget = pipe.Pipe(self.output_port, input_port, self)
+            self.scene().addItem(pipe_widget)
+            self.scene().view.pipes.append(pipe_widget)
+            pipe_item.end_port = self.input_port
+
+            input_port.remove_pipes(pipe_item)
+            input_port.add_pipes(pipe_widget)
+            self.input_port.add_pipes(pipe_item)
+            self.output_port.add_pipes(pipe_widget)
+
+            self.update_pipe_position()
+            input_node.update_pipe_position()
+            output_node.update_pipe_position()
+
+            if output_node.attribute_animation:
+                self.start_pipe_animation()
+
+        self.moving = False
+        self.colliding_co = False
+
     def paint(self, painter, option, widget=None) -> None:
         super(LogicWidget, self).paint(painter, option, widget)
         self.input_port.setPos(-12, self.size().height() / 2 - 3)
         self.output_port.setPos(self.size().width() - 12, self.size().height() / 2 - 3)
 
-        painter.setPen(QtGui.QPen(QtGui.QColor(15, 242, 254, 255), 1) if not self.isSelected() else
-                       QtGui.QPen(QtGui.QColor(255, 229, 153, 255), 2))
+        if self.colliding_co:
+            pen = QtGui.QPen(QtGui.QColor(230, 0, 0, 100), 2)
+        elif self.isSelected():
+            pen = QtGui.QPen(QtGui.QColor(255, 229, 153, 255), 2)
+        else:
+            pen = QtGui.QPen(QtGui.QColor(15, 242, 254, 255), 1)
+        painter.setPen(pen)
         painter.setBrush(QtCore.Qt.NoBrush)
         painter.drawRoundedRect(0, 0, self.size().width(), self.size().height(), 2, 2)
 
+    def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
+        self.moving = True
+        super(LogicWidget, self).mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
+        self.colliding_release()
+        super(LogicWidget, self).mouseReleaseEvent(event)
+
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
         super(LogicWidget, self).moveEvent(event)
+        if self.moving:
+            self.colliding_detection()
         self.update_pipe_position()
 
 
@@ -1231,6 +1313,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
         # MOVE
         self.moving = False
+        self.colliding_type = constants.COLLIDING_ATTRIBUTE
         self.colliding_co = False
         self.colliding_parent = False
         self.colliding_child = False
@@ -1373,10 +1456,30 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
                 self.update()
                 return 1
 
+    @staticmethod
+    def colliding_judge_pipe(attribute_widget, item):
+        for pipe_widget in attribute_widget.true_input_port.pipes:
+            if pipe_widget is item:
+                return True
+        for pipe_widget in attribute_widget.true_output_port.pipes:
+            if pipe_widget is item:
+                return True
+        for pipe_widget in attribute_widget.false_input_port.pipes:
+            if pipe_widget is item:
+                return True
+        for pipe_widget in attribute_widget.false_output_port.pipes:
+            if pipe_widget is item:
+                return True
+        for sub_widget in attribute_widget.attribute_sub_widgets:
+            if sub_widget.colliding_judge_pipe(sub_widget, item):
+                return True
+        return False
+
     def colliding_detection(self):
         colliding_items = self.scene().collidingItems(self, QtCore.Qt.IntersectsItemBoundingRect)
         for item in colliding_items:
             if isinstance(item, AttributeWidget):
+                self.colliding_type = constants.COLLIDING_ATTRIBUTE
                 flag_child = self.colliding_judge_sub(self, item)
                 flag_parent = self.colliding_judge_parent(self, item)
                 if not flag_parent and not flag_child:
@@ -1385,36 +1488,107 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
                     self.colliding_inside = True
                 self.update()
                 if not flag_child:
+                    return item
+                if constants.DEBUG_COLLIDING:
+                    print("****************attr**************************")
+                    print("DEBUG COLLIDING status: ", "\nchild: ", self.colliding_child,
+                          "\nparent: ", self.colliding_parent, "\ncommon co: ", self.colliding_co,
+                          "\ninside: ", self.colliding_inside, "\nreturn item: ", item,
+                          "\ntype: ", self.colliding_type)
+                    print("**********************************************")
+            elif isinstance(item, pipe.Pipe):
+                if not self.colliding_judge_pipe(self, item):
+                    self.colliding_type = constants.COLLIDING_PIPE
+                    self.colliding_co = True
+                    self.update()
                     if constants.DEBUG_COLLIDING:
-                        print("**********************************************")
+                        print("****************pipe**************************")
                         print("DEBUG COLLIDING status: ", "\nchild: ", self.colliding_child,
                               "\nparent: ", self.colliding_parent, "\ncommon co: ", self.colliding_co,
-                              "\ninside: ", self.colliding_inside, "\nreturn item: ", item)
+                              "\ninside: ", self.colliding_inside, "\nreturn item: ", item,
+                              "\ntype: ", self.colliding_type)
                         print("**********************************************")
                     return item
+                else:
+                    self.colliding_co = False
+                    self.colliding_type = constants.COLLIDING_ATTRIBUTE
+                    self.update()
+                return
             else:
                 self.colliding_co = False
+                self.colliding_type = constants.COLLIDING_ATTRIBUTE
                 self.colliding_inside = False
         self.update()
 
+    # todo: animation debug
     def colliding_release(self, event):
-        if self.colliding_co and self.colliding_parent:
+        if self.colliding_type == constants.COLLIDING_ATTRIBUTE:
+            if self.colliding_co and self.colliding_parent:
+                item = self.colliding_detection()
+                self.parentItem().delete_subwidget(self)
+                item.add_exist_subwidget(self)
+            elif not self.colliding_co and self.colliding_parent and not self.colliding_inside:
+                self.parentItem().delete_subwidget(self)
+                self.setPos(event.scenePos())
+            elif not self.colliding_co and self.colliding_parent and self.colliding_inside:
+                self.parentItem().text_change_node_shape()
+            elif self.colliding_co and not self.colliding_parent:
+                self.colliding_detection().add_exist_subwidget(self)
+            self.colliding_co = False
+            self.colliding_parent = False
+            self.colliding_child = False
+            self.colliding_inside = False
+            self.moving = False
+            self.update()
+        elif self.colliding_type == constants.COLLIDING_PIPE:
             item = self.colliding_detection()
-            self.parentItem().delete_subwidget(self)
-            item.add_exist_subwidget(self)
-        elif not self.colliding_co and self.colliding_parent and not self.colliding_inside:
-            self.parentItem().delete_subwidget(self)
-            self.setPos(event.scenePos())
-        elif not self.colliding_co and self.colliding_parent and self.colliding_inside:
-            self.parentItem().text_change_node_shape()
-        elif self.colliding_co and not self.colliding_parent:
-            self.colliding_detection().add_exist_subwidget(self)
-        self.colliding_co = False
-        self.colliding_parent = False
-        self.colliding_child = False
-        self.colliding_inside = False
-        self.moving = False
-        self.update()
+            if self.parentItem():
+                self.parentItem().delete_subwidget(self)
+                self.setPos(event.scenePos())
+
+            output_node = item.get_output_node()
+            input_node = item.get_input_node()
+            if isinstance(input_node, AttributeWidget):
+                output_node.remove_next_attribute(input_node)
+                self.add_next_attribute(input_node)
+            else:
+                output_node.remove_next_logic(input_node)
+                self.add_next_logic(input_node)
+            output_node.add_next_attribute(self)
+            if isinstance(output_node, AttributeWidget):
+                input_node.remove_last_attribute(output_node)
+                self.add_last_attribute(output_node)
+            else:
+                input_node.remove_last_logic(output_node)
+                self.add_last_logic(output_node)
+            input_node.add_last_attribute(self)
+
+            if isinstance(input_node, AttributeWidget):
+                pipe_widget = pipe.Pipe(self.true_output_port, input_node.true_input_port, self)
+            else:
+                pipe_widget = pipe.Pipe(self.true_output_port, input_node.input_port, self)
+            self.scene().addItem(pipe_widget)
+            self.scene().view.pipes.append(pipe_widget)
+
+            item.get_input_type_port().add_pipes(pipe_widget)
+            item.get_input_type_port().remove_pipes(item)
+            self.true_input_port.add_pipes(item)
+            self.true_output_port.add_pipes(pipe_widget)
+            item.end_port = self.true_input_port
+            item.update()
+
+            self.colliding_co = False
+            self.colliding_parent = False
+            self.colliding_child = False
+            self.colliding_inside = False
+            self.moving = False
+            self.colliding_type = constants.COLLIDING_ATTRIBUTE
+            self.update()
+            input_node.update_pipe_position()
+            output_node.update_pipe_position()
+
+            if output_node.attribute_animation:
+                self.start_pipe_animation()
 
     def update_scene_rect(self):
         self.scene().setSceneRect(self.scene().itemsBoundingRect())

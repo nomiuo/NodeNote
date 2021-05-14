@@ -231,7 +231,7 @@ class View(QtWidgets.QGraphicsView):
                 if constants.DEBUG_DRAW_PIPE:
                     print("enter the drag mode and set input port: ", self.item)
                 self.mode = constants.MODE_PIPE_DRAG
-                self.drag_pipe = pipe.Pipe(input_port=self.item, output_port=None, node=self.item.parentItem())
+                self.drag_pipe = pipe.Pipe(start_port=self.item, end_port=None, node=self.item.parentItem())
                 self.add_drag_pipe(self.item, self.drag_pipe)
                 return
             if isinstance(self.item, pipe.Pipe):
@@ -283,17 +283,9 @@ class View(QtWidgets.QGraphicsView):
                     output_node.add_next_logic(input_node)
                     input_node.add_last_logic(output_node)
 
-                if self.judge_animation(self.item):
-                    node = item.get_node()
-                    base_node = self.item.get_node()
-                    node.start_pipe_animation()
-                    base_node.start_pipe_animation()
-                    if hasattr(node, "true_input_port"):
-                        node.true_input_port.start_pipes_animation()
-                        node.false_input_port.start_pipes_animation()
-                    else:
-                        node.input_port.start_pipes_animation()
-                        node.output_port.start_pipes_animation()
+                if input_node.attribute_animation or output_node.attribute_animation:
+                    input_node.start_pipe_animation()
+                    output_node.start_pipe_animation()
 
             else:
                 if constants.DEBUG_DRAW_PIPE:
@@ -311,14 +303,6 @@ class View(QtWidgets.QGraphicsView):
             if same_pipe in self.item.pipes:
                 return True
         return False
-
-    @staticmethod
-    def judge_animation(item):
-        node = item.get_node()
-        if node.attribute_animation:
-            return True
-        else:
-            return False
 
     def cut_interacting_edges(self):
         if constants.DEBUG_CUT_LINE:
