@@ -2,21 +2,27 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from Model import constants
 
 
-class Container(QtWidgets.QGraphicsItem):
-    def __init__(self, parent=None):
+class Container(QtWidgets.QGraphicsPathItem):
+    def __init__(self, pos, parent=None):
         super(Container, self).__init__(parent)
-        self.line_points = []
-        self.pen = QtGui.QPen(QtGui.QColor(255, 128, 128, 200), 2)
-        self.pen.setDashPattern([3, 3])
-        self.setZValue(constants.Z_VAL_CONTAINERS)
+        self.start_point = pos
+        self.next_point = QtCore.QPointF()
+        self.draw_path = QtGui.QPainterPath(self.start_point)
 
-    def boundingRect(self) -> QtCore.QRectF:
-        return QtCore.QRectF(0, 0, 1, 1)
+        self.pen = QtGui.QPen(QtGui.QColor(255, 128, 128, 255))
+        self.pen.setDashPattern([1, 1])
+        self.selected_pen = QtGui.QPen(QtGui.QColor(128, 0, 0, 128))
+
+        self.setZValue(constants.Z_VAL_CONTAINERS)
+        self.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable | QtWidgets.QGraphicsItem.ItemIsSelectable)
 
     def paint(self, painter, option, widget=None) -> None:
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setBrush(QtCore.Qt.NoBrush)
-        painter.setPen(self.pen)
+        painter.setPen(self.pen if not self.isSelected() else self.selected_pen)
 
-        poly = QtGui.QPolygonF(self.line_points)
-        painter.drawPolyline(poly)
+        if self.next_point:
+            self.draw_path.lineTo(self.next_point)
+            self.draw_path.moveTo(self.next_point)
+        self.setPath(self.draw_path)
+        painter.drawPath(self.path())

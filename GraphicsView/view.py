@@ -52,10 +52,14 @@ class View(QtWidgets.QGraphicsView):
         self.attribute_widgets = list()
         self.logic_widgets = list()
         self.pipes = list()
+        self.containers = list()
 
         # CUT LINE
         self.cutline = effect_cutline.EffectCutline()
         self.scene.addItem(self.cutline)
+
+        # Container
+        self.container_widget= None
 
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
@@ -163,6 +167,9 @@ class View(QtWidgets.QGraphicsView):
                         self.remove_logic_widget(item)
                     elif isinstance(item, pipe.Pipe):
                         self.delete_pipe(item)
+                    elif isinstance(item, container.Container):
+                        self.scene.removeItem(item)
+                        self.containers.remove(item)
 
     def delete_pipe(self, item):
         end_node = item.get_input_node()
@@ -336,6 +343,17 @@ class View(QtWidgets.QGraphicsView):
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
         self.mode = constants.MODE_NOOP
 
+    def container_pressed(self, event):
+        self.mode = constants.MODE_CONTAINER
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
+        self.container_widget = container.Container(self.mapToScene(event.pos()))
+        self.scene.addItem(self.container_widget)
+        self.containers.append(self.container_widget)
+
+    def container_released(self):
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
+        self.mode = constants.MODE_NOOP
+
     def mousePressEvent(self, event) -> None:
         self.itemAt(event.pos()).scenePos()  # debug for scale, i don't understand but it work
         if constants.DEBUG_DRAW_PIPE:
@@ -343,14 +361,20 @@ class View(QtWidgets.QGraphicsView):
         if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.cutline_pressed()
             return
+        if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ShiftModifier:
+            self.container_pressed(event)
+            return
         if event.button() == QtCore.Qt.LeftButton:
             self.set_leftbtn_beauty(event)
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.mode == constants.MODE_PIPE_CUT:
             self.cutline_released()
-        else:
-            super(View, self).mouseReleaseEvent(event)
+            return
+        if self.mode == constants.MODE_CONTAINER:
+            self.container_released()
+            return
+        super(View, self).mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         if event.button() == QtCore.Qt.LeftButton:
@@ -364,6 +388,9 @@ class View(QtWidgets.QGraphicsView):
         elif self.mode == constants.MODE_PIPE_CUT:
             self.cutline.line_points.append(self.mapToScene(event.pos()))
             self.cutline.update()
+        elif self.mode == constants.MODE_CONTAINER:
+            self.container_widget.next_point = self.mapToScene(event.pos())
+            self.container_widget.update()
         super(View, self).mouseMoveEvent(event)
 
     def keyPressEvent(self, event) -> None:
