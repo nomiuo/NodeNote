@@ -1,6 +1,6 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 from GraphicsView.scene import Scene
-from Components import effect_water, attribute, port, pipe, effect_background, effect_cutline
+from Components import effect_water, attribute, port, pipe, effect_background, effect_cutline, container
 from Model import constants, stylesheet
 
 __all__ = ["View"]
@@ -95,18 +95,6 @@ class View(QtWidgets.QGraphicsView):
                     item.start_pipe_animation()
                 else:
                     item.end_pipe_animation()
-
-    def cut_interacting_edges(self):
-        if constants.DEBUG_CUT_LINE:
-            print("All pipes: ", self.pipes)
-        for ix in range(len(self.cutline.line_points) - 1):
-            for pipe_widget in self.pipes:
-                p1 = self.cutline.line_points[ix]
-                p2 = self.cutline.line_points[ix + 1]
-                if pipe_widget.intersect_with(p1, p2):
-                    if constants.DEBUG_CUT_LINE:
-                        print("Delete pipe", pipe_widget)
-                    self.delete_pipe(pipe_widget)
 
     def delete_connections(self, item):
         if isinstance(item, attribute.AttributeWidget):
@@ -325,24 +313,42 @@ class View(QtWidgets.QGraphicsView):
         else:
             return False
 
+    def cut_interacting_edges(self):
+        if constants.DEBUG_CUT_LINE:
+            print("All pipes: ", self.pipes)
+        for ix in range(len(self.cutline.line_points) - 1):
+            p1 = self.cutline.line_points[ix]
+            p2 = self.cutline.line_points[ix + 1]
+            for pipe_widget in self.pipes:
+                if pipe_widget.intersect_with(p1, p2):
+                    if constants.DEBUG_CUT_LINE:
+                        print("Delete pipe", pipe_widget)
+                    self.delete_pipe(pipe_widget)
+
+    def cutline_pressed(self):
+        self.mode = constants.MODE_PIPE_CUT
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
+
+    def cutline_released(self):
+        self.cut_interacting_edges()
+        self.cutline.line_points = list()
+        self.cutline.update()
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
+        self.mode = constants.MODE_NOOP
+
     def mousePressEvent(self, event) -> None:
         self.itemAt(event.pos()).scenePos()  # debug for scale, i don't understand but it work
         if constants.DEBUG_DRAW_PIPE:
             print("mouse press at", self.itemAt(event.pos()))
         if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ControlModifier:
-            self.mode = constants.MODE_PIPE_CUT
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
+            self.cutline_pressed()
             return
         if event.button() == QtCore.Qt.LeftButton:
             self.set_leftbtn_beauty(event)
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.mode == constants.MODE_PIPE_CUT:
-            self.cut_interacting_edges()
-            self.cutline.line_points = list()
-            self.cutline.update()
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
-            self.mode = constants.MODE_NOOP
+            self.cutline_released()
         else:
             super(View, self).mouseReleaseEvent(event)
 

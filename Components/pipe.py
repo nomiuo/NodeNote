@@ -102,6 +102,8 @@ class Pipe(QtWidgets.QGraphicsPathItem):
     def intersect_with(self, p1, p2):
         cut_path = QtGui.QPainterPath(p1)
         cut_path.lineTo(p2)
+        if DEBUG_CUT_LINE:
+            print(self, ": ", cut_path.intersects(self.path()))
         return cut_path.intersects(self.path())
 
     def update_position(self, pos_destination=None):

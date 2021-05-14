@@ -2,13 +2,13 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from Model import constants
 
 
-class EffectCutline(QtWidgets.QGraphicsItem):
+class Container(QtWidgets.QGraphicsItem):
     def __init__(self, parent=None):
-        super(EffectCutline, self).__init__(parent)
+        super(Container, self).__init__(parent)
         self.line_points = []
-        self.pen = QtGui.QPen(QtCore.Qt.white, 2)
-        self.pen.setDashPattern([3, 2])
-        self.setZValue(constants.Z_VAL_CUTLINE)
+        self.pen = QtGui.QPen(QtGui.QColor(255, 128, 128, 200), 2)
+        self.pen.setDashPattern([3, 3])
+        self.setZValue(constants.Z_VAL_CONTAINERS)
 
     def boundingRect(self) -> QtCore.QRectF:
         return QtCore.QRectF(0, 0, 1, 1)
