@@ -37,7 +37,8 @@ class Port(QtWidgets.QGraphicsWidget):
         self.pipes.append(pipe_widget)
 
     def remove_pipes(self, pipe_widget):
-        self.pipes.remove(pipe_widget)
+        if pipe_widget in self.pipes:
+            self.pipes.remove(pipe_widget)
 
     def update_pipes_position(self):
         for pipe in self.pipes:
