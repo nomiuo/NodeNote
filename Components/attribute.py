@@ -1487,20 +1487,32 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
                 if flag_parent:
                     self.colliding_inside = True
                 self.update()
+
+                flag_pipe = False
+                for left_item in colliding_items[colliding_items.index(item):]:
+                    if isinstance(left_item, pipe.Pipe):
+                        if not self.colliding_judge_pipe(self, left_item):
+                            flag_pipe = True
+                            continue
+
                 if not flag_child:
                     return item
+
                 if constants.DEBUG_COLLIDING:
                     print("****************attr**************************")
                     print("DEBUG COLLIDING status: ", "\nchild: ", self.colliding_child,
                           "\nparent: ", self.colliding_parent, "\ncommon co: ", self.colliding_co,
                           "\ninside: ", self.colliding_inside, "\nreturn item: ", item,
-                          "\ntype: ", self.colliding_type)
+                          "\ntype: ", self.colliding_type, "\nflag pipe", flag_pipe)
                     print("**********************************************")
+
             elif isinstance(item, pipe.Pipe):
+
                 if not self.colliding_judge_pipe(self, item):
                     self.colliding_type = constants.COLLIDING_PIPE
                     self.colliding_co = True
                     self.update()
+
                     if constants.DEBUG_COLLIDING:
                         print("****************pipe**************************")
                         print("DEBUG COLLIDING status: ", "\nchild: ", self.colliding_child,
@@ -1508,19 +1520,17 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
                               "\ninside: ", self.colliding_inside, "\nreturn item: ", item,
                               "\ntype: ", self.colliding_type)
                         print("**********************************************")
+
                     return item
-                else:
-                    self.colliding_co = False
-                    self.colliding_type = constants.COLLIDING_ATTRIBUTE
-                    self.update()
-                return
+
             else:
+
                 self.colliding_co = False
                 self.colliding_type = constants.COLLIDING_ATTRIBUTE
                 self.colliding_inside = False
+
         self.update()
 
-    # todo: animation debug
     def colliding_release(self, event):
         if self.colliding_type == constants.COLLIDING_ATTRIBUTE:
             if self.colliding_co and self.colliding_parent:
@@ -1540,8 +1550,10 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
             self.colliding_inside = False
             self.moving = False
             self.update()
+
         elif self.colliding_type == constants.COLLIDING_PIPE:
             item = self.colliding_detection()
+
             if self.parentItem():
                 self.parentItem().delete_subwidget(self)
                 self.setPos(event.scenePos())
@@ -1574,8 +1586,12 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
             item.get_input_type_port().remove_pipes(item)
             self.true_input_port.add_pipes(item)
             self.true_output_port.add_pipes(pipe_widget)
-            item.end_port = self.true_input_port
-            item.update()
+            if item.end_port.port_type == constants.OUTPUT_NODE_TYPE:
+                item.start_port = self.true_input_port
+                item.update_position()
+            else:
+                item.end_port = self.true_input_port
+                item.update_position()
 
             self.colliding_co = False
             self.colliding_parent = False

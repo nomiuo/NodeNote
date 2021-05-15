@@ -59,7 +59,7 @@ class View(QtWidgets.QGraphicsView):
         self.scene.addItem(self.cutline)
 
         # Container
-        self.container_widget= None
+        self.container_widget = None
 
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
@@ -109,7 +109,7 @@ class View(QtWidgets.QGraphicsView):
                 self.pipes.remove(pipe_widget)
             for pipe_widget in item.true_output_port.pipes:
                 input_port = pipe_widget.get_input_type_port()
-                input_port.remove_pipes(pipe_widget)
+                input_port.remove_pipes(pipe_widget)  # todo debug: when
                 self.scene.removeItem(pipe_widget)
                 self.pipes.remove(pipe_widget)
             for pipe_widget in item.false_input_port.pipes:

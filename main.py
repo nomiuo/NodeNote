@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QApplication
 # todo: clone node
 # todo: animation added in the front
 # todo: pipe + not set
+# todo: edit and change pipe position
 if __name__ == '__main__':
     app = QApplication([])
     window = NoteWindow()

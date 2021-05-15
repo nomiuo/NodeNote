@@ -110,7 +110,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         return cut_path.intersects(self.path())
 
     def update_position(self, pos_destination=None):
-        self.pos_source = self.node.get_port_position(self.start_port.port_type, self.start_port.port_truth)
+        self.pos_source = self.start_port.parentItem().get_port_position(self.start_port.port_type, self.start_port.port_truth)
         if self.end_port is not None:
             self.pos_destination = self.end_port.parentItem().get_port_position(self.end_port.port_type,
                                                                                 self.end_port.port_truth)
