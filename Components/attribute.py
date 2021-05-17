@@ -1327,6 +1327,9 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.last_logic = list()
         self.attribute_sub_widgets = list()
 
+        # SCENE
+        self.sub_scene = None
+
     def paint(self, painter, option, widget=None) -> None:
         painter.save()
 
@@ -1380,6 +1383,9 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         self.update()
         self.attribute_layout.updateGeometry()
         self.attribute_layout.invalidate()
+        # pipe position
+        self.update_pipe_position()
+        self.update_pipe_parent_position()
 
     def mouse_update_node_size(self, event):
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress and not self.parentItem():
@@ -1609,6 +1615,12 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
     def update_scene_rect(self):
         self.scene().setSceneRect(self.scene().itemsBoundingRect())
 
+    def update_pipe_parent_position(self):
+        parent_item = self
+        while parent_item.parentItem():
+            parent_item.parentItem().update_pipe_position()
+            parent_item = parent_item.parentItem()
+
     def update_pipe_position(self):
         self.true_input_port.update_pipes_position()
         self.true_output_port.update_pipes_position()
@@ -1629,6 +1641,9 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
     def add_last_logic(self, widget):
         self.last_logic.append(widget)
 
+    def set_sub_scene(self, scene_widget):
+        self.sub_scene = scene_widget
+
     def remove_next_attribute(self, widget):
         self.next_attribute.remove(widget)
 
@@ -1640,6 +1655,9 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
 
     def remove_last_logic(self, widget):
         self.last_logic.remove(widget)
+
+    def remove_sub_scene(self, scene_widget):
+        self.sub_scene = None
 
     def start_pipe_animation(self):
         self.true_output_port.start_pipes_animation()

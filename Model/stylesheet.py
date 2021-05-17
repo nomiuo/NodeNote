@@ -194,3 +194,103 @@ STYLE_VSCROLLBAR = '''
                  background: none;
              }
 '''
+
+STYLE_QTOOLBAR = '''
+QToolBar {
+    background: rgba(204, 255, 255, 100);
+    spacing: 3px;
+}
+
+QToolBar::handle {
+    image: url(Resources/Toolbar/Flower.png);
+}
+'''
+
+STYLE_QTREEWIDGET = '''
+QTreeWidget {
+    alternate-background-color: yellow;
+    background-color: rgba(204, 255, 255, 100);
+}
+
+QTreeWidget {
+    show-decoration-selected: 1;
+}
+
+QTreeWidget::item {
+     border: 1px solid #d9d9d9;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+}
+
+QTreeWidget::item:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
+    border: 1px solid #bfcde4;
+}
+
+QTreeWidget::item:selected {
+    border: 1px solid #567dbc;
+}
+
+QTreeWidget::item:selected:active{
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);
+}
+
+QTreeWidget::item:selected:!active {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6b9be8, stop: 1 #577fbf);
+}
+
+QTreeWidget::branch {
+        background: palette(base);
+}
+
+QTreeWidget::branch:has-siblings:!adjoins-item {
+        background: cyan;
+}
+
+QTreeWidget::branch:has-siblings:adjoins-item {
+        background: red;
+}
+
+QTreeWidget::branch:!has-children:!has-siblings:adjoins-item {
+        background: blue;
+}
+
+QTreeWidget::branch:closed:has-children:has-siblings {
+        background: pink;
+}
+
+QTreeWidget::branch:has-children:!has-siblings:closed {
+        background: gray;
+}
+
+QTreeWidget::branch:open:has-children:has-siblings {
+        background: magenta;
+}
+
+QTreeWidget::branch:open:has-children:!has-siblings {
+        background: green;
+}
+QTreeWidget::branch:has-siblings:!adjoins-item {
+    border-image: url(Resources/Toolbar/stylesheet-vline.png) 0;
+}
+
+QTreeWidget::branch:has-siblings:adjoins-item {
+    border-image: url(Resources/Toolbar/stylesheet-branch-more.png) 0;
+}
+
+QTreeWidget::branch:!has-children:!has-siblings:adjoins-item {
+    border-image: url(Resources/Toolbar/stylesheet-branch-end.png) 0;
+}
+
+QTreeWidget::branch:has-children:!has-siblings:closed,
+QTreeWidget::branch:closed:has-children:has-siblings {
+        border-image: none;
+        image: url(Resources/Toolbar/stylesheet-branch-closed.png);
+}
+
+QTreeWidget::branch:open:has-children:!has-siblings,
+QTreeWidget::branch:open:has-children:has-siblings  {
+        border-image: none;
+        image: url(Resources/Toolbar/stylesheet-branch-open.png);
+}
+'''

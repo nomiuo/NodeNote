@@ -2,11 +2,8 @@ from Components.window import NoteWindow
 from PyQt5.QtWidgets import QApplication
 
 
-# todo: setConrnerWidget
 # todo: clone node
-# todo: animation added in the front
-# todo: pipe + not set
-# todo: edit and change pipe position
+# todo: use time
 if __name__ == '__main__':
     app = QApplication([])
     window = NoteWindow()
