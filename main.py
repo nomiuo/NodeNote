@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication
 
 # todo: clone node
 # todo: use time
+# todo: paste
 if __name__ == '__main__':
     app = QApplication([])
     window = NoteWindow()

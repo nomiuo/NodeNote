@@ -1,1 +1,1 @@
-__all__ = ["constants", "stylesheet"]
+__all__ = ["constants", "stylesheet", "history"]

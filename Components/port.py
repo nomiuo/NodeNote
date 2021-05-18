@@ -1,10 +1,11 @@
+from collections import OrderedDict
 from PyQt5 import QtGui, QtCore, QtWidgets
-from Model import constants
+from Model import constants, serializable
 
 __all__ = ["Port"]
 
 
-class Port(QtWidgets.QGraphicsWidget):
+class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def __init__(self, port_type, port_truth, parent):
         super(Port, self).__init__(parent)
         self.port_type = port_type
@@ -116,3 +117,15 @@ class Port(QtWidgets.QGraphicsWidget):
     def hoverLeaveEvent(self, event: QtWidgets.QGraphicsSceneHoverEvent) -> None:
         self.hovered = False
         super(Port, self).hoverLeaveEvent(event)
+
+    def serialize(self):
+        pipes = list()
+        for pipe_widget in self.pipes:
+            pipes.append(pipe_widget.serialize())
+
+        return OrderedDict([
+            ('id', self.id),
+            ('port type', self.port_type),
+            ('port truth', self.port_truth),
+            ('pipes', pipes)
+        ])

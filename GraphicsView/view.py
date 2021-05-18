@@ -1,12 +1,15 @@
+import json
+from collections import OrderedDict
 from PyQt5 import QtGui, QtCore, QtWidgets
 from GraphicsView.scene import Scene
-from Components import effect_water, attribute, port, pipe, effect_background, effect_cutline, container
-from Model import constants, stylesheet
+from Components import effect_water, attribute, port, pipe, container, effect_cutline, effect_background
+from Model import constants, stylesheet, history, serializable
+
 
 __all__ = ["View"]
 
 
-class View(QtWidgets.QGraphicsView):
+class View(QtWidgets.QGraphicsView, serializable.Serializable):
     def __init__(self, mainwindow, parent=None):
         super(View, self).__init__(parent)
         self.mainwindow = mainwindow
@@ -18,7 +21,7 @@ class View(QtWidgets.QGraphicsView):
         self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
         self.root_scene = Scene(self.mainwindow.scene_list, self)
         self.setScene(self.root_scene)
-        self.background_image =  self.root_scene.background_image
+        self.background_image = self.root_scene.background_image
         self.cutline = self.root_scene.cutline
 
         # SCALE FUNCTION
@@ -59,6 +62,9 @@ class View(QtWidgets.QGraphicsView):
         self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
         self.current_scene = self.root_scene
         self.current_scene_flag = self.root_scene_flag
+
+        # History
+        self.history = history.History(self.root_scene)
 
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
@@ -108,7 +114,7 @@ class View(QtWidgets.QGraphicsView):
                 self.pipes.remove(pipe_widget)
             for pipe_widget in item.true_output_port.pipes:
                 input_port = pipe_widget.get_input_type_port()
-                input_port.remove_pipes(pipe_widget)  # todo debug: when
+                input_port.remove_pipes(pipe_widget)
                 self.current_scene.removeItem(pipe_widget)
                 self.pipes.remove(pipe_widget)
             for pipe_widget in item.false_input_port.pipes:
@@ -350,6 +356,8 @@ class View(QtWidgets.QGraphicsView):
             sub_scene_flag.setData(0, QtCore.Qt.ToolTipRole, sub_scene)
         else:
             sub_scene = attribute_widget.sub_scene
+            self.background_image = self.current_scene.background_image
+            self.cutline = self.current_scene.cutline
 
         self.setScene(sub_scene)
         self.current_scene = sub_scene
@@ -374,7 +382,7 @@ class View(QtWidgets.QGraphicsView):
 
     def mousePressEvent(self, event) -> None:
         try:
-            self.itemAt(event.pos()).scenePos()  # debug for scale, i don't understand but it work
+            self.itemAt(event.pos()).scenePos()  # debug for scale, i don't understand but it works
         except AttributeError:
             pass
         if constants.DEBUG_DRAW_PIPE:
@@ -427,8 +435,15 @@ class View(QtWidgets.QGraphicsView):
         if (event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier) or \
                 (event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier):
             self.change_scale(event)
-        else:
-            super(View, self).keyPressEvent(event)
+        if event.key() == QtCore.Qt.Key_Z and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            pass
+        if event.key() == QtCore.Qt.Key_Y and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            pass
+        if event.key() == QtCore.Qt.Key_S and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            self.save_to_file("Graph.json")
+        if event.key() == QtCore.Qt.Key_O and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            self.load_from_file("Graph.json")
+        super(View, self).keyPressEvent(event)
 
     def contextMenuEvent(self, event) -> None:
         super(View, self).contextMenuEvent(event)
@@ -453,3 +468,40 @@ class View(QtWidgets.QGraphicsView):
     def drawBackground(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None:
         self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())
         self.background_image.resize(self.size().width(), self.size().height())
+
+    def save_to_file(self, filename):
+        with open(filename, "w", encoding='utf-8') as file:
+            file.write(json.dumps(self.serialize(), indent=4))
+
+    def load_from_file(self, filename):
+        with open(filename, "r", encoding='utf-8') as file:
+            data = json.loads(file.read())
+            self.deserialize(data['root scene'], {})
+
+    def serialize(self):
+        return OrderedDict([
+            ('root scene', self.root_scene.serialize()),
+        ])
+
+    def deserialize(self, data, hashmap: dict, view=None):
+        # clear all contents
+        for item in self.root_scene.items():
+            if not isinstance(item, (effect_background.EffectBackground, effect_cutline.EffectCutline)):
+                self.root_scene.removeItem(item)
+        self.mainwindow.scene_list.clear()
+        self.root_scene_flag = QtWidgets.QTreeWidgetItem(self.mainwindow.scene_list,
+                                                         ("Root Scene",))
+        self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
+        self.attribute_widgets = list()
+        self.logic_widgets = list()
+        self.pipes = list()
+        self.containers = list()
+        # set root scene
+        self.current_scene = self.root_scene
+        self.background_image = self.current_scene.background_image
+        self.cutline = self.current_scene.cutline
+        self.setScene(self.current_scene)
+        # create contents
+        hashmap = {}
+        self.root_scene.deserialize(data, hashmap, self)
+        return True

@@ -1,8 +1,9 @@
+from collections import OrderedDict
 from PyQt5 import QtWidgets, QtGui, QtCore
-from Model import constants
+from Model import constants, serializable
 
 
-class Container(QtWidgets.QGraphicsPathItem):
+class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
     def __init__(self, pos, parent=None):
         super(Container, self).__init__(parent)
         self.start_point = pos
@@ -26,3 +27,9 @@ class Container(QtWidgets.QGraphicsPathItem):
             self.draw_path.moveTo(self.next_point)
         self.setPath(self.draw_path)
         painter.drawPath(self.path())
+
+    def serialize(self):
+        return OrderedDict([
+            ('id', self.id),
+            ('path', id(self.draw_path))
+        ])

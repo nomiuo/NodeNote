@@ -1,15 +1,15 @@
 import re
 import os
 import io
-
+import time
+from collections import OrderedDict
 import validators
 import matplotlib.pyplot as plt
 import pylab
 import numpy as np
 from PyQt5 import QtCore, QtWidgets, QtGui
-from Model import constants, stylesheet
+from Model import constants, stylesheet, serializable
 from Components import port, pipe
-
 
 __all__ = ["SubConstituteWidget", "InputTextField",
            "LogicWidget", "TruthWidget", "AttributeWidget"]
@@ -625,10 +625,15 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         elif font_type == "Mathjax":
             str_latex = cursor.selection().toPlainText()
             if str_latex.startswith("$") and str_latex.endswith("$") and str_latex.count("$") == 2:
-                img = self.latex_formula(str_latex)
+                image = self.latex_formula(str_latex)
+                image_folder = os.getcwd() + "//Assets//"
+                if not os.path.exists(image_folder):
+                    os.makedirs(image_folder)
+                image_name = "%s/%s.png" % (image_folder, time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime()))
+                image.save(image_name, quality=50)
                 cursor.clearSelection()
                 cursor.insertText("\n")
-                cursor.insertImage(img)
+                cursor.insertImage(image_name)
                 self.editing_state = False
         elif font_type == "Clear":
             cursor.setCharFormat(text_format)
@@ -667,14 +672,27 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
         if mime_data.hasImage():
             image = QtGui.QImage(mime_data.imageData())
-            cursor.insertImage(image)
+            image_folder = os.getcwd() + "//Assets//"
+            if not os.path.exists(image_folder):
+                os.makedirs(image_folder)
+            image_name = "%s/%s.png" % (image_folder, time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime()))
+            image.save(image_name, quality=50)
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName(image_name)
+            cursor.insertImage(image_format)
         elif mime_data.hasUrls():
             for u in mime_data.urls():
                 file_ext = os.path.splitext(str(u.toLocalFile()))[1].lower()
                 if constants.DEBUG_RICHTEXT:
                     print(file_ext, u.isLocalFile())
                 if u.isLocalFile() and file_ext in ('.jpg', '.png', '.bmp', '.icon', '.jpeg', 'gif'):
-                    cursor.insertImage(u.toLocalFile())
+                    image = QtGui.QImage(u.toLocalFile())
+                    image_folder = os.getcwd() + "//Assets//"
+                    if not os.path.exists(image_folder):
+                        os.makedirs(image_folder)
+                    image_name = "%s/%s.png" % (image_folder, time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime()))
+                    image.save(image_name, quality=50)
+                    cursor.insertImage(image)
                 else:
                     break
             else:
@@ -982,7 +1000,7 @@ class AbstractWidget(QtWidgets.QGraphicsWidget):
             super(AbstractWidget, self).mouseReleaseEvent(event)
 
 
-class LogicWidget(QtWidgets.QGraphicsWidget):
+class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def __init__(self, parent=None):
         super(LogicWidget, self).__init__(parent)
         self.resizing = False
@@ -992,6 +1010,8 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
         self.layout = QtWidgets.QGraphicsLinearLayout()
         self.design_ui()
         self.setZValue(constants.Z_VAL_NODE)
+        self.logic_combobox_input = QtWidgets.QComboBox()
+        self.logic_combobox_output = QtWidgets.QComboBox()
 
         # Animation
         self.next_attribute = list()
@@ -1006,27 +1026,25 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
 
     def design_ui(self):
         # select logic
-        logic_combobox_input = QtWidgets.QComboBox()
-        logic_combobox_input.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
-        logic_combobox_input.setMaximumHeight(20)
-        logic_list_input = QtWidgets.QListView(logic_combobox_input)
+        self.logic_combobox_input.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
+        self.logic_combobox_input.setMaximumHeight(20)
+        logic_list_input = QtWidgets.QListView(self.logic_combobox_input)
         logic_list_input.setStyleSheet(stylesheet.STYLE_QLISTVIEW)
-        logic_combobox_input.setView(logic_list_input)
-        logic_combobox_input.addItems(("And", "Or", "Not"))
-        logic_combobox_input.clearFocus()
+        self.logic_combobox_input.setView(logic_list_input)
+        self.logic_combobox_input.addItems(("And", "Or", "Not"))
+        self.logic_combobox_input.clearFocus()
 
-        logic_combobox_output = QtWidgets.QComboBox()
-        logic_combobox_output.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
-        logic_combobox_input.setMaximumHeight(20)
-        logic_list_output = QtWidgets.QListView(logic_combobox_output)
+        self.logic_combobox_output.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
+        self.logic_combobox_input.setMaximumHeight(20)
+        logic_list_output = QtWidgets.QListView(self.logic_combobox_output)
         logic_list_output.setStyleSheet(stylesheet.STYLE_QLISTVIEW)
-        logic_combobox_output.setView(logic_list_output)
-        logic_combobox_output.addItems(("And", "Or", "Not"))
-        logic_combobox_output.clearFocus()
+        self.logic_combobox_output.setView(logic_list_output)
+        self.logic_combobox_output.addItems(("And", "Or", "Not"))
+        self.logic_combobox_output.clearFocus()
 
         group = GroupWidget("Logical Controller")
-        group.add_node_widget(logic_combobox_input)
-        group.add_node_widget(logic_combobox_output)
+        group.add_node_widget(self.logic_combobox_input)
+        group.add_node_widget(self.logic_combobox_output)
         proxywidget = QtWidgets.QGraphicsProxyWidget()
         proxywidget.setWidget(group)
         self.layout.addItem(proxywidget)
@@ -1200,6 +1218,34 @@ class LogicWidget(QtWidgets.QGraphicsWidget):
         if self.moving:
             self.colliding_detection()
         self.update_pipe_position()
+    
+    def serialize(self):
+        next_attribute_widgets = list()
+        next_logic_widgets = list()
+        last_attribute_widgets = list()
+        last_logic_widgets = list()
+        for next_attribute_widget in self.next_attribute:
+            next_attribute_widgets.append(id(next_attribute_widget))
+        for next_logic_widget in self.next_logic:
+            next_logic_widgets.append(id(next_logic_widget))
+        for last_attribute_widget in self.last_attribute:
+            last_attribute_widgets.append(id(last_attribute_widget))
+        for last_logic_widget in self.last_logic:
+            last_logic_widgets.append(id(last_logic_widget))
+            
+        return OrderedDict([
+            ('id', self.id),
+            ('x', self.scenePos().x()),
+            ('y', self.scenePos().y()),
+            ('input truth', self.logic_combobox_input.currentIndex()),
+            ('output truth', self.logic_combobox_output.currentIndex()),
+            ('input port', self.input_port.serialize()),
+            ('output port', self.output_port.serialize()),
+            ('next attribute widgets', next_attribute_widgets),
+            ('next logic widgets', next_logic_widgets),
+            ('last attribute widgets', last_attribute_widgets),
+            ('last logic widgets', last_logic_widgets)
+        ])
 
 
 class TruthWidget(QtWidgets.QGraphicsWidget):
@@ -1234,7 +1280,7 @@ class TruthWidget(QtWidgets.QGraphicsWidget):
                              self.truth_checkbox.height() + 5)
 
 
-class AttributeWidget(QtWidgets.QGraphicsWidget):
+class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     display_name_changed = QtCore.pyqtSignal(str)
     draw_label = None
 
@@ -1656,7 +1702,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
     def remove_last_logic(self, widget):
         self.last_logic.remove(widget)
 
-    def remove_sub_scene(self, scene_widget):
+    def remove_sub_scene(self):
         self.sub_scene = None
 
     def start_pipe_animation(self):
@@ -1748,3 +1794,54 @@ class AttributeWidget(QtWidgets.QGraphicsWidget):
         if self.moving:
             self.colliding_detection()
         self.update_pipe_position()
+
+    def serialize(self):
+        next_attribute_widgets = list()
+        next_logic_widgets = list()
+        last_attribute_widgets = list()
+        last_logic_widgets = list()
+        attribute_sub_widgets = list()
+        for next_attribute_widget in self.next_attribute:
+            next_attribute_widgets.append(id(next_attribute_widget))
+        for next_logic_widget in self.next_logic:
+            next_logic_widgets.append(id(next_logic_widget))
+        for last_attribute_widget in self.last_attribute:
+            last_attribute_widgets.append(id(last_attribute_widget))
+        for last_logic_widget in self.last_logic:
+            last_logic_widgets.append(id(last_logic_widget))
+        for attribute_sub_widget in self.attribute_sub_widgets:
+            attribute_sub_widgets.append(attribute_sub_widget.serialize())
+
+        return OrderedDict([
+            ('id', self.id),
+            ('width', self.size().width()),
+            ('height', self.size().height()),
+            ('x', self.scenePos().x()),
+            ('y', self.scenePos().y()),
+            ('contents', self.attribute_widget.label_item.toHtml()),
+            ('input true port', self.true_input_port.serialize()),
+            ('input false port', self.false_input_port.serialize()),
+            ('output true port', self.true_output_port.serialize()),
+            ('output false port', self.false_output_port.serialize()),
+            ('next attribute widgets', next_attribute_widgets),
+            ('next logic widgets', next_logic_widgets),
+            ('last attribute widgets', last_attribute_widgets),
+            ('last logic widgets', last_logic_widgets),
+            ('attribute sub widgets', attribute_sub_widgets),
+            ('sub scene', self.sub_scene.serialize() if self.sub_scene else None)
+        ])
+
+    def deserialize(self, data, hashmap: dict, view=None):
+        self.id = data['id']
+        hashmap[data['id']] = self
+
+        # geometry and contents
+        self.setGeometry(data['x'], data['y'], data['width'], data['height'])
+        self.attribute_widget.label_item.setHtml(data['contents'])
+        view.current_scene.addItem(self)
+
+        # sub widgets
+        for sub_widget_data in data['attribute sub widgets']:
+            AttributeWidget().deserialize(sub_widget_data, hashmap, view)
+
+        return True

@@ -1,11 +1,12 @@
+from collections import OrderedDict
 from PyQt5 import QtGui, QtCore, QtWidgets
-from Model import constants
+from Model import constants, serializable
 from Components import attribute
 
 __all__ = ["Pipe"]
 
 
-class Pipe(QtWidgets.QGraphicsPathItem):
+class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
     def __init__(self, start_port=None, end_port=None, node=None):
         super(Pipe, self).__init__()
         self.node = node
@@ -21,7 +22,8 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         self.selected_color = QtGui.QColor(0, 153, 121, 255)
 
         # POS
-        self.pos_source = self.node.get_port_position(self.start_port.port_type, self.start_port.port_truth)
+        self.pos_source = self.start_port.parentItem().get_port_position(self.start_port.port_type,
+                                                                         self.start_port.port_truth)
         self.pos_destination = self.pos_source
         self.control_start_point = QtCore.QPointF()
         self.control_end_point = QtCore.QPointF()
@@ -54,6 +56,10 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         bound_rect_width, bound_rect_height = self.edit.boundingRect().width(), self.edit.boundingRect().height()
         self.edit.setPos(self.path().pointAtPercent(0.5).x() - (bound_rect_width // 2),
                          self.path().pointAtPercent(0.5).y() - (bound_rect_height // 2))
+
+        # CONTROL
+        self.control_start_point_offect = QtCore.QPointF()
+        self.control_end_point_offect = QtCore.QPointF()
 
     def perform_evaluation_feedback(self):
         if self.timeline.state() == QtCore.QTimeLine.NotRunning:
@@ -110,7 +116,8 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         return cut_path.intersects(self.path())
 
     def update_position(self, pos_destination=None):
-        self.pos_source = self.start_port.parentItem().get_port_position(self.start_port.port_type, self.start_port.port_truth)
+        self.pos_source = self.start_port.parentItem().get_port_position(self.start_port.port_type,
+                                                                         self.start_port.port_truth)
         if self.end_port is not None:
             self.pos_destination = self.end_port.parentItem().get_port_position(self.end_port.port_type,
                                                                                 self.end_port.port_truth)
@@ -146,12 +153,11 @@ class Pipe(QtWidgets.QGraphicsPathItem):
             d_x *= -1  # < 0, d_y = 0  | > 0
 
         path = QtGui.QPainterPath(self.pos_source)
-        if self.status == constants.PIPE_STATUS_NEW:
-            self.control_start_point = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
-            self.control_end_point = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
+        self.control_start_point = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
+        self.control_end_point = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
         path.cubicTo(
-            self.control_start_point,  # CONTROL POINT
-            self.control_end_point,  # CONTROL POINT
+            self.control_start_point + self.control_start_point_offect,  # CONTROL POINT
+            self.control_end_point + self.control_end_point_offect,  # CONTROL POINT
             self.pos_destination
         )
         self.setPath(path)
@@ -190,7 +196,20 @@ class Pipe(QtWidgets.QGraphicsPathItem):
             distance_end = (current_pos.x() - self.control_end_point.x()) ** 2 + \
                            (current_pos.y() - self.control_end_point.y()) ** 2
             if distance_start > distance_end:
-                self.control_end_point = current_pos
+                self.control_start_point_offect = QtCore.QPointF()
+                self.control_end_point_offect = event.scenePos() - self.control_end_point
             else:
-                self.control_start_point = current_pos
+                self.control_start_point_offect = event.scenePos() - self.control_start_point
+                self.control_end_point_offect = QtCore.QPointF()
             self.update()
+
+    def serialize(self):
+        return OrderedDict([
+            ('id', self.id),
+            ('start port', id(self.start_port)),
+            ('end port', id(self.end_port)),
+            ('start control point offect x', self.control_start_point_offect.x()),
+            ('start control point offect y', self.control_start_point_offect.y()),
+            ('end control point offect x', self.control_end_point_offect.x()),
+            ('end control point offect y', self.control_end_point_offect.y())
+        ])
