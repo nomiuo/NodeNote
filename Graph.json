@@ -1,34 +1,34 @@
 {
     "root scene": {
-        "id": 139920659892688,
+        "id": 139735074261456,
         "attribute widgets": [
             {
-                "id": 139920572326960,
+                "id": 139735073831952,
                 "width": 79.9375,
                 "height": 50.0,
-                "x": -117.0,
-                "y": -185.0,
+                "x": -52.0,
+                "y": -194.0,
                 "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
                 "input true port": {
-                    "id": 139920572328400,
+                    "id": 139735074066928,
                     "port type": 0,
                     "port truth": true,
                     "pipes": []
                 },
                 "input false port": {
-                    "id": 139920572328688,
+                    "id": 139735074067216,
                     "port type": 0,
                     "port truth": false,
                     "pipes": []
                 },
                 "output true port": {
-                    "id": 139920572328544,
+                    "id": 139735074067072,
                     "port type": 1,
                     "port truth": true,
                     "pipes": []
                 },
                 "output false port": {
-                    "id": 139920572328832,
+                    "id": 139735074067360,
                     "port type": 1,
                     "port truth": false,
                     "pipes": []
@@ -38,35 +38,80 @@
                 "last attribute widgets": [],
                 "last logic widgets": [],
                 "attribute sub widgets": [],
-                "sub scene": null
+                "sub scene": {
+                    "id": 139735074068944,
+                    "attribute widgets": [
+                        {
+                            "id": 139735074069664,
+                            "width": 79.9375,
+                            "height": 50.0,
+                            "x": -233.0,
+                            "y": -307.0,
+                            "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
+                            "input true port": {
+                                "id": 139735073993344,
+                                "port type": 0,
+                                "port truth": true,
+                                "pipes": []
+                            },
+                            "input false port": {
+                                "id": 139735073993632,
+                                "port type": 0,
+                                "port truth": false,
+                                "pipes": []
+                            },
+                            "output true port": {
+                                "id": 139735073993488,
+                                "port type": 1,
+                                "port truth": true,
+                                "pipes": []
+                            },
+                            "output false port": {
+                                "id": 139735073993776,
+                                "port type": 1,
+                                "port truth": false,
+                                "pipes": []
+                            },
+                            "next attribute widgets": [],
+                            "next logic widgets": [],
+                            "last attribute widgets": [],
+                            "last logic widgets": [],
+                            "attribute sub widgets": [],
+                            "sub scene": null
+                        }
+                    ],
+                    "logic widgets": [],
+                    "pipe widgets": [],
+                    "container widgets": []
+                }
             },
             {
-                "id": 139920602020736,
+                "id": 139735073829360,
                 "width": 79.9375,
                 "height": 50.0,
-                "x": -276.0,
-                "y": -236.0,
+                "x": -273.0,
+                "y": -240.0,
                 "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
                 "input true port": {
-                    "id": 139920572326240,
+                    "id": 139735073830800,
                     "port type": 0,
                     "port truth": true,
                     "pipes": []
                 },
                 "input false port": {
-                    "id": 139920572326528,
+                    "id": 139735073831088,
                     "port type": 0,
                     "port truth": false,
                     "pipes": []
                 },
                 "output true port": {
-                    "id": 139920572326384,
+                    "id": 139735073830944,
                     "port type": 1,
                     "port truth": true,
                     "pipes": []
                 },
                 "output false port": {
-                    "id": 139920572326672,
+                    "id": 139735073831232,
                     "port type": 1,
                     "port truth": false,
                     "pipes": []
@@ -76,83 +121,6 @@
                 "last attribute widgets": [],
                 "last logic widgets": [],
                 "attribute sub widgets": [],
-                "sub scene": null
-            },
-            {
-                "id": 139920602018288,
-                "width": 129.9375,
-                "height": 81.0,
-                "x": -301.0,
-                "y": -262.0,
-                "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
-                "input true port": {
-                    "id": 139920602019728,
-                    "port type": 0,
-                    "port truth": true,
-                    "pipes": []
-                },
-                "input false port": {
-                    "id": 139920602020016,
-                    "port type": 0,
-                    "port truth": false,
-                    "pipes": []
-                },
-                "output true port": {
-                    "id": 139920602019872,
-                    "port type": 1,
-                    "port truth": true,
-                    "pipes": []
-                },
-                "output false port": {
-                    "id": 139920602020160,
-                    "port type": 1,
-                    "port truth": false,
-                    "pipes": []
-                },
-                "next attribute widgets": [],
-                "next logic widgets": [],
-                "last attribute widgets": [],
-                "last logic widgets": [],
-                "attribute sub widgets": [
-                    {
-                        "id": 139920602020736,
-                        "width": 79.9375,
-                        "height": 50.0,
-                        "x": -276.0,
-                        "y": -236.0,
-                        "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
-                        "input true port": {
-                            "id": 139920572326240,
-                            "port type": 0,
-                            "port truth": true,
-                            "pipes": []
-                        },
-                        "input false port": {
-                            "id": 139920572326528,
-                            "port type": 0,
-                            "port truth": false,
-                            "pipes": []
-                        },
-                        "output true port": {
-                            "id": 139920572326384,
-                            "port type": 1,
-                            "port truth": true,
-                            "pipes": []
-                        },
-                        "output false port": {
-                            "id": 139920572326672,
-                            "port type": 1,
-                            "port truth": false,
-                            "pipes": []
-                        },
-                        "next attribute widgets": [],
-                        "next logic widgets": [],
-                        "last attribute widgets": [],
-                        "last logic widgets": [],
-                        "attribute sub widgets": [],
-                        "sub scene": null
-                    }
-                ],
                 "sub scene": null
             }
         ],

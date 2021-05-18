@@ -153,12 +153,22 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                             last_widget.remove_next_attribute(item)
                         for last_widget in item.last_logic:
                             last_widget.remove_next_attribute(item)
+
+                        if item.sub_scene:
+                            iterator = QtWidgets.QTreeWidgetItemIterator(self.mainwindow.scene_list)
+                            while iterator.value():
+                                scene_flag = iterator.value()
+                                iterator += 1
+                                if scene_flag.data(0, QtCore.Qt.ToolTipRole) is item.sub_scene:
+                                    self.delete_sub_scene(scene_flag)
+
                         if item.parentItem():
                             parent_item = item.parentItem()
                             parent_item.delete_subwidget(item)
                             self.remove_attribute_widget(item)
                         else:
                             self.remove_attribute_widget(item)
+
                     elif isinstance(item, attribute.LogicWidget):
                         self.delete_connections(item)
                         for next_widget in item.next_attribute:
