@@ -14,7 +14,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.end_port = end_port
 
         # BASIC SETTINGS
-        self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
+        self.setFlags(QtWidgets.QGraphicsItem.ItemIsSelectable)
         self.setZValue(constants.Z_VAL_PIPE)
 
         # DRAW PARAMETERS
@@ -60,6 +60,16 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         # CONTROL
         self.control_start_point_offect = QtCore.QPointF()
         self.control_end_point_offect = QtCore.QPointF()
+        self.defalut_start_offect = None
+        self.default_end_offect = None
+        self.move_status = constants.PIPE_FIRST
+        self.choose_first = True
+        self.distance_end = None
+        self.distance_start = None
+        self.last_default_start = None
+        self.last_default_end = None
+        self.now_default_start = None
+        self.now_default_end = None
 
     def perform_evaluation_feedback(self):
         if self.timeline.state() == QtCore.QTimeLine.NotRunning:
@@ -146,22 +156,37 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         s_y = 0
         d_x = -dist
         d_y = 0
-
         if ((s.x() > d.x()) and sspos == constants.OUTPUT_NODE_TYPE) or \
                 ((s.x() < d.x()) and sspos == constants.INPUT_NODE_TYPE):
             s_x *= -1  # > 0, s_y = 0  | < 0
             d_x *= -1  # < 0, d_y = 0  | > 0
 
         path = QtGui.QPainterPath(self.pos_source)
-        self.control_start_point = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
-        self.control_end_point = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
+        if self.move_status == constants.PIPE_FIRST:
+            self.defalut_start_offect = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
+            self.default_end_offect = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
+            self.last_default_start = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
+            self.last_default_end = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
+            self.control_start_point = self.defalut_start_offect
+            self.control_end_point = self.default_end_offect
+        elif self.move_status == constants.PIPE_MOVEING:
+            self.control_start_point = self.defalut_start_offect + self.control_start_point_offect
+            self.control_end_point = self.default_end_offect + self.control_end_point_offect
+        elif self.move_status == constants.PIPE_COMMON:
+            self.defalut_start_offect = self.control_start_point
+            self.default_end_offect = self.control_end_point
+            self.move_status = constants.PIPE_UPDATE
+        elif self.move_status == constants.PIPE_UPDATE:
+            self.control_start_point += QtCore.QPointF(s.x() + s_x, s.y() + s_y) - self.last_default_start
+            self.control_end_point += QtCore.QPointF(d.x() + d_x, d.y() + d_y) - self.last_default_end
+            self.last_default_start = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
+            self.last_default_end = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
         path.cubicTo(
-            self.control_start_point + self.control_start_point_offect,  # CONTROL POINT
-            self.control_end_point + self.control_end_point_offect,  # CONTROL POINT
+            self.control_start_point,
+            self.control_end_point,
             self.pos_destination
         )
         self.setPath(path)
-
         # PEN
         if self.end_port is None:
             painter.setPen(dragging_pen)
@@ -189,19 +214,26 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
         if self.isSelected():
-            self.status = constants.PIPE_STATUS_CHANGE
+            self.move_status = constants.PIPE_MOVEING
             current_pos = event.scenePos()
-            distance_start = (current_pos.x() - self.control_start_point.x()) ** 2 + \
-                             (current_pos.y() - self.control_start_point.y()) ** 2
-            distance_end = (current_pos.x() - self.control_end_point.x()) ** 2 + \
-                           (current_pos.y() - self.control_end_point.y()) ** 2
-            if distance_start > distance_end:
+            if self.choose_first:
+                self.distance_start = (current_pos.x() - self.defalut_start_offect.x()) ** 2 + \
+                                      (current_pos.y() - self.defalut_start_offect.y()) ** 2
+                self.distance_end = (current_pos.x() - self.default_end_offect.x()) ** 2 + \
+                                    (current_pos.y() - self.default_end_offect.y()) ** 2
+                self.choose_first = False
+            if self.distance_start > self.distance_end:
                 self.control_start_point_offect = QtCore.QPointF()
-                self.control_end_point_offect += event.scenePos() - self.control_end_point
+                self.control_end_point_offect = event.scenePos()
             else:
-                self.control_start_point_offect += event.scenePos() - self.control_start_point
+                self.control_start_point_offect = event.scenePos()
                 self.control_end_point_offect = QtCore.QPointF()
             self.update()
+
+    def mouseReleaseEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
+        super(Pipe, self).mouseReleaseEvent(event)
+        self.move_status = constants.PIPE_COMMON
+        self.choose_first = True
 
     def serialize(self):
         return OrderedDict([
