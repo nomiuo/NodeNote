@@ -197,9 +197,9 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
                            (current_pos.y() - self.control_end_point.y()) ** 2
             if distance_start > distance_end:
                 self.control_start_point_offect = QtCore.QPointF()
-                self.control_end_point_offect = event.scenePos() - self.control_end_point
+                self.control_end_point_offect += event.scenePos() - self.control_end_point
             else:
-                self.control_start_point_offect = event.scenePos() - self.control_start_point
+                self.control_start_point_offect += event.scenePos() - self.control_start_point
                 self.control_end_point_offect = QtCore.QPointF()
             self.update()
 
