@@ -49,10 +49,14 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
             ('container widgets', container_widgets)
         ])
 
-    def deserialize(self, data, hashmap: dict, view=None):
-        self.id = data['id']
-        hashmap[data['id']] = self
-
-        for attribute_data in data['attribute widgets']:
-            attribute.AttributeWidget().deserialize(attribute_data, hashmap, view)
+    def deserialize(self, data, hashmap: dict, view=None, flag=True):
+        if flag:
+            # deserialize id
+            self.id = data['id']
+            hashmap[data['id']] = self
+            # deserialize attribute widgets
+            for attribute_data in data['attribute widgets']:
+                attribute.AttributeWidget().deserialize(attribute_data, hashmap, view, flag=True)
+        else:
+            pass
         return True

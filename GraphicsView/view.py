@@ -400,7 +400,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.cutline_pressed()
             return
-        if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ShiftModifier:
+        if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.AltModifier:
             self.container_pressed(event)
             return
         if event.button() == QtCore.Qt.LeftButton:
@@ -486,14 +486,14 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
     def load_from_file(self, filename):
         with open(filename, "r", encoding='utf-8') as file:
             data = json.loads(file.read())
-            self.deserialize(data['root scene'], {})
+            self.deserialize(data['root scene'], {}, self, True)
 
     def serialize(self):
         return OrderedDict([
             ('root scene', self.root_scene.serialize()),
         ])
 
-    def deserialize(self, data, hashmap: dict, view=None):
+    def deserialize(self, data, hashmap: dict, view=None, flag=True):
         # clear all contents
         for item in self.root_scene.items():
             if not isinstance(item, (effect_background.EffectBackground, effect_cutline.EffectCutline)):
@@ -513,5 +513,5 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.setScene(self.current_scene)
         # create contents
         hashmap = {}
-        self.root_scene.deserialize(data, hashmap, self)
+        self.root_scene.deserialize(data, hashmap, view, flag)
         return True

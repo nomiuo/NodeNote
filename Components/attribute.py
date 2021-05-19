@@ -802,10 +802,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         if current_key == QtCore.Qt.Key_2 and event.modifiers() & QtCore.Qt.ControlModifier:
             self.add_list(current_cursor)
 
-        # open link
-        if current_key == QtCore.Qt.Key_3 and event.modifiers() & QtCore.Qt.ControlModifier:
-            self.add_openlink(current_cursor)
-
         # image
         if current_key == QtCore.Qt.Key_U and event.modifiers() & QtCore.Qt.ControlModifier:
             if constants.DEBUG_RICHTEXT:
@@ -1008,10 +1004,10 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.input_port = port.Port(constants.INPUT_NODE_TYPE, True, self)
         self.output_port = port.Port(constants.OUTPUT_NODE_TYPE, True, self)
         self.layout = QtWidgets.QGraphicsLinearLayout()
-        self.design_ui()
         self.setZValue(constants.Z_VAL_NODE)
         self.logic_combobox_input = QtWidgets.QComboBox()
         self.logic_combobox_output = QtWidgets.QComboBox()
+        self.design_ui()
 
         # Animation
         self.next_attribute = list()
@@ -1218,7 +1214,7 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         if self.moving:
             self.colliding_detection()
         self.update_pipe_position()
-    
+
     def serialize(self):
         next_attribute_widgets = list()
         next_logic_widgets = list()
@@ -1232,7 +1228,7 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             last_attribute_widgets.append(id(last_attribute_widget))
         for last_logic_widget in self.last_logic:
             last_logic_widgets.append(id(last_logic_widget))
-            
+
         return OrderedDict([
             ('id', self.id),
             ('x', self.scenePos().x()),
@@ -1474,6 +1470,34 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.scene().view.attribute_widgets.append(subwidget)
         self.text_change_node_shape()
         self.update_pipe_position()
+
+    @staticmethod
+    def move_up_widget(widget):
+        parent = widget.parentItem()
+        index = 0
+        for i in range(parent.attribute_layout.count()):
+            index = i
+            if widget == parent.attribute_layout.itemAt(i).graphicsItem():
+                break
+        if index == 0:
+            return
+        else:
+            parent.attribute_layout.removeAt(index)
+            parent.attribute_layout.insertItem(index - 1, widget)
+
+    @staticmethod
+    def move_down_widget(widget):
+        parent = widget.parentItem()
+        index = 0
+        for i in range(parent.attribute_layout.count()):
+            index = i
+            if widget == parent.attribute_layout.itemAt(i).graphicsItem():
+                break
+        if index == parent.attribute_layout.count() - 1:
+            return
+        else:
+            parent.attribute_layout.removeAt(index)
+            parent.attribute_layout.insertItem(index + 1, widget)
 
     def add_exist_subwidget(self, subwidget):
         self.attribute_layout.addItem(subwidget)
@@ -1784,9 +1808,19 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         menu.setStyleSheet(stylesheet.STYLE_QMENU)
         add_subwidget = menu.addAction("Add Subwidget")
         add_subwidget.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/ADD SUBWIDGET.PNG"))
+        move_up = menu.addAction("Move Up")
+        move_up.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/Up.png"))
+        move_down = menu.addAction("Move Down")
+        move_down.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/Down.png"))
         result = menu.exec(event.screenPos())
         if result == add_subwidget:
             self.add_new_subwidget()
+        elif result == move_up and isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()).parentItem(),
+                                              AttributeWidget):
+            self.move_up_widget(self.scene().itemAt(event.scenePos(), QtGui.QTransform()))
+        elif result == move_down and isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()).parentItem(),
+                                                AttributeWidget):
+            self.move_down_widget(self.scene().itemAt(event.scenePos(), QtGui.QTransform()))
         event.setAccepted(True)
 
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
@@ -1810,7 +1844,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         for last_logic_widget in self.last_logic:
             last_logic_widgets.append(id(last_logic_widget))
         for attribute_sub_widget in self.attribute_sub_widgets:
-            attribute_sub_widgets.append(attribute_sub_widget.serialize())
+            attribute_sub_widgets.append(id(attribute_sub_widget))
 
         return OrderedDict([
             ('id', self.id),
@@ -1831,17 +1865,18 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             ('sub scene', self.sub_scene.serialize() if self.sub_scene else None)
         ])
 
-    def deserialize(self, data, hashmap: dict, view=None):
-        self.id = data['id']
-        hashmap[data['id']] = self
-
-        # geometry and contents
-        self.setGeometry(data['x'], data['y'], data['width'], data['height'])
-        self.attribute_widget.label_item.setHtml(data['contents'])
-        view.current_scene.addItem(self)
-
-        # sub widgets
-        for sub_widget_data in data['attribute sub widgets']:
-            AttributeWidget().deserialize(sub_widget_data, hashmap, view)
+    def deserialize(self, data, hashmap: dict, view=None, flag=True):
+        if flag:
+            # id and hashmap
+            self.id = data['id']
+            hashmap[data['id']] = self
+            # geometry and contents
+            self.setGeometry(data['x'], data['y'], data['width'], data['height'])
+            self.attribute_widget.label_item.setHtml(data['contents'])
+            view.current_scene.addItem(self)
+        else:
+            # sub widgets
+            for sub_widget_data in data['attribute sub widgets']:
+                AttributeWidget().deserialize(sub_widget_data, hashmap, view, flag)
 
         return True
