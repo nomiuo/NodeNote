@@ -673,18 +673,24 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         if text_cursor.hasSelection():
             mime_data = QtCore.QMimeData()
             html_data = text_cursor.selection().toHtml(bytes())
-            print(html_data)
-            text_data = text_cursor.selection().toPlainText()
-            mime_data.setText(text_data)
-            clipboard.setMimeData(mime_data)
-            # clipboard.setImage()
+            try:
+                url = re.search(r'<img src="(.+?)".+?/>', html_data, re.M | re.I).group(1)
+            except AttributeError:
+                text_data = text_cursor.selection().toPlainText()
+                mime_data.setText(text_data)
+                clipboard.setMimeData(mime_data)
+                url = None
+            if not url:
+                image = QtGui.QImage(url)
+                mime_data.setImageData(image)
+                clipboard.setMimeData(mime_data)
 
     @staticmethod
     def paste(cursor):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
         if mime_data.hasImage():
             image = QtGui.QImage(mime_data.imageData())
-            image_folder = os.getcwd() + "//Assets//"
+            image_folder = os.getcwd() + "/Assets"
             if not os.path.exists(image_folder):
                 os.makedirs(image_folder)
             image_name = "%s/%s.png" % (image_folder, time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime()))
