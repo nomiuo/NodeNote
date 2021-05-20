@@ -150,6 +150,10 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                         for next_widget in item.next_logic:
                             next_widget.remove_last_attribute(item)
                         for last_widget in item.last_attribute:
+                            if constants.DEBUG_DESERIALIZE:
+                                print("last widget: ", last_widget,
+                                      "next attribute widgets: ", last_widget.next_attribute,
+                                      "remove widget: ", item)
                             last_widget.remove_next_attribute(item)
                         for last_widget in item.last_logic:
                             last_widget.remove_next_attribute(item)
@@ -400,7 +404,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.cutline_pressed()
             return
-        if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.AltModifier:
+        if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ShiftModifier:
             self.container_pressed(event)
             return
         if event.button() == QtCore.Qt.LeftButton:
@@ -499,19 +503,22 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             if not isinstance(item, (effect_background.EffectBackground, effect_cutline.EffectCutline)):
                 self.root_scene.removeItem(item)
         self.mainwindow.scene_list.clear()
-        self.root_scene_flag = QtWidgets.QTreeWidgetItem(self.mainwindow.scene_list,
-                                                         ("Root Scene",))
-        self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
         self.attribute_widgets = list()
         self.logic_widgets = list()
         self.pipes = list()
         self.containers = list()
         # set root scene
+        self.root_scene_flag = QtWidgets.QTreeWidgetItem(
+                                                            self.mainwindow.scene_list,
+                                                            ("Root Scene",))
+        self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
         self.current_scene = self.root_scene
+        self.current_scene_flag = self.root_scene_flag
         self.background_image = self.current_scene.background_image
         self.cutline = self.current_scene.cutline
         self.setScene(self.current_scene)
         # create contents
         hashmap = {}
-        self.root_scene.deserialize(data, hashmap, view, flag)
+        self.root_scene.deserialize(data, hashmap, view, flag=True)
+        self.root_scene.deserialize(data, hashmap, view, flag=False)
         return True

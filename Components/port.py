@@ -121,7 +121,7 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def serialize(self):
         pipes = list()
         for pipe_widget in self.pipes:
-            pipes.append(pipe_widget.serialize())
+            pipes.append(pipe_widget.id)
 
         return OrderedDict([
             ('id', self.id),
@@ -129,3 +129,12 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
             ('port truth', self.port_truth),
             ('pipes', pipes)
         ])
+
+    def deserialize(self, data, hashmap: dict, view=None, flag=True):
+        if flag:
+            # id and hashmap
+            self.id = data['id']
+            hashmap[data['id']] = self
+        else:
+            # deserialize pipes
+            pass

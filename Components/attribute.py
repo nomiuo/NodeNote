@@ -757,7 +757,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Color")
-        elif current_key == QtCore.Qt.Key_O and event.modifiers() & QtCore.Qt.ControlModifier:
+        elif current_key == QtCore.Qt.Key_M and event.modifiers() & QtCore.Qt.ControlModifier:
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Hyperlink")
@@ -1221,13 +1221,13 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         last_attribute_widgets = list()
         last_logic_widgets = list()
         for next_attribute_widget in self.next_attribute:
-            next_attribute_widgets.append(id(next_attribute_widget))
+            next_attribute_widgets.append(next_attribute_widget.id)
         for next_logic_widget in self.next_logic:
-            next_logic_widgets.append(id(next_logic_widget))
+            next_logic_widgets.append(next_logic_widget.id)
         for last_attribute_widget in self.last_attribute:
-            last_attribute_widgets.append(id(last_attribute_widget))
+            last_attribute_widgets.append(last_attribute_widget.id)
         for last_logic_widget in self.last_logic:
-            last_logic_widgets.append(id(last_logic_widget))
+            last_logic_widgets.append(last_logic_widget.id)
 
         return OrderedDict([
             ('id', self.id),
@@ -1242,6 +1242,25 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             ('last attribute widgets', last_attribute_widgets),
             ('last logic widgets', last_logic_widgets)
         ])
+
+    def deserialize(self, data, hashmap: dict, view=None, flag=True):
+        if flag:
+            # added into scene and view
+            view.current_scene.addItem(self)
+            view.logic_widgets.append(self)
+            # id and hashmap
+            self.id = data['id']
+            hashmap[data['id']] = self
+            # geometry and contents
+            self.setPos(data['x'], data['y'])
+            self.logic_combobox_input.setCurrentIndex(data['input truth'])
+            self.logic_combobox_output.setCurrentIndex(data['output truth'])
+            # ports
+            self.input_port.deserialize(data['input port'], hashmap, view, flag=True)
+            self.output_port.deserialize(data['output port'], hashmap, view, flag=True)
+            return True
+        else:
+            pass
 
 
 class TruthWidget(QtWidgets.QGraphicsWidget):
@@ -1836,15 +1855,15 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         last_logic_widgets = list()
         attribute_sub_widgets = list()
         for next_attribute_widget in self.next_attribute:
-            next_attribute_widgets.append(id(next_attribute_widget))
+            next_attribute_widgets.append(next_attribute_widget.id)
         for next_logic_widget in self.next_logic:
-            next_logic_widgets.append(id(next_logic_widget))
+            next_logic_widgets.append(next_logic_widget.id)
         for last_attribute_widget in self.last_attribute:
-            last_attribute_widgets.append(id(last_attribute_widget))
+            last_attribute_widgets.append(last_attribute_widget.id)
         for last_logic_widget in self.last_logic:
-            last_logic_widgets.append(id(last_logic_widget))
+            last_logic_widgets.append(last_logic_widget.id)
         for attribute_sub_widget in self.attribute_sub_widgets:
-            attribute_sub_widgets.append(id(attribute_sub_widget))
+            attribute_sub_widgets.append(attribute_sub_widget.id)
 
         return OrderedDict([
             ('id', self.id),
@@ -1867,16 +1886,42 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
         if flag:
+            # added into current scene and view
+            view.current_scene.addItem(self)
+            view.attribute_widgets.append(self)
             # id and hashmap
             self.id = data['id']
             hashmap[data['id']] = self
             # geometry and contents
             self.setGeometry(data['x'], data['y'], data['width'], data['height'])
             self.attribute_widget.label_item.setHtml(data['contents'])
-            view.current_scene.addItem(self)
-        else:
-            # sub widgets
-            for sub_widget_data in data['attribute sub widgets']:
-                AttributeWidget().deserialize(sub_widget_data, hashmap, view, flag)
+            # ports
+            self.true_input_port.deserialize(data['input true port'], hashmap, view, flag=True)
+            self.false_input_port.deserialize(data['input false port'], hashmap, view, flag=True)
+            self.true_output_port.deserialize(data['output true port'], hashmap, view, flag=True)
+            self.false_output_port.deserialize(data['output false port'], hashmap, view, flag=True)
+            # sub scene
+            if data['sub scene']:
+                # save scene and flag
+                last_scene_flag = view.current_scene_flag
+                last_scene = view.current_scene
 
+                # sub scene
+                from GraphicsView.scene import Scene
+                sub_scene_flag = QtWidgets.QTreeWidgetItem(
+                                                            view.current_scene_flag,
+                                                           (self.attribute_widget.label_item.toPlainText(),))
+                sub_scene = Scene(sub_scene_flag, view, self)
+                self.set_sub_scene(sub_scene)
+                sub_scene_flag.setData(0, QtCore.Qt.ToolTipRole, sub_scene)
+
+                view.current_scene = sub_scene
+                view.current_scene_flag = sub_scene_flag
+
+                sub_scene.deserialize(data['sub scene'], hashmap, view, True)
+                sub_scene.deserialize(data['sub scene'], hashmap, view, False)
+
+                # restore scene and flag
+                view.current_scene = last_scene
+                view.current_scene_flag = last_scene_flag
         return True

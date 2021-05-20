@@ -238,10 +238,19 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
     def serialize(self):
         return OrderedDict([
             ('id', self.id),
-            ('start port', id(self.start_port)),
-            ('end port', id(self.end_port)),
-            ('start control point offect x', self.control_start_point_offect.x()),
-            ('start control point offect y', self.control_start_point_offect.y()),
-            ('end control point offect x', self.control_end_point_offect.x()),
-            ('end control point offect y', self.control_end_point_offect.y())
+            ('start port', self.start_port.id),
+            ('end port', self.end_port.id),
+            ('start control point x', self.control_start_point.x()),
+            ('start control point y', self.control_start_point.y()),
+            ('end control point x', self.control_end_point.x()),
+            ('end control point y', self.control_end_point.y())
         ])
+
+    def deserialize(self, data, hashmap: dict, view=None, flag=True):
+        # added into current scene and view
+        view.current_scene.addItem(self)
+        view.pipes.append(self)
+        # id and hashmap
+        self.id = data['id']
+        hashmap[data['id']] = self
+        return True
