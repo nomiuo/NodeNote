@@ -667,6 +667,18 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                 cursor.clearSelection()
                 self.setTextCursor(cursor)
 
+    def copy(self):
+        text_cursor = self.textCursor()
+        clipboard = QtWidgets.QApplication.clipboard()
+        if text_cursor.hasSelection():
+            mime_data = QtCore.QMimeData()
+            html_data = text_cursor.selection().toHtml(bytes())
+            print(html_data)
+            text_data = text_cursor.selection().toPlainText()
+            mime_data.setText(text_data)
+            clipboard.setMimeData(mime_data)
+            # clipboard.setImage()
+
     @staticmethod
     def paste(cursor):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
@@ -687,11 +699,15 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                     print(file_ext, u.isLocalFile())
                 if u.isLocalFile() and file_ext in ('.jpg', '.png', '.bmp', '.icon', '.jpeg', 'gif'):
                     image = QtGui.QImage(u.toLocalFile())
-                    image_folder = os.getcwd() + "//Assets//"
-                    if not os.path.exists(image_folder):
-                        os.makedirs(image_folder)
-                    image_name = "%s/%s.png" % (image_folder, time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime()))
-                    image.save(image_name, quality=50)
+                    url = u.url()
+                    first_index = url.rindex('/')
+                    second_index = url[:first_index].rindex('/')
+                    if url[second_index + 1: first_index] != "Assets":
+                        image_folder = os.getcwd() + "//Assets//"
+                        if not os.path.exists(image_folder):
+                            os.makedirs(image_folder)
+                        image_name = "%s/%s.png" % (image_folder, time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime()))
+                        image.save(image_name, quality=50)
                     cursor.insertImage(image)
                 else:
                     break
@@ -812,6 +828,9 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         if event.type() == QtCore.QEvent.KeyPress:
             if event.matches(QtGui.QKeySequence.Paste):
                 self.paste(self.textCursor())
+                return False
+            elif event.matches(QtGui.QKeySequence.Copy):
+                self.copy()
                 return False
             elif event.key() == QtCore.Qt.Key_Tab:
                 if event.modifiers() == QtCore.Qt.ControlModifier:
@@ -1919,8 +1938,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                 # sub scene
                 from GraphicsView.scene import Scene
                 sub_scene_flag = QtWidgets.QTreeWidgetItem(
-                                                            view.current_scene_flag,
-                                                           (self.attribute_widget.label_item.toPlainText(),))
+                    view.current_scene_flag,
+                    (self.attribute_widget.label_item.toPlainText(),))
                 sub_scene = Scene(sub_scene_flag, view, self)
                 self.set_sub_scene(sub_scene)
                 sub_scene_flag.setData(0, QtCore.Qt.ToolTipRole, sub_scene)
