@@ -1,126 +1,106 @@
 {
     "root scene": {
-        "id": 140146313195088,
+        "id": 139650499669440,
         "attribute widgets": [
             {
-                "id": 140146128265424,
-                "width": 63.484375,
+                "id": 139650327900224,
+                "width": 79.9375,
                 "height": 50.0,
-                "x": -182.0,
-                "y": -356.0,
-                "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">a</p></body></html>",
-                "input true port": {
-                    "id": 140146128266864,
-                    "port type": 0,
-                    "port truth": true,
-                    "pipes": []
-                },
-                "input false port": {
-                    "id": 140146128267152,
-                    "port type": 0,
-                    "port truth": false,
-                    "pipes": []
-                },
-                "output true port": {
-                    "id": 140146128267008,
-                    "port type": 1,
-                    "port truth": true,
-                    "pipes": []
-                },
-                "output false port": {
-                    "id": 140146128267296,
-                    "port type": 1,
-                    "port truth": false,
-                    "pipes": []
-                },
-                "next attribute widgets": [],
-                "next logic widgets": [],
-                "last attribute widgets": [],
-                "last logic widgets": [],
-                "attribute sub widgets": [],
-                "sub scene": null
-            },
-            {
-                "id": 140146128115312,
-                "width": 179.9375,
-                "height": 112.0,
-                "x": 118.0,
-                "y": -362.0,
+                "x": 10.0,
+                "y": -213.0,
                 "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
                 "input true port": {
-                    "id": 140146128116752,
+                    "id": 139650327901664,
                     "port type": 0,
                     "port truth": true,
-                    "pipes": []
+                    "pipes": [
+                        139650327902672
+                    ]
                 },
                 "input false port": {
-                    "id": 140146128117040,
+                    "id": 139650327901952,
                     "port type": 0,
                     "port truth": false,
                     "pipes": []
                 },
                 "output true port": {
-                    "id": 140146128116896,
+                    "id": 139650327901808,
                     "port type": 1,
                     "port truth": true,
-                    "pipes": [
-                        140146128237040
-                    ]
-                },
-                "output false port": {
-                    "id": 140146128117184,
-                    "port type": 1,
-                    "port truth": false,
                     "pipes": []
                 },
-                "next attribute widgets": [],
-                "next logic widgets": [
-                    140146128198096
-                ],
-                "last attribute widgets": [],
-                "last logic widgets": [],
-                "attribute sub widgets": [],
-                "sub scene": null
-            }
-        ],
-        "logic widgets": [
-            {
-                "id": 140146128198096,
-                "x": 132.0,
-                "y": -62.0,
-                "input truth": 0,
-                "output truth": 0,
-                "input port": {
-                    "id": 140146128198240,
-                    "port type": 0,
-                    "port truth": true,
-                    "pipes": [
-                        140146128237040
-                    ]
-                },
-                "output port": {
-                    "id": 140146128198384,
+                "output false port": {
+                    "id": 139650327902096,
                     "port type": 1,
-                    "port truth": true,
+                    "port truth": false,
                     "pipes": []
                 },
                 "next attribute widgets": [],
                 "next logic widgets": [],
                 "last attribute widgets": [
-                    140146128115312
+                    139650460149216
                 ],
-                "last logic widgets": []
+                "last logic widgets": [],
+                "attribute sub widgets": [],
+                "sub scene": null
+            },
+            {
+                "id": 139650460149216,
+                "width": 79.9375,
+                "height": 50.0,
+                "x": -293.0,
+                "y": -154.0,
+                "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
+                "input true port": {
+                    "id": 139650460150656,
+                    "port type": 0,
+                    "port truth": true,
+                    "pipes": []
+                },
+                "input false port": {
+                    "id": 139650460150944,
+                    "port type": 0,
+                    "port truth": false,
+                    "pipes": []
+                },
+                "output true port": {
+                    "id": 139650460150800,
+                    "port type": 1,
+                    "port truth": true,
+                    "pipes": [
+                        139650327902672
+                    ]
+                },
+                "output false port": {
+                    "id": 139650460151088,
+                    "port type": 1,
+                    "port truth": false,
+                    "pipes": []
+                },
+                "next attribute widgets": [
+                    139650327900224
+                ],
+                "next logic widgets": [],
+                "last attribute widgets": [],
+                "last logic widgets": [],
+                "attribute sub widgets": [],
+                "sub scene": null
             }
         ],
+        "logic widgets": [],
         "pipe widgets": [
             {
-                "id": 140146128237040,
-                "start port": 140146128116896,
-                "end port": 140146128198240,
-                "start control point x": 365.90625,
-                "start control point y": -351.0,
-                "end control point x": 38.03125,
-                "end control point y": -22.5
+                "id": 139650327902672,
+                "start port": 139650460150800,
+                "end port": 139650327901664,
+                "start control point x": -108.53125,
+                "start control point y": -143.0,
+                "end control point x": -165.53125,
+                "end control point y": -462.0,
+                "last default start point x": -108.53125,
+                "last default start point y": -143.0,
+                "last default end point x": -108.53125,
+                "last default end point y": -202.0
             }
         ],
         "container widgets": []

@@ -243,7 +243,11 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             ('start control point x', self.control_start_point.x()),
             ('start control point y', self.control_start_point.y()),
             ('end control point x', self.control_end_point.x()),
-            ('end control point y', self.control_end_point.y())
+            ('end control point y', self.control_end_point.y()),
+            ('last default start point x', self.last_default_start.x()),
+            ('last default start point y', self.last_default_start.y()),
+            ('last default end point x', self.last_default_end.x()),
+            ('last default end point y', self.last_default_end.y())
         ])
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
@@ -253,4 +257,11 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         # id and hashmap
         self.id = data['id']
         hashmap[data['id']] = self
+        # control point
+        self.control_start_point = QtCore.QPointF(data['start control point x'], data['start control point y'])
+        self.control_end_point = QtCore.QPointF(data['end control point x'], data['end control point y'])
+        self.last_default_start = QtCore.QPointF(data['last default start point x'], data['last default start point y'])
+        self.last_default_end = QtCore.QPointF(data['last default end point x'], data['last default end point y'])
+        self.move_status = constants.PIPE_COMMON
+        self.update()
         return True
