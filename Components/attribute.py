@@ -905,6 +905,7 @@ class SubConstituteWidget(QtWidgets.QGraphicsWidget):
                                          single_line=False)
         self.label_item.setAcceptHoverEvents(True)
         self.label_item.document().contentsChanged.connect(self.parentItem().text_change_node_shape)
+        self.label_item.document().contentsChanged.connect(self.parentItem().update_treelist)
         self.label_item.hoverMoveEvent = self.hoverMoveEvent
         self.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
@@ -1801,6 +1802,15 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         for sub_node in self.attribute_sub_widgets:
             if not sub_node.attribute_animation:
                 sub_node.end_pipe_animation()
+
+    def update_treelist(self):
+        if self.sub_scene:
+            iterator = QtWidgets.QTreeWidgetItemIterator(self.scene().view.mainwindow.scene_list)
+            while iterator.value():
+                scene_flag = iterator.value()
+                iterator += 1
+                if scene_flag.data(0, QtCore.Qt.ToolTipRole) is self.sub_scene:
+                    scene_flag.setText(0, self.attribute_widget.label_item.toPlainText())
 
     def mousePressEvent(self, event) -> None:
         if int(event.modifiers()) & QtCore.Qt.ShiftModifier:
