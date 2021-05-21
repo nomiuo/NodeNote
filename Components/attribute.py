@@ -242,7 +242,6 @@ class SimpleTextField(QtWidgets.QGraphicsTextItem):
         super(SimpleTextField, self).focusOutEvent(event)
 
 
-# TODO: ctrl + c mime data support
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
     start_editing = QtCore.pyqtSignal()
@@ -673,21 +672,14 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         if text_cursor.hasSelection():
             mime_data = QtCore.QMimeData()
             html_data = text_cursor.selection().toHtml(bytes())
-            try:
-                url = re.search(r'<img src="(.+?)".+?/>', html_data, re.M | re.I).group(1)
-            except AttributeError:
-                text_data = text_cursor.selection().toPlainText()
-                mime_data.setText(text_data)
-                clipboard.setMimeData(mime_data)
-                url = None
-            if not url:
-                image = QtGui.QImage(url)
-                mime_data.setImageData(image)
-                clipboard.setMimeData(mime_data)
+            mime_data.setHtml(html_data)
+            clipboard.setMimeData(mime_data)
 
     @staticmethod
     def paste(cursor):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
+        if mime_data.hasHtml():
+            cursor.insertHtml(mime_data.html())
         if mime_data.hasImage():
             image = QtGui.QImage(mime_data.imageData())
             image_folder = os.getcwd() + "/Assets"
@@ -985,7 +977,7 @@ class GroupWidget(QtWidgets.QGroupBox):
 
 
 class AbstractWidget(QtWidgets.QGraphicsWidget):
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         super(AbstractWidget, self).__init__(parent)
         self.resizing = False
 

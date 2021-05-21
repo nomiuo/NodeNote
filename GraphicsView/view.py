@@ -222,6 +222,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.logic_widgets.append(basic_widget)
 
+    def add_video_widget(self, event):
+        pass
+
     def add_drag_pipe(self, port_widget, pipe_widget):
         port_widget.add_pipes(pipe_widget)
         self.pipes.append(pipe_widget)
@@ -468,6 +471,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             create_attribute_widget.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Attribute Widget.png"))
             create_truth_widget = context_menu.addAction("Create Truth Widget")
             create_truth_widget.setIcon((QtGui.QIcon("Resources/ViewContextMenu/Truth Widget.png")))
+            create_video_widget = context_menu.addAction("Create Video Widget")
+            create_video_widget.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Video Widget.png"))
             change_background_image = context_menu.addAction("Change Background Image")
             change_background_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change Background Image.png"))
 
@@ -476,6 +481,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 self.add_attribute_widget(event)
             elif action == create_truth_widget:
                 self.add_truth_widget(event)
+            elif action == create_video_widget:
+                self.add_video_widget(event)
             elif action == change_background_image:
                 self.change_svg_image()
 

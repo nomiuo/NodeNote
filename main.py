@@ -4,9 +4,7 @@ from PyQt5.QtWidgets import QApplication
 
 # todo: clone node
 # todo: use time
-# todo: paste
 # todo: search
-# todo: picture under text
 # todo: video
 if __name__ == '__main__':
     app = QApplication([])
