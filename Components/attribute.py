@@ -1508,6 +1508,12 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.text_change_node_shape()
         self.update_pipe_position()
 
+        parent = self
+        while parent.parentItem():
+            parent = parent.parentItem()
+            parent.text_change_node_shape()
+            parent.update_pipe_position()
+
     @staticmethod
     def move_up_widget(widget):
         parent = widget.parentItem()
@@ -1542,6 +1548,12 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         subwidget.setParentItem(self)
         self.text_change_node_shape()
         self.update_pipe_position()
+
+        parent = self
+        while parent.parentItem():
+            parent = parent.parentItem()
+            parent.text_change_node_shape()
+            parent.update_pipe_position()
 
     def delete_subwidget(self, subwidget):
         self.attribute_layout.removeItem(subwidget)
