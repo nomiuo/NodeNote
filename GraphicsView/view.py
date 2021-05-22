@@ -415,8 +415,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             pass
         if constants.DEBUG_DRAW_PIPE:
             print("mouse press at", self.itemAt(event.pos()))
-        if self.mode == constants.MODE_PIPE_DRAG:
+        if self.mode == constants.MODE_PIPE_DRAG and not isinstance(self.itemAt(event.pos()), port.Port):
             self.drag_pipe_release(None)
+            self.mode = constants.MODE_NOOP
         if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ShiftModifier and \
                 int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.container_pressed(event)
@@ -461,6 +462,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         super(View, self).mouseMoveEvent(event)
 
     def keyPressEvent(self, event) -> None:
+        if int(event.modifiers()) & QtCore.Qt.ShiftModifier and self.mode == constants.MODE_PIPE_DRAG:
+            self.drag_pipe_release(None)
+            self.mode = constants.MODE_NOOP
         if event.key() == QtCore.Qt.Key_0 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.view_update_pipe_animation()
         if event.key() == QtCore.Qt.Key_Delete or \
