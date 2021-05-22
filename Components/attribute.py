@@ -1528,6 +1528,9 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         # SCENE
         self.sub_scene = None
 
+        # MOVING
+        self.was_moved = False
+
     def paint(self, painter, option, widget=None) -> None:
         painter.save()
 
@@ -1987,6 +1990,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             super(AttributeWidget, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:
+        self.was_moved = True
         self.moving = True
         if self.resizing:
             self.mouse_update_node_size(event)
@@ -1994,9 +1998,13 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             super(AttributeWidget, self).mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event) -> None:
+        if self.was_moved:
+            self.was_moved = False
+            self.scene().view.history.store_history("Attribute Widget Moved")
         self.colliding_release(event)
         if self.resizing:
             self.mouse_update_node_size(event)
+            self.scene().view.history.store_history("Attribute Widget Size Changed")
         else:
             super(AttributeWidget, self).mouseReleaseEvent(event)
 

@@ -247,7 +247,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
     def remove_drag_pipe(self, port_widget, pipe_widget):
         port_widget.remove_pipes(pipe_widget)
-        self.pipes.remove(pipe_widget)
+        if pipe_widget in self.pipes:
+            self.pipes.remove(pipe_widget)
         self.current_scene.removeItem(pipe_widget)
 
     def drag_pipe_press(self, event):
@@ -414,8 +415,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             pass
         if constants.DEBUG_DRAW_PIPE:
             print("mouse press at", self.itemAt(event.pos()))
-        if event.button() == QtCore.Qt.LeftButton:
-            self.drag_pipe_press(event)
+        if self.mode == constants.MODE_PIPE_DRAG:
+            self.drag_pipe_release(None)
         if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ShiftModifier and \
                 int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.container_pressed(event)
@@ -440,13 +441,13 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         super(View, self).mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
+        super(View, self).mouseDoubleClickEvent(event)
         if event.button() == QtCore.Qt.LeftButton:
+            self.drag_pipe_press(event)
             item = self.itemAt(event.pos())
             if hasattr(item, 'file_url'):
                 # noinspection PyTypeChecker
                 self.open_video(item)
-        else:
-            super(View, self).mouseDoubleClickEvent(event)
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.mode == constants.MODE_PIPE_DRAG:
@@ -468,9 +469,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if (event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier) or \
                 (event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier):
             self.change_scale(event)
-        if event.key() == QtCore.Qt.Key_Z and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+        if event.key() == QtCore.Qt.Key_6 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.history.undo()
-        if event.key() == QtCore.Qt.Key_Y and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+        if event.key() == QtCore.Qt.Key_7 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.history.redo()
         if event.key() == QtCore.Qt.Key_S and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.save_to_file("Graph.json")
@@ -480,9 +481,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
     def contextMenuEvent(self, event) -> None:
         super(View, self).contextMenuEvent(event)
-        leftbtn_press_event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonPress, event.pos(), event.globalPos(),
+        leftbtn_press_event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonDblClick, event.pos(), event.globalPos(),
                                                 QtCore.Qt.LeftButton, QtCore.Qt.NoButton, event.modifiers())
-        self.mousePressEvent(leftbtn_press_event)
+        self.mouseDoubleClickEvent(leftbtn_press_event)
         if not event.isAccepted():
             context_menu = QtWidgets.QMenu(self)
             # context list
