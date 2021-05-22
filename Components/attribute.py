@@ -780,7 +780,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Hyperlink")
-        elif current_key == QtCore.Qt.Key_Y and event.modifiers() & QtCore.Qt.ControlModifier:
+        elif current_key == QtCore.Qt.Key_I and event.modifiers() & QtCore.Qt.ControlModifier:
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Mathjax")
@@ -788,6 +788,12 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Clear")
+        elif current_key == QtCore.Qt.Key_Z and event.modifiers() & QtCore.Qt.ControlModifier:
+            self.document().undo()
+            event.accept()
+        elif current_key == QtCore.Qt.Key_Y and event.modifiers() & QtCore.Qt.ControlModifier:
+            self.document().redo()
+            event.accept()
 
         if self.single_line:
             if current_key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
@@ -911,6 +917,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             self.setTextCursor(cursor)
             self.font_size_editing = False
         self.mouseMoveEvent = self.node.mouseMoveEvent
+        self.node.scene().view.history.store_history("Editing")
 
 
 class SubConstituteWidget(QtWidgets.QGraphicsWidget):
@@ -1075,6 +1082,9 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.moving = False
         self.colliding_co = False
 
+        # MOVING
+        self.was_moved = False
+
     def design_ui(self):
         # select logic
         self.logic_combobox_input.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
@@ -1086,7 +1096,7 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.logic_combobox_input.clearFocus()
 
         self.logic_combobox_output.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
-        self.logic_combobox_input.setMaximumHeight(20)
+        self.logic_combobox_output.setMaximumHeight(20)
         logic_list_output = QtWidgets.QListView(self.logic_combobox_output)
         logic_list_output.setStyleSheet(stylesheet.STYLE_QLISTVIEW)
         self.logic_combobox_output.setView(logic_list_output)
@@ -1241,6 +1251,8 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.moving = False
         self.colliding_co = False
 
+        self.scene().view.history.store_history("Colliding Release")
+
     def paint(self, painter, option, widget=None) -> None:
         super(LogicWidget, self).paint(painter, option, widget)
         self.input_port.setPos(-12, self.size().height() / 2 - 3)
@@ -1258,9 +1270,13 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
         self.moving = True
+        self.was_moved = True
         super(LogicWidget, self).mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
+        if self.was_moved:
+            self.was_moved = False
+            self.scene().view.history.store_history("Logic Widget Position Changed")
         self.colliding_release()
         super(LogicWidget, self).mouseReleaseEvent(event)
 
@@ -1803,13 +1819,16 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                 item = self.colliding_detection()
                 self.parentItem().delete_subwidget(self)
                 item.add_exist_subwidget(self)
+                self.scene().view.history.store_history("Colliding Add Subwidget")
             elif not self.colliding_co and self.colliding_parent and not self.colliding_inside:
                 self.parentItem().delete_subwidget(self)
                 self.setPos(event.scenePos())
+                self.scene().view.history.store_history("Colliding Delete Subwidget")
             elif not self.colliding_co and self.colliding_parent and self.colliding_inside:
                 self.parentItem().text_change_node_shape()
             elif self.colliding_co and not self.colliding_parent:
                 self.colliding_detection().add_exist_subwidget(self)
+                self.scene().view.history.store_history("Colliding Add Subwidget")
             self.colliding_co = False
             self.colliding_parent = False
             self.colliding_child = False
@@ -1871,6 +1890,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
             if output_node.attribute_animation:
                 self.start_pipe_animation()
+
+            self.scene().view.history.store_history("Colliding Release")
 
     def update_scene_rect(self):
         self.scene().setSceneRect(self.scene().itemsBoundingRect())

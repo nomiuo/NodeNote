@@ -462,6 +462,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         super(View, self).mouseMoveEvent(event)
 
     def keyPressEvent(self, event) -> None:
+        super(View, self).keyPressEvent(event)
         if int(event.modifiers()) & QtCore.Qt.ShiftModifier and self.mode == constants.MODE_PIPE_DRAG:
             self.drag_pipe_release(None)
             self.mode = constants.MODE_NOOP
@@ -473,15 +474,16 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if (event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier) or \
                 (event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier):
             self.change_scale(event)
-        if event.key() == QtCore.Qt.Key_6 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
-            self.history.undo()
-        if event.key() == QtCore.Qt.Key_7 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
-            self.history.redo()
+        if event.key() == QtCore.Qt.Key_Z and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            if not event.isAccepted():
+                self.history.undo()
+        if event.key() == QtCore.Qt.Key_Y and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            if not event.isAccepted():
+                self.history.redo()
         if event.key() == QtCore.Qt.Key_S and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.save_to_file("Graph.json")
         if event.key() == QtCore.Qt.Key_O and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.load_from_file("Graph.json")
-        super(View, self).keyPressEvent(event)
 
     def contextMenuEvent(self, event) -> None:
         super(View, self).contextMenuEvent(event)

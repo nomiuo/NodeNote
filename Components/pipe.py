@@ -234,6 +234,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         super(Pipe, self).mouseReleaseEvent(event)
         self.move_status = constants.PIPE_COMMON
         self.choose_first = True
+        self.scene().view.history.store_history("Change PIpe Control Point")
 
     def serialize(self):
         return OrderedDict([
