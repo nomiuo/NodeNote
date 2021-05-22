@@ -294,3 +294,30 @@ QTreeWidget::branch:open:has-children:has-siblings  {
         image: url(Resources/Toolbar/stylesheet-branch-open.png);
 }
 '''
+
+STYLE_QTOOLBUTTON = '''
+QToolButton {
+    background-color: rgba(200, 200, 200, 200);
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 8px;
+    min-width: 10em;
+    padding: 6px;
+}
+
+QToolButton:pressed {
+    background-color: rgb(224, 0, 0);
+    border-style: inset;
+}
+'''
+
+STYLE_QLABEL = '''
+QLabel {
+    border: 2px solid green;
+    border-radius: 4px;
+    padding: 2px;
+    background-color: rgba(255, 255, 204, 200);
+}
+'''

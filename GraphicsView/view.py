@@ -5,7 +5,6 @@ from GraphicsView.scene import Scene
 from Components import effect_water, attribute, port, pipe, container, effect_cutline, effect_background
 from Model import constants, stylesheet, history, serializable
 
-
 __all__ = ["View"]
 
 
@@ -222,8 +221,11 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.logic_widgets.append(basic_widget)
 
-    def add_video_widget(self, event):
-        pass
+    def open_video(self, item):
+        if not item.file_url:
+            item.file_url, _ = QtWidgets.QFileDialog.getOpenFileName(self, "select files", "",
+                                                                     "any file (*.*)")
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(item.file_url))
 
     def add_drag_pipe(self, port_widget, pipe_widget):
         port_widget.add_pipes(pipe_widget)
@@ -404,11 +406,12 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             pass
         if constants.DEBUG_DRAW_PIPE:
             print("mouse press at", self.itemAt(event.pos()))
+        if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ShiftModifier and \
+                int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            self.container_pressed(event)
+            return
         if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.cutline_pressed()
-            return
-        if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ShiftModifier:
-            self.container_pressed(event)
             return
         if event.button() == QtCore.Qt.LeftButton:
             self.set_leftbtn_beauty(event)
@@ -429,6 +432,10 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         if event.button() == QtCore.Qt.LeftButton:
             self.drag_pipe_press(event)
+            item = self.itemAt(event.pos())
+            if hasattr(item, 'file_url'):
+                # noinspection PyTypeChecker
+                self.open_video(item)
         else:
             super(View, self).mouseDoubleClickEvent(event)
 
@@ -471,8 +478,6 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             create_attribute_widget.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Attribute Widget.png"))
             create_truth_widget = context_menu.addAction("Create Truth Widget")
             create_truth_widget.setIcon((QtGui.QIcon("Resources/ViewContextMenu/Truth Widget.png")))
-            create_video_widget = context_menu.addAction("Create Video Widget")
-            create_video_widget.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Video Widget.png"))
             change_background_image = context_menu.addAction("Change Background Image")
             change_background_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change Background Image.png"))
 
@@ -481,8 +486,6 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 self.add_attribute_widget(event)
             elif action == create_truth_widget:
                 self.add_truth_widget(event)
-            elif action == create_video_widget:
-                self.add_video_widget(event)
             elif action == change_background_image:
                 self.change_svg_image()
 
@@ -516,8 +519,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.containers = list()
         # set root scene
         self.root_scene_flag = QtWidgets.QTreeWidgetItem(
-                                                            self.mainwindow.scene_list,
-                                                            ("Root Scene",))
+            self.mainwindow.scene_list,
+            ("Root Scene",))
         self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
         self.current_scene = self.root_scene
         self.current_scene_flag = self.root_scene_flag

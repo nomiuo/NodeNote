@@ -105,6 +105,10 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
                 pipe.Pipe(start_port, end_port, None).deserialize(pipe_data, hashmap, view, flag=True)
                 start_port.update_pipes_position()
                 end_port.update_pipes_position()
+            # deserialize container widgets with all
+            for container_data in data['container widgets']:
+                container.Container(QtCore.QPointF(container_data['points'][0][0], container_data['points'][0][1])).\
+                    deserialize(container_data, hashmap, view, flag)
         elif flag is False:
             for item in self.items():
                 # deserialize attribute widgets second time
@@ -113,10 +117,17 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
                     for attribute_widget_data in data['attribute widgets']:
                         # traverse list and find right attribute
                         if item.id == attribute_widget_data['id']:
+                            # deserialize sub attribute widgets
                             for attribute_sub_id in attribute_widget_data['attribute sub widgets']:
-                                sub_attribute_widget = self.get_id_attribute(attribute_sub_id)
-                                item.attribute_sub_widgets.append(sub_attribute_widget)
-                                item.attribute_layout.addItem(sub_attribute_widget)
+                                if isinstance(attribute_sub_id, int):
+                                    sub_attribute_widget = self.get_id_attribute(attribute_sub_id)
+                                    item.attribute_sub_widgets.append(sub_attribute_widget)
+                                    item.attribute_layout.addItem(sub_attribute_widget)
+                                elif isinstance(attribute_sub_id, dict):
+                                    attribute_file = attribute.AttributeFile(item)
+                                    attribute_file.deserialize(attribute_sub_id, hashmap, view, flag)
+                                    item.attribute_sub_widgets.append(attribute_file)
+                                    item.attribute_layout.addItem(attribute_file)
                             # deserialize attribute widgets with attribute next widgets
                             for attribute_next_id in attribute_widget_data['next attribute widgets']:
                                 next_attribute_widget = self.get_id_attribute(attribute_next_id)

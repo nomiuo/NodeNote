@@ -12,7 +12,7 @@ from Model import constants, stylesheet, serializable
 from Components import port, pipe
 
 __all__ = ["SubConstituteWidget", "InputTextField",
-           "LogicWidget", "TruthWidget", "AttributeWidget"]
+           "LogicWidget", "TruthWidget", "AttributeWidget", "AttributeFile"]
 
 
 class SizeDialog(QtWidgets.QDialog):
@@ -227,6 +227,7 @@ class SimpleTextField(QtWidgets.QGraphicsTextItem):
     def __init__(self, text, parent):
         super(SimpleTextField, self).__init__(text, parent)
         self.setFlags(QtWidgets.QGraphicsWidget.ItemSendsGeometryChanges | QtWidgets.QGraphicsWidget.ItemIsSelectable)
+        self.document().contentsChanged.connect(self.control_length)
 
     def mouseDoubleClickEvent(self, event) -> None:
         super(SimpleTextField, self).mouseDoubleClickEvent(event)
@@ -240,6 +241,10 @@ class SimpleTextField(QtWidgets.QGraphicsTextItem):
     def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         super(SimpleTextField, self).focusOutEvent(event)
+
+    def control_length(self):
+        if len(self.document().toPlainText()) >= 18:
+            self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
 
 
 class InputTextField(QtWidgets.QGraphicsTextItem):
@@ -1014,6 +1019,38 @@ class AbstractWidget(QtWidgets.QGraphicsWidget):
             super(AbstractWidget, self).mouseReleaseEvent(event)
 
 
+class TruthWidget(QtWidgets.QGraphicsWidget):
+    def __init__(self, truth=True, parent=None):
+        super(TruthWidget, self).__init__(parent)
+        # new checkbox
+        self.truth_checkbox = QtWidgets.QCheckBox("Truth")
+        self.truth_checkbox.setChecked(truth)
+        self.truth_checkbox.setStyleSheet(stylesheet.STYLE_QCHECKBOX)
+
+        # set font
+        font = self.truth_checkbox.font()
+        font.setPointSize(8)
+        self.truth_checkbox.setFont(font)
+
+        # add into group
+        proxywidget = QtWidgets.QGraphicsProxyWidget()
+        proxywidget.setWidget(self.truth_checkbox)
+        self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addItem(proxywidget)
+        self.setLayout(self.layout)
+
+    def sizeHint(self, which=None, constraint=None) -> QtCore.QSizeF:
+        width = self.truth_checkbox.width() + 5
+        height = self.truth_checkbox.height() + 5
+        return QtCore.QSizeF(width, height)
+
+    def boundingRect(self) -> QtCore.QRectF:
+        return QtCore.QRectF(0, 0,
+                             self.truth_checkbox.width() + 5,
+                             self.truth_checkbox.height() + 5)
+
+
 class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def __init__(self, parent=None):
         super(LogicWidget, self).__init__(parent)
@@ -1281,36 +1318,118 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             pass
 
 
-class TruthWidget(QtWidgets.QGraphicsWidget):
-    def __init__(self, truth=True, parent=None):
-        super(TruthWidget, self).__init__(parent)
-        # new checkbox
-        self.truth_checkbox = QtWidgets.QCheckBox("Truth")
-        self.truth_checkbox.setChecked(truth)
-        self.truth_checkbox.setStyleSheet(stylesheet.STYLE_QCHECKBOX)
+class AttributeImage(QtWidgets.QGraphicsWidget):
+    def __init__(self, parent=None):
+        super(AttributeImage, self).__init__(parent)
+        self.video = parent
+        self.file_url = None
 
-        # set font
-        font = self.truth_checkbox.font()
-        font.setPointSize(8)
-        self.truth_checkbox.setFont(font)
 
-        # add into group
-        proxywidget = QtWidgets.QGraphicsProxyWidget()
-        proxywidget.setWidget(self.truth_checkbox)
-        self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addItem(proxywidget)
+class ChangeImageOrVideo(QtWidgets.QLabel):
+    def __init__(self, label_type: str, parent, text):
+        super(ChangeImageOrVideo, self).__init__(text)
+        self.label_type = label_type
+        self.parent = parent
+        self.setStyleSheet(stylesheet.STYLE_QLABEL)
+
+    def mousePressEvent(self, ev: QtGui.QMouseEvent) -> None:
+        super(ChangeImageOrVideo, self).mousePressEvent(ev)
+        if self.label_type == "Cover":
+            self.parent.turn_image()
+        elif self.label_type == "File":
+            self.parent.turn_file()
+
+
+class AttributeFile(QtWidgets.QGraphicsWidget, serializable.Serializable):
+    def __init__(self, parent=None):
+        super(AttributeFile, self).__init__(parent)
+        self.setZValue(constants.Z_VAL_NODE)
+
+        # widget
+        self.image = AttributeImage()
+        self.image.setMinimumSize(100, 100)
+        self.image.setMaximumSize(100, 100)
+        self.image.setAutoFillBackground(True)
+        palette = self.image.palette()
+        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(QtGui.QPixmap("Resources/Attribute Flag/video.png").scaled(
+            self.image.size().width(),
+            self.image.size().height(),
+            QtCore.Qt.IgnoreAspectRatio,
+            QtCore.Qt.SmoothTransformation
+        )))
+        self.image.setPalette(palette)
+
+        self.label_item = SimpleTextField("Description", self)
+        self.label_item.setFont(QtGui.QFont("LucidaMacBold", 8))
+
+        self.change_image_text = ChangeImageOrVideo("Cover", self, "Cover")
+        self.change_video_text = ChangeImageOrVideo("File", self, "File")
+        self.proxy_image_text = QtWidgets.QGraphicsProxyWidget()
+        self.proxy_video_text = QtWidgets.QGraphicsProxyWidget()
+        self.proxy_image_text.setZValue(constants.Z_VAL_NODE)
+        self.proxy_video_text.setZValue(constants.Z_VAL_NODE)
+        self.proxy_image_text.setWidget(self.change_image_text)
+        self.proxy_video_text.setWidget(self.change_video_text)
+
+        # layout
+        self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
+        self.layout.setSpacing(15)
+        self.control_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        self.control_layout.addItem(self.proxy_image_text)
+        self.control_layout.addItem(self.proxy_video_text)
+        self.layout.addItem(QtWidgets.QGraphicsWidget(self.label_item))
+        self.layout.addItem(self.control_layout)
+        self.layout.addItem(self.image)
         self.setLayout(self.layout)
 
-    def sizeHint(self, which=None, constraint=None) -> QtCore.QSizeF:
-        width = self.truth_checkbox.width() + 5
-        height = self.truth_checkbox.height() + 5
-        return QtCore.QSizeF(width, height)
+        # store
+        self.image_url = r"Resources/Attribute Flag/video.png"
 
-    def boundingRect(self) -> QtCore.QRectF:
-        return QtCore.QRectF(0, 0,
-                             self.truth_checkbox.width() + 5,
-                             self.truth_checkbox.height() + 5)
+    def turn_image(self):
+        image_url, _ = QtWidgets.QFileDialog.getOpenFileName(None, "select image", "", "*.png *.jpg")
+        if image_url:
+            self.image_url = image_url
+            palette = self.image.palette()
+            palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(QtGui.QPixmap(image_url).scaled(
+                self.image.size().width(),
+                self.image.size().height(),
+                QtCore.Qt.IgnoreAspectRatio,
+                QtCore.Qt.SmoothTransformation
+            )))
+            self.image.setPalette(palette)
+
+    def turn_file(self):
+        file_url, _ = QtWidgets.QFileDialog.getOpenFileName(None, "select files", "", "any file (*.*)")
+        if file_url:
+            self.image.file_url = file_url
+
+    def serialize(self):
+        return OrderedDict([
+            ("id", self.id),
+            ("text", self.label_item.toPlainText()),
+            ("cover", self.image_url),
+            ("file", self.image.file_url)
+        ])
+
+    def deserialize(self, data, hashmap: dict, view=None, flag=True):
+        # id and hashmap
+        self.id = data['id']
+        hashmap[data['id']] = self
+        # text
+        self.label_item.setPlainText(data['text'])
+        # image
+        self.image_url = data['cover']
+        palette = self.image.palette()
+        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(QtGui.QPixmap(self.image_url).scaled(
+            self.image.size().width(),
+            self.image.size().height(),
+            QtCore.Qt.IgnoreAspectRatio,
+            QtCore.Qt.SmoothTransformation
+        )))
+        self.image.setPalette(palette)
+        # file
+        self.image.file_url = data['file']
+        return True
 
 
 class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
@@ -1514,6 +1633,20 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             parent.text_change_node_shape()
             parent.update_pipe_position()
 
+    def add_file(self):
+        file = AttributeFile(self)
+        self.attribute_layout.addItem(file)
+        self.attribute_sub_widgets.append(file)
+
+        self.text_change_node_shape()
+        self.update_pipe_position()
+
+        parent = self
+        while parent.parentItem():
+            parent = parent.parentItem()
+            parent.text_change_node_shape()
+            parent.update_pipe_position()
+
     @staticmethod
     def move_up_widget(widget):
         parent = widget.parentItem()
@@ -1565,13 +1698,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def colliding_judge_sub(self, parent_widget, item):
         while parent_widget.attribute_sub_widgets:
             for sub_widget in parent_widget.attribute_sub_widgets:
-                if sub_widget is item:
-                    self.colliding_child = True
-                    self.update()
-                    return 1
-                parent_widget = sub_widget
-                if self.colliding_judge_sub(parent_widget, item):
-                    return 1
+                if isinstance(sub_widget, AttributeWidget):
+                    if sub_widget is item:
+                        self.colliding_child = True
+                        self.update()
+                        return 1
+                    parent_widget = sub_widget
+                    if self.colliding_judge_sub(parent_widget, item):
+                        return 1
 
     def colliding_judge_parent(self, parent_widget, item):
         while parent_widget.parentItem():
@@ -1746,7 +1880,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.false_input_port.update_pipes_position()
         self.false_output_port.update_pipes_position()
         for sub_widget in self.attribute_sub_widgets:
-            sub_widget.update_pipe_position()
+            if isinstance(sub_widget, AttributeWidget):
+                sub_widget.update_pipe_position()
 
     def add_next_attribute(self, widget):
         self.next_attribute.append(widget)
@@ -1866,6 +2001,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         menu.setStyleSheet(stylesheet.STYLE_QMENU)
         add_subwidget = menu.addAction("Add Subwidget")
         add_subwidget.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/ADD SUBWIDGET.PNG"))
+        add_video = menu.addAction("Add Video")
+        add_video.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/Add Video.png"))
         move_up = menu.addAction("Move Up")
         move_up.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/Up.png"))
         move_down = menu.addAction("Move Down")
@@ -1873,11 +2010,17 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         result = menu.exec(event.screenPos())
         if result == add_subwidget:
             self.add_new_subwidget()
-        elif result == move_up and isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()).parentItem(),
-                                              AttributeWidget):
+        elif result == add_video:
+            self.add_file()
+        elif result == move_up and (isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()).parentItem(),
+                                               AttributeWidget) or
+                                    isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()),
+                                               AttributeFile)):
             self.move_up_widget(self.scene().itemAt(event.scenePos(), QtGui.QTransform()))
-        elif result == move_down and isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()).parentItem(),
-                                                AttributeWidget):
+        elif result == move_down and (isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()).parentItem(),
+                                                 AttributeWidget) or
+                                      isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()),
+                                                 AttributeFile)):
             self.move_down_widget(self.scene().itemAt(event.scenePos(), QtGui.QTransform()))
         event.setAccepted(True)
 
@@ -1902,7 +2045,10 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         for last_logic_widget in self.last_logic:
             last_logic_widgets.append(last_logic_widget.id)
         for attribute_sub_widget in self.attribute_sub_widgets:
-            attribute_sub_widgets.append(attribute_sub_widget.id)
+            if isinstance(attribute_sub_widget, AttributeWidget):
+                attribute_sub_widgets.append(attribute_sub_widget.id)
+            elif isinstance(attribute_sub_widget, AttributeFile):
+                attribute_sub_widgets.append(attribute_sub_widget.serialize())
 
         return OrderedDict([
             ('id', self.id),
