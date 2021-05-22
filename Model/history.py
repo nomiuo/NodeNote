@@ -1,9 +1,6 @@
-from Model import constants
-
-
 class History:
-    def __init__(self, root_scene):
-        self.root_scene = root_scene
+    def __init__(self, view):
+        self.view = view
 
         self.history_stack = []
         self.history_current_step = -1
@@ -37,9 +34,9 @@ class History:
     def create_history_stamp(self, desc):
         history_stamp = {
             'desc': desc,
-            'snapshot': self.root_scene.serialize()
+            'snapshot': self.view.serialize()
         }
         return history_stamp
 
     def restore_history_stamp(self, history_stamp):
-        pass
+        self.view.deserialize(history_stamp['snapshot']['root scene'], hashmap={}, view=self.view, flag=True)

@@ -240,6 +240,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             ('id', self.id),
             ('start port', self.start_port.id),
             ('end port', self.end_port.id),
+            ("text", self.edit.toPlainText()),
             ('start control point x', self.control_start_point.x()),
             ('start control point y', self.control_start_point.y()),
             ('end control point x', self.control_end_point.x()),
@@ -257,6 +258,8 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         # id and hashmap
         self.id = data['id']
         hashmap[data['id']] = self
+        # text
+        self.edit.setPlainText(data['text'])
         # control point
         self.control_start_point = QtCore.QPointF(data['start control point x'], data['start control point y'])
         self.control_end_point = QtCore.QPointF(data['end control point x'], data['end control point y'])

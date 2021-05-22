@@ -63,7 +63,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.current_scene_flag = self.root_scene_flag
 
         # History
-        self.history = history.History(self.root_scene)
+        self.history = history.History(self)
 
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
@@ -103,6 +103,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                     item.start_pipe_animation()
                 else:
                     item.end_pipe_animation()
+        self.history.store_history("update pipe animation")
 
     def delete_connections(self, item):
         if isinstance(item, attribute.AttributeWidget):
@@ -189,6 +190,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                         self.current_scene.removeItem(item)
                         self.containers.remove(item)
 
+            self.history.store_history("Delete Widgets")
+
     def delete_pipe(self, item):
         end_node = item.get_input_node()
         start_node = item.get_output_node()
@@ -214,12 +217,14 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.current_scene.addItem(basic_widget)
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.attribute_widgets.append(basic_widget)
+        self.history.store_history("Add Attribute Widget")
 
     def add_truth_widget(self, event):
         basic_widget = attribute.LogicWidget()
         self.current_scene.addItem(basic_widget)
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.logic_widgets.append(basic_widget)
+        self.history.store_history("Add Truth Widget")
 
     def open_video(self, item):
         if not item.file_url:
@@ -246,7 +251,6 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.current_scene.removeItem(pipe_widget)
 
     def drag_pipe_press(self, event):
-        super(View, self).mouseDoubleClickEvent(event)
         if self.mode == constants.MODE_NOOP:
             self.item = self.itemAt(event.pos())
             if constants.DEBUG_DRAW_PIPE:
@@ -311,6 +315,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                     input_node.start_pipe_animation()
                     output_node.start_pipe_animation()
 
+                self.history.store_history("Create Pipe")
             else:
                 if constants.DEBUG_DRAW_PIPE:
                     print("delete drag pipe case 1")
@@ -361,6 +366,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
     def container_released(self):
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
         self.mode = constants.MODE_NOOP
+        self.history.store_history("Create Container")
 
     def new_sub_scene(self, attribute_widget):
         if not attribute_widget.sub_scene:
@@ -381,6 +387,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.setScene(sub_scene)
         self.current_scene = sub_scene
         self.current_scene_flag = sub_scene.sub_scene_flag
+
+        self.history.store_history("Create Sub Scene")
 
     def change_current_scene(self, sub_scene_item: QtWidgets.QTreeWidgetItem):
         self.current_scene = sub_scene_item.data(0, QtCore.Qt.ToolTipRole)
@@ -406,6 +414,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             pass
         if constants.DEBUG_DRAW_PIPE:
             print("mouse press at", self.itemAt(event.pos()))
+        if event.button() == QtCore.Qt.LeftButton:
+            self.drag_pipe_press(event)
         if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ShiftModifier and \
                 int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.container_pressed(event)
@@ -431,7 +441,6 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         if event.button() == QtCore.Qt.LeftButton:
-            self.drag_pipe_press(event)
             item = self.itemAt(event.pos())
             if hasattr(item, 'file_url'):
                 # noinspection PyTypeChecker
@@ -460,9 +469,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 (event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier):
             self.change_scale(event)
         if event.key() == QtCore.Qt.Key_Z and int(event.modifiers()) & QtCore.Qt.ControlModifier:
-            pass
+            self.history.undo()
         if event.key() == QtCore.Qt.Key_Y and int(event.modifiers()) & QtCore.Qt.ControlModifier:
-            pass
+            self.history.redo()
         if event.key() == QtCore.Qt.Key_S and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.save_to_file("Graph.json")
         if event.key() == QtCore.Qt.Key_O and int(event.modifiers()) & QtCore.Qt.ControlModifier:
@@ -471,6 +480,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
     def contextMenuEvent(self, event) -> None:
         super(View, self).contextMenuEvent(event)
+        leftbtn_press_event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonPress, event.pos(), event.globalPos(),
+                                                QtCore.Qt.LeftButton, QtCore.Qt.NoButton, event.modifiers())
+        self.mousePressEvent(leftbtn_press_event)
         if not event.isAccepted():
             context_menu = QtWidgets.QMenu(self)
             # context list

@@ -1633,6 +1633,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             parent.text_change_node_shape()
             parent.update_pipe_position()
 
+        self.scene().view.history.store_history("Add New Subwidget")
+
     def add_file(self):
         file = AttributeFile(self)
         self.attribute_layout.addItem(file)
@@ -1646,6 +1648,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             parent = parent.parentItem()
             parent.text_change_node_shape()
             parent.update_pipe_position()
+
+        self.scene().view.history.store_history("Add New FIle")
 
     @staticmethod
     def move_up_widget(widget):
