@@ -59,11 +59,43 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.root_scene_flag = QtWidgets.QTreeWidgetItem(self.mainwindow.scene_list,
                                                          ("Root Scene",))
         self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
+        self.root_scene_flag.setExpanded(True)
         self.current_scene = self.root_scene
         self.current_scene_flag = self.root_scene_flag
 
         # History
         self.history = history.History(self)
+
+        # Search
+        self.search_widget = QtWidgets.QWidget(self)
+        self.search_widget.setVisible(False)
+        self.text_widget = QtWidgets.QLineEdit(self.search_widget)
+        self.text_widget.setStyleSheet(stylesheet.STYLE_QLINEEDIT)
+        self.label_widget = QtWidgets.QLabel("Search: ", self.search_widget)
+        self.label_widget.setStyleSheet(stylesheet.STYLE_QLABEL)
+        self.search_button = QtWidgets.QPushButton("Search", self.search_widget)
+        self.search_widget.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.next_button = QtWidgets.QPushButton("Next", self.search_widget)
+        self.next_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.last_button = QtWidgets.QPushButton("Last", self.search_widget)
+        self.last_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+
+        search_layout = QtWidgets.QHBoxLayout()
+        self.search_widget.setLayout(search_layout)
+        search_layout.addWidget(self.label_widget)
+        search_layout.addWidget(self.text_widget)
+        search_layout.addWidget(self.search_button)
+        search_layout.addWidget(self.last_button)
+        search_layout.addWidget(self.next_button)
+
+        self.search_button.clicked.connect(lambda: self.search(self.text_widget.text(), self.label_widget))
+        self.next_button.clicked.connect(lambda: self.next_search(self.label_widget))
+        self.last_button.clicked.connect(lambda: self.last_search(self.label_widget))
+
+        self.search_list = list()
+        self.search_position = -1
+        self.search_result = False
+        self.text_format = {}
 
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
@@ -104,6 +136,113 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 else:
                     item.end_pipe_animation()
         self.history.store_history("update pipe animation")
+
+    def search_text(self):
+        # widget
+        if not self.search_widget.isVisible():
+            self.search_widget.setGeometry(self.size().width() // 2 - 250, 0, 500, 50)
+            self.search_widget.setVisible(True)
+            self.text_widget.setFocus()
+        else:
+            self.search_widget.setVisible(False)
+
+            for item_id in self.text_format:
+                for item in self.attribute_widgets:
+                    if item.id == item_id:
+                        cursor = item.attribute_widget.label_item.textCursor()
+                        for text_format in self.text_format[item_id]:
+                            cursor.setPosition(text_format[0])
+                            cursor.movePosition(QtGui.QTextCursor.EndOfWord, 1)
+                            cursor.setCharFormat(text_format[1])
+
+            self.search_list = list()
+            self.search_position = -1
+            self.search_result = False
+            self.text_format = {}
+
+    def search(self, search_text, label_widget):
+        # search
+        self.search_list = list()
+        self.search_position = -1
+        self.search_result = False
+
+        for item_id in self.text_format:
+            for item in self.attribute_widgets:
+                if item.id == item_id:
+                    cursor = item.attribute_widget.label_item.textCursor()
+                    for text_format in self.text_format[item_id]:
+                        cursor.setPosition(text_format[0])
+                        cursor.movePosition(QtGui.QTextCursor.EndOfWord, 1)
+                        cursor.setCharFormat(text_format[1])
+        self.text_format = {}
+
+        if search_text:
+            for item in self.attribute_widgets:
+                text = item.attribute_widget.label_item.toPlainText()
+                cursor = item.attribute_widget.label_item.textCursor()
+
+                text_format = QtGui.QTextCharFormat()
+                text_format.setBackground(QtGui.QBrush(QtGui.QColor(255, 153, 153, 200)))
+
+                regex = QtCore.QRegExp(search_text)
+                pos = 0
+                index = regex.indexIn(text, pos)
+                while index != -1:
+                    cursor.setPosition(index)
+                    cursor.movePosition(QtGui.QTextCursor.EndOfWord, 1)
+                    last_format = cursor.charFormat()
+                    cursor.mergeCharFormat(text_format)
+
+                    if item.id not in self.text_format:
+                        self.text_format[item.id] = list()
+                        self.text_format[item.id].append((index, last_format))
+
+                    pos = index + regex.matchedLength()
+                    index = regex.indexIn(text, pos)
+                    self.search_result = True
+
+                if self.search_result:
+                    self.search_list.append(item)
+                self.search_result = False
+
+            self.next_search(label_widget)
+
+            if not self.search_list:
+                self.label_widget.setText("Result 0/0")
+
+        else:
+            self.label_widget.setText("Result 0/0")
+
+    def next_search(self, label_widget):
+        if self.search_list:
+
+            self.search_position += 1
+            if self.search_position > len(self.search_list) - 1:
+                self.search_position = len(self.search_list) - 1
+
+            at_scene = self.search_list[self.search_position].scene()
+            self.current_scene = at_scene
+            self.current_scene_flag = at_scene.sub_scene_flag
+            self.background_image = at_scene.background_image
+            self.cutline = at_scene.cutline
+            self.setScene(at_scene)
+            self.centerOn(self.search_list[self.search_position])
+            label_widget.setText("Result %d/%d" % (self.search_position + 1, len(self.search_list)))
+
+    def last_search(self, label_widget):
+        if self.search_list:
+            self.search_position -= 1
+            if self.search_position < 0:
+                self.search_position = 0
+
+            at_scene = self.search_list[self.search_position].scene()
+            self.current_scene = at_scene
+            self.current_scene_flag = at_scene.sub_scene_flag
+            self.background_image = at_scene.background_image
+            self.cutline = at_scene.cutline
+            self.setScene(at_scene)
+            self.centerOn(self.search_list[self.search_position])
+            label_widget.setText("Result %d/%d" % (self.search_position + 1, len(self.search_list)))
 
     def delete_connections(self, item):
         if isinstance(item, attribute.AttributeWidget):
@@ -380,6 +519,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             attribute_widget.set_sub_scene(sub_scene)
 
             sub_scene_flag.setData(0, QtCore.Qt.ToolTipRole, sub_scene)
+            sub_scene_flag.setExpanded(True)
         else:
             sub_scene = attribute_widget.sub_scene
             self.background_image = self.current_scene.background_image
@@ -474,6 +614,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if (event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier) or \
                 (event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier):
             self.change_scale(event)
+        if event.key() == QtCore.Qt.Key_F and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            self.search_text()
         if event.key() == QtCore.Qt.Key_Z and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             if not event.isAccepted():
                 self.history.undo()
@@ -541,6 +683,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             self.mainwindow.scene_list,
             ("Root Scene",))
         self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
+        self.root_scene_flag.setExpanded(True)
         self.current_scene = self.root_scene
         self.current_scene_flag = self.root_scene_flag
         self.background_image = self.current_scene.background_image

@@ -295,19 +295,18 @@ QTreeWidget::branch:open:has-children:has-siblings  {
 }
 '''
 
-STYLE_QTOOLBUTTON = '''
-QToolButton {
+STYLE_QPUSHBUTTON = '''
+QPushButton {
     background-color: rgba(200, 200, 200, 200);
     border-style: outset;
     border-width: 1px;
     border-radius: 10px;
     border-color: beige;
     font: bold 8px;
-    min-width: 10em;
     padding: 6px;
 }
 
-QToolButton:pressed {
+QPushButton:pressed {
     background-color: rgb(224, 0, 0);
     border-style: inset;
 }
@@ -315,9 +314,22 @@ QToolButton:pressed {
 
 STYLE_QLABEL = '''
 QLabel {
-    border: 2px solid green;
-    border-radius: 4px;
-    padding: 2px;
-    background-color: rgba(255, 255, 204, 200);
+    background-color: rgba(200, 200, 200, 200);
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 8px;
+    padding: 6px;
+}
+'''
+
+STYLE_QLINEEDIT = '''
+QLineEdit {
+    border: 2px solid gray;
+    border-radius: 10px;
+    padding: 0 8px;
+    background: beige;
+    selection-background-color: darkgray;
 }
 '''
