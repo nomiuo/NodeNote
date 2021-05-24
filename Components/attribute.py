@@ -251,6 +251,9 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
     start_editing = QtCore.pyqtSignal()
 
+    font = QtGui.QFont("Inconsolata", 8)
+    font_color = QtGui.QColor(0, 0, 0, 255)
+
     def __init__(self, text, node, parent=None, single_line=False):
         super(InputTextField, self).__init__(text, parent)
         # BASIC SETTINGS
@@ -263,8 +266,9 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         self.origMoveEvent = self.mouseMoveEvent
         self.mouseMoveEvent = self.node.mouseMoveEvent
         # DOCUMNET SETTINGS
+        self.setDefaultTextColor(self.font_color)
         self.document().setIndentWidth(4)
-        self.document().setDefaultFont(QtGui.QFont("Inconsolata", 8))
+        self.document().setDefaultFont(self.font)
         self.pythonlighter = PythonHighlighter(self.document())
         self.editing_state = False
         self.font_size_editing = True
@@ -1346,7 +1350,7 @@ class ChangeImageOrVideo(QtWidgets.QLabel):
         super(ChangeImageOrVideo, self).__init__(text)
         self.label_type = label_type
         self.parent = parent
-        self.setStyleSheet(stylesheet.STYLE_QLABEL)
+        self.setStyleSheet(stylesheet.STYLE_QLABEL_FILE)
 
     def mousePressEvent(self, ev: QtGui.QMouseEvent) -> None:
         super(ChangeImageOrVideo, self).mousePressEvent(ev)
@@ -1451,6 +1455,8 @@ class AttributeFile(QtWidgets.QGraphicsWidget, serializable.Serializable):
 class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     display_name_changed = QtCore.pyqtSignal(str)
     draw_label = None
+    color = QtGui.QColor(229, 255, 255, 125)
+    selected_color = QtGui.QColor(255, 255, 255, 30)
 
     def __init__(self):
         super(AttributeWidget, self).__init__()
@@ -1464,9 +1470,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.setZValue(constants.Z_VAL_NODE)
 
         # COLORS
-        self.color = (229, 255, 255, 125)
         self.border_color = (46, 57, 66, 255)
-        self.selected_color = (255, 255, 255, 30)
         self.selected_border_color = (254, 207, 42, 255)
 
         # LAYOUTS
@@ -1565,7 +1569,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
         # draw background
         rect = self.boundingRect()
-        painter.setBrush(QtGui.QColor(*self.color) if not self.isSelected() else QtGui.QColor(*self.selected_color))
+        painter.setBrush(self.color if not self.isSelected() else self.selected_color)
         painter.setPen(QtCore.Qt.NoPen)
         painter.drawRoundedRect(rect, radius, radius)
 
@@ -1729,6 +1733,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                     parent_widget = sub_widget
                     if self.colliding_judge_sub(parent_widget, item):
                         return 1
+            return None
 
     def colliding_judge_parent(self, parent_widget, item):
         while parent_widget.parentItem():
@@ -1836,7 +1841,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             self.moving = False
             self.update()
 
-        elif self.colliding_type == constants.COLLIDING_PIPE:
+        elif self.colliding_type == constants.COLLIDING_PIPE and self.scene().view.mode == constants.MODE_NOOP:
             item = self.colliding_detection()
 
             if self.parentItem():
@@ -1891,7 +1896,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             if output_node.attribute_animation:
                 self.start_pipe_animation()
 
-            self.scene().view.history.store_history("Colliding Release")
+            pipe_widget.update_position()
+            self.scene().view.history.store_history("Colliding Add Second Pipe")
 
     def update_scene_rect(self):
         self.scene().setSceneRect(self.scene().itemsBoundingRect())
@@ -2034,16 +2040,16 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         menu.setStyleSheet(stylesheet.STYLE_QMENU)
         add_subwidget = menu.addAction("Add Subwidget")
         add_subwidget.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/ADD SUBWIDGET.PNG"))
-        add_video = menu.addAction("Add Video")
-        add_video.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/Add Video.png"))
+        add_file = menu.addAction("Add File")
+        add_file.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/Add Video.png"))
         move_up = menu.addAction("Move Up")
-        move_up.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/Up.png"))
+        move_up.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/up.png"))
         move_down = menu.addAction("Move Down")
-        move_down.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/Down.png"))
+        move_down.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/down.png"))
         result = menu.exec(event.screenPos())
         if result == add_subwidget:
             self.add_new_subwidget()
-        elif result == add_video:
+        elif result == add_file:
             self.add_file()
         elif result == move_up and (isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()).parentItem(),
                                                AttributeWidget) or

@@ -365,11 +365,12 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.logic_widgets.append(basic_widget)
         self.history.store_history("Add Truth Widget")
 
-    def open_video(self, item):
+    def open_file(self, item):
         if not item.file_url:
             item.file_url, _ = QtWidgets.QFileDialog.getOpenFileName(self, "select files", "",
                                                                      "any file (*.*)")
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(item.file_url))
+        self.history.store_history("Add File")
 
     def add_drag_pipe(self, port_widget, pipe_widget):
         port_widget.add_pipes(pipe_widget)
@@ -588,7 +589,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             item = self.itemAt(event.pos())
             if hasattr(item, 'file_url'):
                 # noinspection PyTypeChecker
-                self.open_video(item)
+                self.open_file(item)
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.mode == constants.MODE_PIPE_DRAG:

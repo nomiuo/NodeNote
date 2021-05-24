@@ -297,7 +297,7 @@ QTreeWidget::branch:open:has-children:has-siblings  {
 
 STYLE_QPUSHBUTTON = '''
 QPushButton {
-    background-color: rgba(200, 200, 200, 200);
+    background-color: rgba(26, 255, 255, 100);
     border-style: outset;
     border-width: 1px;
     border-radius: 10px;
@@ -323,6 +323,31 @@ QLabel {
     padding: 6px;
 }
 '''
+
+STYLE_QLABEL_NOCOLOR = '''
+QLabel {
+    background-color: rgba(204, 255, 255, 200);
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 8px;
+    padding: 6px;
+}
+'''
+
+STYLE_QLABEL_FILE = '''
+QLabel {
+    background-color: rgba(200, 200, 200, 100);
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 5px;
+    border-color: beige;
+    font: bold 8px;
+    padding: 6px;
+}
+'''
+
 
 STYLE_QLINEEDIT = '''
 QLineEdit {

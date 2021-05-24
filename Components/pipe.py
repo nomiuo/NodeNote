@@ -66,10 +66,11 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.choose_first = True
         self.distance_end = None
         self.distance_start = None
-        self.last_default_start = None
-        self.last_default_end = None
+        self.last_default_start = QtCore.QPointF()
+        self.last_default_end = QtCore.QPointF()
         self.now_default_start = None
         self.now_default_end = None
+        self.control = False
 
     def perform_evaluation_feedback(self):
         if self.timeline.state() == QtCore.QTimeLine.NotRunning:
@@ -228,15 +229,34 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             else:
                 self.control_start_point_offect = event.scenePos()
                 self.control_end_point_offect = QtCore.QPointF()
+            self.control = True
             self.update()
 
     def mouseReleaseEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
         super(Pipe, self).mouseReleaseEvent(event)
         self.move_status = constants.PIPE_COMMON
         self.choose_first = True
-        self.scene().view.history.store_history("Change PIpe Control Point")
+        if self.isSelected() and self.control:
+            self.scene().view.history.store_history("Change Pipe Control Point")
+            self.control = False
 
     def serialize(self):
+        # if not self.last_default_start or not self.last_default_end:
+        #     s = self.pos_source
+        #     d = self.pos_destination
+        #     dist = (d.x() - s.x()) * 0.5
+        #     sspos = self.start_port.port_type
+        #     s_x = +dist
+        #     s_y = 0
+        #     d_x = -dist
+        #     d_y = 0
+        #     if ((s.x() > d.x()) and sspos == constants.OUTPUT_NODE_TYPE) or \
+        #             ((s.x() < d.x()) and sspos == constants.INPUT_NODE_TYPE):
+        #         s_x *= -1  # > 0, s_y = 0  | < 0
+        #         d_x *= -1  # < 0, d_y = 0  | > 0
+        #     self.last_default_start = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
+        #     self.last_default_end = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
+
         return OrderedDict([
             ('id', self.id),
             ('start port', self.start_port.id),
