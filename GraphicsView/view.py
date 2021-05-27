@@ -1,6 +1,6 @@
 import json
 from collections import OrderedDict
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets, sip
 from GraphicsView.scene import Scene
 from Components import effect_water, attribute, port, pipe, container, effect_cutline, effect_background
 from Model import constants, stylesheet, history, serializable
@@ -328,6 +328,13 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                     elif isinstance(item, container.Container):
                         self.current_scene.removeItem(item)
                         self.containers.remove(item)
+                    elif isinstance(item, attribute.AttributeFile):
+                        item.parent_item.attribute_layout.removeItem(item)
+                        item.parent_item.attribute_sub_widgets.remove(item)
+                        sip.delete(item)
+
+                        item.parent_item.text_change_node_shape()
+                        item.parent_item.update_pipe_position()
 
             self.history.store_history("Delete Widgets")
 
@@ -556,9 +563,16 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             pass
         if constants.DEBUG_DRAW_PIPE:
             print("mouse press at", self.itemAt(event.pos()))
-        if self.mode == constants.MODE_PIPE_DRAG and not isinstance(self.itemAt(event.pos()), port.Port):
-            self.drag_pipe_release(None)
-            self.mode = constants.MODE_NOOP
+        if self.mode == constants.MODE_PIPE_DRAG:
+            item = self.itemAt(event.pos())
+            if isinstance(item, port.Port):
+                if item is self.drag_pipe.start_port:
+                    self.drag_pipe_release(None)
+                    self.mode = constants.MODE_NOOP
+            else:
+                self.drag_pipe_release(None)
+                self.mode = constants.MODE_NOOP
+
         if event.button() == QtCore.Qt.LeftButton and int(event.modifiers()) & QtCore.Qt.ShiftModifier and \
                 int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.container_pressed(event)
@@ -609,8 +623,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             self.mode = constants.MODE_NOOP
         if event.key() == QtCore.Qt.Key_0 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.view_update_pipe_animation()
-        if event.key() == QtCore.Qt.Key_Delete or \
-                (event.key() == QtCore.Qt.Key_Delete and int(event.modifiers()) & QtCore.Qt.ControlModifier):
+        if event.key() == QtCore.Qt.Key_Delete:
             self.delete_widgets(event)
         if (event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier) or \
                 (event.key() == QtCore.Qt.Key_Minus and event.modifiers() & QtCore.Qt.ControlModifier):
@@ -662,11 +675,12 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
     def load_from_file(self, filename):
         with open(filename, "r", encoding='utf-8') as file:
             data = json.loads(file.read())
-            self.deserialize(data['root scene'], {}, self, True)
+            self.deserialize(data, {}, self, True)
 
     def serialize(self):
         return OrderedDict([
             ('root scene', self.root_scene.serialize()),
+            ('current scene', self.current_scene.id)
         ])
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
@@ -692,6 +706,18 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.setScene(self.current_scene)
         # create contents
         hashmap = {}
-        self.root_scene.deserialize(data, hashmap, view, flag=True)
-        self.root_scene.deserialize(data, hashmap, view, flag=False)
+        self.root_scene.deserialize(data['root scene'], hashmap, view, flag=True)
+        self.root_scene.deserialize(data['root scene'], hashmap, view, flag=False)
+        # recover current scene
+        iterator = QtWidgets.QTreeWidgetItemIterator(self.mainwindow.scene_list)
+        while iterator.value():
+            scene_flag = iterator.value()
+            iterator += 1
+            if scene_flag.data(0, QtCore.Qt.ToolTipRole).id == data['current scene']:
+                self.current_scene = scene_flag.data(0, QtCore.Qt.ToolTipRole)
+                self.current_scene_flag = scene_flag
+                self.background_image = self.current_scene.background_image
+                self.cutline = self.current_scene.cutline
+                self.setScene(self.current_scene)
+                break
         return True

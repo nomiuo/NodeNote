@@ -39,4 +39,4 @@ class History:
         return history_stamp
 
     def restore_history_stamp(self, history_stamp):
-        self.view.deserialize(history_stamp['snapshot']['root scene'], hashmap={}, view=self.view, flag=True)
+        self.view.deserialize(history_stamp['snapshot'], hashmap={}, view=self.view, flag=True)

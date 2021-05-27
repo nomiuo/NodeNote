@@ -16,7 +16,7 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
 
         # background image
         self.background_image = effect_background.EffectBackground(self.view)
-        self.background_image.resize(self.view.size().width(), self.view.size().height())
+        self.background_image.resize(self.view.size().width(), self.view.size().width())
         self.background_image.setPos(self.view.mapToScene(0, 0).x(), self.view.mapToScene(0, 0).y())
         self.addItem(self.background_image)
         self.background_image.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)

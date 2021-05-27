@@ -7,6 +7,10 @@ __all__ = ["Pipe"]
 
 
 class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
+    width = 2
+    color = QtGui.QColor(0, 255, 204, 128)
+    selected_color = QtGui.QColor(0, 153, 121, 255)
+
     def __init__(self, start_port=None, end_port=None, node=None):
         super(Pipe, self).__init__()
         self.node = node
@@ -16,10 +20,6 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         # BASIC SETTINGS
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsSelectable)
         self.setZValue(constants.Z_VAL_PIPE)
-
-        # DRAW PARAMETERS
-        self.color = QtGui.QColor(0, 255, 204, 128)
-        self.selected_color = QtGui.QColor(0, 153, 121, 255)
 
         # POS
         self.pos_source = self.start_port.parentItem().get_port_position(self.start_port.port_type,
@@ -141,12 +141,12 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
         # DEFAULT PEN
         pen = QtGui.QPen(self.color if not self.isSelected() else self.selected_color)
-        pen.setWidth(2)
+        pen.setWidth(self.width)
 
         # DRAGGING PEN
         dragging_pen = QtGui.QPen(self.color)
         dragging_pen.setStyle(QtCore.Qt.DashLine)
-        dragging_pen.setWidth(2)
+        dragging_pen.setWidth(self.width)
 
         # PATH
         s = self.pos_source
@@ -159,8 +159,8 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         d_y = 0
         if ((s.x() > d.x()) and sspos == constants.OUTPUT_NODE_TYPE) or \
                 ((s.x() < d.x()) and sspos == constants.INPUT_NODE_TYPE):
-            s_x *= -1  # > 0, s_y = 0  | < 0
-            d_x *= -1  # < 0, d_y = 0  | > 0
+            s_x *= -2.4  # > 0, s_y = 0  | < 0
+            d_x *= -2.4  # < 0, d_y = 0  | > 0
 
         path = QtGui.QPainterPath(self.pos_source)
         if self.move_status == constants.PIPE_FIRST:

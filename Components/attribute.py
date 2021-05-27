@@ -1015,7 +1015,7 @@ class AbstractWidget(QtWidgets.QGraphicsWidget):
             current_width = current_pos.x() - past_pos.x() if current_pos.x() >= past_pos.x() else past_width
             current_height = current_pos.y() - past_pos.y() if current_pos.y() >= past_pos.y() else past_height
             if current_width >= self.childItems()[0].widget().minimumSize().width() and \
-                    current_height >= self.childItems()[0].widget().minimumSize().height():
+                    current_height >= self.childItems()[0].widget().minimumSize().width():
                 self.resize(current_width, current_height)
             if constants.DEBUG_TUPLE_NODE_SCALE:
                 print("DEBUG TUPLE NODE SCALE CURRENT SIZE:", current_width, current_height)
@@ -1063,6 +1063,11 @@ class TruthWidget(QtWidgets.QGraphicsWidget):
 
 
 class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
+    background_color = QtGui.QColor(229, 255, 255, 125)
+    selected_background_color = QtGui.QColor(255, 255, 255, 30)
+    border_color = QtGui.QColor(46, 57, 66, 255)
+    selected_border_color = QtGui.QColor(254, 207, 42, 255)
+
     def __init__(self, parent=None):
         super(LogicWidget, self).__init__(parent)
         self.resizing = False
@@ -1118,9 +1123,9 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def get_port_position(self, port_type, port_truth):
         if port_truth:
             if port_type == constants.INPUT_NODE_TYPE:
-                return self.input_port.scenePos() + QtCore.QPointF(0, 11)
+                return self.input_port.scenePos() + QtCore.QPointF(0, port.Port.width / 2)
             else:
-                return self.output_port.scenePos() + QtCore.QPointF(0, 11)
+                return self.output_port.scenePos() + QtCore.QPointF(0, port.Port.width / 2)
 
     def update_pipe_position(self):
         self.input_port.update_pipes_position()
@@ -1259,17 +1264,23 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
     def paint(self, painter, option, widget=None) -> None:
         super(LogicWidget, self).paint(painter, option, widget)
-        self.input_port.setPos(-12, self.size().height() / 2 - 3)
-        self.output_port.setPos(self.size().width() - 12, self.size().height() / 2 - 3)
+        self.input_port.setPos(-port.Port.width / 2, self.size().height() / 2 - 3)
+        self.output_port.setPos(self.size().width() - port.Port.width / 2, self.size().height() / 2 - 3)
 
         if self.colliding_co:
             pen = QtGui.QPen(QtGui.QColor(230, 0, 0, 100), 2)
         elif self.isSelected():
-            pen = QtGui.QPen(QtGui.QColor(255, 229, 153, 255), 2)
+            pen = QtGui.QPen(self.selected_border_color, 2)
         else:
-            pen = QtGui.QPen(QtGui.QColor(15, 242, 254, 255), 1)
+            pen = QtGui.QPen(self.border_color, 1)
+
+        if self.isSelected():
+            brush = QtGui.QBrush(self.selected_background_color)
+        else:
+            brush = QtGui.QBrush(self.background_color)
+
         painter.setPen(pen)
-        painter.setBrush(QtCore.Qt.NoBrush)
+        painter.setBrush(brush)
         painter.drawRoundedRect(0, 0, self.size().width(), self.size().height(), 2, 2)
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
@@ -1281,7 +1292,8 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         if self.was_moved:
             self.was_moved = False
             self.scene().view.history.store_history("Logic Widget Position Changed")
-        self.colliding_release()
+        if self.scene().view.mode == constants.MODE_NOOP:
+            self.colliding_release()
         super(LogicWidget, self).mouseReleaseEvent(event)
 
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
@@ -1362,8 +1374,10 @@ class ChangeImageOrVideo(QtWidgets.QLabel):
 
 class AttributeFile(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def __init__(self, parent=None):
-        super(AttributeFile, self).__init__(parent)
+        super(AttributeFile, self).__init__()
+        self.parent_item = parent
         self.setZValue(constants.Z_VAL_NODE)
+        self.setFlags(QtWidgets.QGraphicsItem.ItemIsSelectable)
 
         # widget
         self.image = AttributeImage()
@@ -1404,6 +1418,13 @@ class AttributeFile(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
         # store
         self.image_url = r"Resources/Attribute Flag/video.png"
+
+    def paint(self, painter: QtGui.QPainter, option: 'QtWidgets.QStyleOptionGraphicsItem', widget=None) -> None:
+        pen = QtGui.QPen(AttributeWidget.border_color, 0.5)
+        selected_pen = QtGui.QPen(AttributeWidget.selected_border_color, 0.5)
+        painter.setPen(pen if not self.isSelected() else selected_pen)
+        painter.setBrush(QtCore.Qt.NoBrush)
+        painter.drawRoundedRect(0, 0, self.size().width(), self.size().height(), 5, 5)
 
     def turn_image(self):
         image_url, _ = QtWidgets.QFileDialog.getOpenFileName(None, "select image", "", "*.png *.jpg")
@@ -1457,6 +1478,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     draw_label = None
     color = QtGui.QColor(229, 255, 255, 125)
     selected_color = QtGui.QColor(255, 255, 255, 30)
+    border_color = QtGui.QColor(46, 57, 66, 255)
+    selected_border_color = QtGui.QColor(254, 207, 42, 255)
 
     def __init__(self):
         super(AttributeWidget, self).__init__()
@@ -1468,10 +1491,6 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setAcceptHoverEvents(True)
         self.setZValue(constants.Z_VAL_NODE)
-
-        # COLORS
-        self.border_color = (46, 57, 66, 255)
-        self.selected_border_color = (254, 207, 42, 255)
 
         # LAYOUTS
         #   create
@@ -1498,14 +1517,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.true_output_port = port.Port(constants.OUTPUT_NODE_TYPE, True, self)
         self.false_input_port = port.Port(constants.INPUT_NODE_TYPE, False, self)
         self.false_output_port = port.Port(constants.OUTPUT_NODE_TYPE, False, self)
-        self.true_input_port.setMaximumSize(25, 25)
-        self.true_input_port.setMinimumSize(25, 25)
-        self.true_output_port.setMaximumSize(25, 25)
-        self.true_output_port.setMinimumSize(25, 25)
-        self.false_input_port.setMaximumSize(25, 25)
-        self.false_input_port.setMinimumSize(25, 25)
-        self.false_output_port.setMaximumSize(25, 25)
-        self.false_output_port.setMinimumSize(25, 25)
+        self.true_input_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.true_input_port.setMinimumSize(port.Port.width, port.Port.width)
+        self.true_output_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.true_output_port.setMinimumSize(port.Port.width, port.Port.width)
+        self.false_input_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.false_input_port.setMinimumSize(port.Port.width, port.Port.width)
+        self.false_output_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.false_output_port.setMinimumSize(port.Port.width, port.Port.width)
         # IMPLEMENT WIDGETS
         #   layout
         self.setLayout(self.layout)
@@ -1563,7 +1582,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             self.boundingRect().width() + bg_border,
             self.boundingRect().height() + bg_border
         )
-        border_color = QtGui.QColor(*self.border_color)
+        border_color = self.border_color
         path = QtGui.QPainterPath()
         path.addRoundedRect(rect, radius, radius)
 
@@ -1577,7 +1596,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         border_width = 0.8
         if self.isSelected() and constants.NODE_SEL_BORDER_COLOR:
             border_width = 1.2
-            border_color = QtGui.QColor(*constants.NODE_SEL_BORDER_COLOR)
+            border_color = self.selected_border_color
         border_rect = QtCore.QRectF(rect.left() - (border_width / 2),
                                     rect.top() - (border_width / 2),
                                     rect.width() + border_width,
@@ -1589,6 +1608,16 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         painter.setPen(pen if not self.colliding_co else
                        QtGui.QPen(QtGui.QColor(230, 0, 0, 100), 2))
         painter.drawPath(path)
+
+        # port width
+        self.true_input_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.true_input_port.setMinimumSize(port.Port.width, port.Port.width)
+        self.true_output_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.true_output_port.setMinimumSize(port.Port.width, port.Port.width)
+        self.false_input_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.false_input_port.setMinimumSize(port.Port.width, port.Port.width)
+        self.false_output_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.false_output_port.setMinimumSize(port.Port.width, port.Port.width)
 
         painter.restore()
 
@@ -1632,14 +1661,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         pos = QtCore.QPointF(0, 0)
         if port_type == constants.INPUT_NODE_TYPE:
             if port_truth:
-                pos = self.true_input_port.scenePos() + QtCore.QPointF(0, 11)
+                pos = self.true_input_port.scenePos() + QtCore.QPointF(0, port.Port.width / 2)
             else:
-                pos = self.false_input_port.scenePos() + QtCore.QPointF(0, 11)
+                pos = self.false_input_port.scenePos() + QtCore.QPointF(0, port.Port.width / 2)
         elif port_type == constants.OUTPUT_NODE_TYPE:
             if port_truth:
-                pos = self.true_output_port.scenePos() + QtCore.QPointF(11, 11)
+                pos = self.true_output_port.scenePos() + QtCore.QPointF(port.Port.width / 2, port.Port.width / 2)
             else:
-                pos = self.false_output_port.scenePos() + QtCore.QPointF(11, 11)
+                pos = self.false_output_port.scenePos() + QtCore.QPointF(port.Port.width / 2, port.Port.width / 2)
         return pos
 
     def add_new_subwidget(self):
@@ -1824,7 +1853,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                 item = self.colliding_detection()
                 self.parentItem().delete_subwidget(self)
                 item.add_exist_subwidget(self)
-                self.scene().view.history.store_history("Colliding Add Subwidget")
+                if self.scene().view.mode == constants.MODE_NOOP:
+                    self.scene().view.history.store_history("Colliding Add Subwidget")
             elif not self.colliding_co and self.colliding_parent and not self.colliding_inside:
                 self.parentItem().delete_subwidget(self)
                 self.setPos(event.scenePos())
@@ -1833,7 +1863,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                 self.parentItem().text_change_node_shape()
             elif self.colliding_co and not self.colliding_parent:
                 self.colliding_detection().add_exist_subwidget(self)
-                self.scene().view.history.store_history("Colliding Add Subwidget")
+                if self.scene().view.mode == constants.MODE_NOOP:
+                    self.scene().view.history.store_history("Colliding Add Subwidget")
             self.colliding_co = False
             self.colliding_parent = False
             self.colliding_child = False
@@ -1971,7 +2002,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                 logic.start_pipe_animation()
 
         for sub_node in self.attribute_sub_widgets:
-            if not sub_node.attribute_animation:
+            if isinstance(sub_node, AttributeWidget) and not sub_node.attribute_animation:
                 sub_node.start_pipe_animation()
 
     def end_pipe_animation(self):
@@ -1998,7 +2029,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                 logic.end_pipe_animation()
 
         for sub_node in self.attribute_sub_widgets:
-            if not sub_node.attribute_animation:
+            if  isinstance(sub_node, AttributeWidget) and not sub_node.attribute_animation:
                 sub_node.end_pipe_animation()
 
     def update_treelist(self):
@@ -2027,11 +2058,13 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def mouseReleaseEvent(self, event) -> None:
         if self.was_moved:
             self.was_moved = False
-            self.scene().view.history.store_history("Attribute Widget Moved")
+            if self.scene().view.mode == constants.MODE_NOOP:
+                self.scene().view.history.store_history("Attribute Widget Moved")
         self.colliding_release(event)
         if self.resizing:
             self.mouse_update_node_size(event)
-            self.scene().view.history.store_history("Attribute Widget Size Changed")
+            if self.scene().view.mode == constants.MODE_NOOP:
+                self.scene().view.history.store_history("Attribute Widget Size Changed")
         else:
             super(AttributeWidget, self).mouseReleaseEvent(event)
 

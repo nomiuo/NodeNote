@@ -6,6 +6,15 @@ __all__ = ["Port"]
 
 
 class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
+
+    width = 16.0
+    color = QtGui.QColor(49, 115, 100, 255)
+    border_color = QtGui.QColor(29, 202, 151, 255)
+    hovered_color = QtGui.QColor(17, 43, 82, 255)
+    hovered_border_color = QtGui.QColor(136, 255, 35, 255)
+    activated_color = QtGui.QColor(14, 45, 59, 255)
+    activated_border_color = QtGui.QColor(107, 166, 193, 255)
+
     def __init__(self, port_type, port_truth, parent):
         super(Port, self).__init__(parent)
         self.port_type = port_type
@@ -20,16 +29,8 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.pipes = list()
 
         # DRAW PARAMETERS
-        self.width = 22.0
-        self.height = 22.0
-        self.color = (49, 115, 100, 255)
         self.border_size = 1
-        self.border_color = (29, 202, 151, 255)
         self.hovered = False
-        self.hovered_color = (17, 43, 82, 255)
-        self.hovered_border_color = (136, 255, 35, 255)
-        self.activated_color = (14, 45, 59, 255)
-        self.activated_border_color = (107, 166, 193, 255)
 
     def get_node(self):
         return self.parentItem()
@@ -54,26 +55,26 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
             pipe.end_evaluation_feedback()
 
     def boundingRect(self) -> QtCore.QRectF:
-        return QtCore.QRectF(0.0, 0.0, self.width, self.height)
+        return QtCore.QRectF(0.0, 0.0, self.width, self.width)
 
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
         # SIZE
         rect_width = self.width / 1.8
-        rect_height = self.height / 1.8
+        rect_height = self.width / 1.8
         rect_x = self.boundingRect().center().x() - (rect_width / 2)
         rect_y = self.boundingRect().center().y() - (rect_height / 2)
         port_rect = QtCore.QRectF(rect_x, rect_y, rect_width, rect_height)
 
         # COLOR
         if self.hovered:
-            color = QtGui.QColor(*self.hovered_color)
-            border_color = QtGui.QColor(*self.hovered_border_color)
+            color = self.hovered_color
+            border_color = self.hovered_border_color
         elif self.pipes:
-            color = QtGui.QColor(*self.activated_color)
-            border_color = QtGui.QColor(*self.activated_border_color)
+            color = self.activated_color
+            border_color = self.activated_border_color
         else:
-            color = QtGui.QColor(*self.color)
-            border_color = QtGui.QColor(*self.border_color)
+            color = self.color
+            border_color = self.border_color
 
         # PAINTER
         pen = QtGui.QPen(border_color, 1.8)
@@ -89,7 +90,7 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
             rect = QtCore.QRectF(port_rect.center().x() - w / 2,
                                  port_rect.center().y() - h / 2,
                                  w, h)
-            border_color = QtGui.QColor(*self.border_color)
+            border_color = self.border_color
             pen = QtGui.QPen(border_color, 1.6)
             painter.setPen(pen)
             painter.setBrush(border_color)

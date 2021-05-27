@@ -4,6 +4,10 @@ from Model import constants, serializable
 
 
 class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
+    width = 4
+    color = QtGui.QColor(255, 128, 128, 255)
+    selected_color = QtGui.QColor(128, 0, 0, 128)
+
     def __init__(self, pos, parent=None):
         super(Container, self).__init__(parent)
         self.start_point = pos
@@ -12,9 +16,9 @@ class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.points.append((pos.x(), pos.y()))
         self.draw_path = QtGui.QPainterPath(self.start_point)
 
-        self.pen = QtGui.QPen(QtGui.QColor(255, 128, 128, 255))
+        self.pen = QtGui.QPen(self.color, self.width)
         self.pen.setDashPattern([1, 1])
-        self.selected_pen = QtGui.QPen(QtGui.QColor(128, 0, 0, 128))
+        self.selected_pen = QtGui.QPen(self.selected_color, self.width)
 
         self.setZValue(constants.Z_VAL_CONTAINERS)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable | QtWidgets.QGraphicsItem.ItemIsSelectable)
@@ -39,6 +43,7 @@ class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
                 self.draw_path.moveTo(QtCore.QPointF(point[0], point[1]))
             self.setPath(self.draw_path)
             painter.drawPath(self.path())
+            self.deserialize_flag = False
 
     def serialize(self):
         return OrderedDict([
