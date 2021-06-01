@@ -28,12 +28,21 @@ class NoteWindow(QtWidgets.QMainWindow):
         # style
         self.style_control = QtWidgets.QWidget()
         self.style_control_layout = QtWidgets.QGridLayout()
-        self.style_control.setLayout(self.style_control_layout)
 
         # tab widget
         self.tab_widget = QtWidgets.QTabWidget()
         self.tab_widget.addTab(self.scene_list, "Scene")
         self.tab_widget.addTab(self.style_control, "Style")
+
+        # ================ Style ==============================
+        self.style_switch_widget = QtWidgets.QComboBox()
+        self.style_switch_widget.addItems(("All Scene", "Current Scene", "Selected Items"))
+        self.style_switch_widget.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
+
+        self.style_switch_layout = QtWidgets.QVBoxLayout()
+        self.style_control.setLayout(self.style_switch_layout)
+        self.style_switch_layout.addWidget(self.style_switch_widget)
+        self.style_switch_layout.addLayout(self.style_control_layout)
 
         #   =============== attribute widget========================
         self.attribute_style = QtWidgets.QLabel("Attribute Widgets")
@@ -394,6 +403,13 @@ class NoteWindow(QtWidgets.QMainWindow):
         self.width_changed("Container Widget", True)
         self.color_changed("Container Widget", "Color", True)
         self.color_changed("Container Widget", "Selected Color", True)
+        # ==========================================================
+        # ============================   Style  =========================
+        #   init
+        self.font_changed(True, self.style_switch_widget.currentIndex())
+        #   slots
+        self.style_switch_widget.currentIndexChanged.connect(
+            lambda combox_index: self.font_changed(False, combox_index))
         # ==========================================================
         self.toolbar.addWidget(self.tab_widget)
 
@@ -912,22 +928,40 @@ class NoteWindow(QtWidgets.QMainWindow):
 
                 container.Container.selected_color = self.container_style_selected_color
 
-    def font_changed(self, init_flag: bool):
-        if not init_flag:
-            font_type, ok = QtWidgets.QFontDialog.getFont()
-            if font_type and ok:
-                self.attribute_style_font = font_type
-            attribute.InputTextField.font = self.attribute_style_font
+    def font_changed(self, init_flag: bool, combox_index=0):
+        if combox_index == 0:
+            if not init_flag:
+                font_type, ok = QtWidgets.QFontDialog.getFont()
+                if font_type and ok:
+                    self.attribute_style_font = font_type
+                attribute.InputTextField.font = self.attribute_style_font
 
-            for item in self.view_widget.attribute_widgets:
-                item.attribute_widget.label_item.document().setDefaultFont(self.attribute_style_font)
-                item.text_change_node_shape()
-                item.update_pipe_position()
-        else:
-            self.attribute_style_font = attribute.InputTextField.font
+                for item in self.view_widget.attribute_widgets:
+                    item.attribute_widget.label_item.document().setDefaultFont(self.attribute_style_font)
+                    item.text_change_node_shape()
+                    item.update_pipe_position()
+            else:
+                self.attribute_style_font = attribute.InputTextField.font
 
-        self.attribute_style_font_label.setText("Font: %s %d" % (self.attribute_style_font.family(),
-                                                                 self.attribute_style_font.pointSize()))
+            self.attribute_style_font_label.setText("Font: %s %d" % (self.attribute_style_font.family(),
+                                                                     self.attribute_style_font.pointSize()))
+        elif combox_index == 1:
+            if not init_flag:
+                font_type, ok = QtWidgets.QFontDialog.getFont()
+                if font_type and ok:
+                    self.view_widget.current_scene.attribute_style_font = font_type
+
+                for item in self.view_widget.current_scene.items():
+                    if isinstance(item, attribute.AttributeWidget):
+                        item.attribute_widget.label_item.document().setDefaultFont(self.attribute_style_font)
+                        item.text_change_node_shape()
+                        item.update_pipe_position()
+
+            else:
+                self.view_widget.current_scene.attribute_style_font = attribute.InputTextField.font
+
+            self.attribute_style_font_label.setText("Font: %s %d" % (self.attribute_style_font.family(),
+                                                                     self.attribute_style_font.pointSize()))
 
     def width_changed(self, widget, init_flag: bool):
         if widget == "Pipe Widget":

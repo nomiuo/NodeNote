@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from PyQt5 import QtGui, QtCore, QtWidgets
 from Model import constants, serializable
-from Components import attribute
+from Components import attribute, port
 
 __all__ = ["Pipe"]
 
@@ -16,6 +16,8 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.node = node
         self.start_port = start_port
         self.end_port = end_port
+        self.start_flag = constants.OUTPUT_NODE_START if self.start_port.port_type == constants.OUTPUT_NODE_TYPE else \
+            constants.INPUT_NODE_START
 
         # BASIC SETTINGS
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsSelectable)
@@ -114,9 +116,40 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             return self.end_port
 
     def delete_input_type_port(self, pos_destination=None):
-        if self.start_port.port_type == constants.OUTPUT_NODE_TYPE and self.end_port is not None:
+        if self.start_flag == constants.OUTPUT_NODE_START:
+
             self.end_port.remove_pipes(self)
+
+            output_node = self.start_port.parentItem()
+            input_node = self.end_port.parentItem()
+            if isinstance(output_node, attribute.AttributeWidget):
+                input_node.remove_last_attribute(output_node)
+            else:
+                input_node.remove_last_logic(output_node)
+            if isinstance(input_node, attribute.AttributeWidget):
+                output_node.remove_next_attribute(input_node)
+            else:
+                output_node.remove_next_logic(input_node)
+
             self.end_port = None
+
+        elif self.start_flag == constants.INPUT_NODE_START:
+
+            self.start_port.remove_pipes(self)
+
+            output_node = self.end_port.parentItem()
+            input_node = self.start_port.parentItem()
+            if isinstance(output_node, attribute.AttributeWidget):
+                input_node.remove_last_attribute(output_node)
+            else:
+                input_node.remove_last_logic(output_node)
+            if isinstance(input_node, attribute.AttributeWidget):
+                output_node.remove_next_attribute(input_node)
+            else:
+                output_node.remove_next_logic(input_node)
+
+            self.start_port = None
+
         self.update_position(pos_destination)
 
     def intersect_with(self, p1, p2):
@@ -127,9 +160,16 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         return cut_path.intersects(self.path())
 
     def update_position(self, pos_destination=None):
-        self.pos_source = self.start_port.parentItem().get_port_position(self.start_port.port_type,
-                                                                         self.start_port.port_truth)
-        if self.end_port is not None:
+        # source pos
+        if self.start_port:
+            self.pos_source = self.start_port.parentItem().get_port_position(self.start_port.port_type,
+                                                                             self.start_port.port_truth)
+        else:
+            self.pos_source = self.end_port.parentItem().get_port_position(self.end_port.port_type,
+                                                                           self.end_port.port_truth)
+
+        # destination pos
+        if self.end_port is not None and self.start_port is not None:
             self.pos_destination = self.end_port.parentItem().get_port_position(self.end_port.port_type,
                                                                                 self.end_port.port_truth)
         elif pos_destination is not None:
@@ -152,7 +192,10 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         s = self.pos_source
         d = self.pos_destination
         dist = (d.x() - s.x()) * 0.5
-        sspos = self.start_port.port_type
+        if self.start_port:
+            sspos = self.start_port.port_type
+        else:
+            sspos = self.end_port.port_type
         s_x = +dist
         s_y = 0
         d_x = -dist
@@ -188,8 +231,9 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             self.pos_destination
         )
         self.setPath(path)
+
         # PEN
-        if self.end_port is None:
+        if self.end_port is None or (self.start_flag == constants.INPUT_NODE_START and self.start_port is None):
             painter.setPen(dragging_pen)
         else:
             painter.setPen(pen)
@@ -202,10 +246,13 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         image = QtGui.QPixmap("Resources/Pipe/arrow.png")
         image_rectf = QtCore.QRectF(image.rect().x(), image.rect().y(), image.rect().width(), image.rect().height())
         target_rectf = QtCore.QRectF(0, 0, 0, 0)
-        if self.start_port.port_type == constants.OUTPUT_NODE_TYPE:
-            target_rectf = QtCore.QRectF(d.x() - 11, d.y() - 11, image.width(), image.height())
-        elif self.start_port.port_type == constants.INPUT_NODE_TYPE:
-            target_rectf = QtCore.QRectF(s.x() - 11, s.y() - 11, image.width(), image.height())
+        if self.start_flag == constants.OUTPUT_NODE_START or (self.start_flag == constants.INPUT_NODE_START and
+                                                              self.start_port is None):
+            target_rectf = QtCore.QRectF(d.x() - port.Port.width / 2, d.y() - port.Port.width / 2,
+                                         image.width(), image.height())
+        elif self.start_flag == constants.INPUT_NODE_START:
+            target_rectf = QtCore.QRectF(s.x() - port.Port.width / 2, s.y() - port.Port.width / 2,
+                                         image.width(), image.height())
         painter.drawPixmap(target_rectf, image, image_rectf)
 
         # EDIT
@@ -236,27 +283,11 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         super(Pipe, self).mouseReleaseEvent(event)
         self.move_status = constants.PIPE_COMMON
         self.choose_first = True
-        if self.isSelected() and self.control:
+        if self.isSelected() and self.control and self.start_port and self.end_port:
             self.scene().view.history.store_history("Change Pipe Control Point")
             self.control = False
 
     def serialize(self):
-        # if not self.last_default_start or not self.last_default_end:
-        #     s = self.pos_source
-        #     d = self.pos_destination
-        #     dist = (d.x() - s.x()) * 0.5
-        #     sspos = self.start_port.port_type
-        #     s_x = +dist
-        #     s_y = 0
-        #     d_x = -dist
-        #     d_y = 0
-        #     if ((s.x() > d.x()) and sspos == constants.OUTPUT_NODE_TYPE) or \
-        #             ((s.x() < d.x()) and sspos == constants.INPUT_NODE_TYPE):
-        #         s_x *= -1  # > 0, s_y = 0  | < 0
-        #         d_x *= -1  # < 0, d_y = 0  | > 0
-        #     self.last_default_start = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
-        #     self.last_default_end = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
-
         return OrderedDict([
             ('id', self.id),
             ('start port', self.start_port.id),

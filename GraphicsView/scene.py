@@ -25,6 +25,51 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
         self.cutline = effect_cutline.EffectCutline()
         self.addItem(self.cutline)
 
+        #   =============== attribute widget========================
+        #       font
+        self.attribute_style_font = None
+        self.attribute_style_font_color_type = None
+        #       color
+        self.attribute_style_color = None
+        self.attribute_style_selected_color = None
+        self.attribute_style_border_color = None
+        self.attribute_style_border_selected_color = None
+        #   =================================================
+
+        #   =============== logic widget==========================
+        #       color
+        self.logic_style_background_color = None
+        self.logic_style_selected_background_color = None
+        self.logic_style_border_color = None
+        self.logic_style_selected_border_color = None
+        #   =================================================
+
+        #   =============== pipe widget==========================
+        #       width
+        self.pipe_style_width = None
+        #       color
+        self.pipe_style_background_color = None
+        self.pipe_style_selected_background_color = None
+        #   =================================================
+
+        #   =============== port widget==========================
+        #       width
+        self.port_style_width = None
+        #       color
+        self.port_style_color = None
+        self.port_style_border_color = None
+        self.port_style_hovered_color = None
+        self.port_style_hovered_border_color = None
+        self.port_style_activated_color = None
+        self.port_style_activated_border_color = None
+        #   =================================================
+
+        #   =============== container widget========================
+        self.container_style_width = None
+        self.container_style_color = None
+        self.container_style_selected_color = None
+        #   =================================================
+
     def get_id_attribute(self, attribute_id) -> attribute.AttributeWidget:
         for item in self.items():
             if isinstance(item, attribute.AttributeWidget):

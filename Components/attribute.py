@@ -764,7 +764,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Underline")
-        elif current_key == QtCore.Qt.Key_F and event.modifiers() & QtCore.Qt.ControlModifier:
+        elif current_key == QtCore.Qt.Key_Slash and event.modifiers() & QtCore.Qt.ControlModifier:
             if constants.DEBUG_RICHTEXT:
                 print("Rich Format: Title")
             self.font_format("Deleteline")

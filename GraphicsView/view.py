@@ -425,14 +425,19 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             self.drag_pipe_release(item)
 
     def drag_pipe_release(self, item):
-        if self.drag_pipe.get_output_type_port():
-            self.item = self.drag_pipe.get_output_type_port()
+        if (self.drag_pipe.start_flag == constants.OUTPUT_NODE_START) or \
+                (self.drag_pipe.start_flag == constants.INPUT_NODE_START and self.drag_pipe.start_port):
+            self.item = self.drag_pipe.start_port
         else:
-            self.item = self.drag_pipe.get_input_type_port()
+            self.item = self.drag_pipe.end_port
+
         if isinstance(item, port.Port):
             if item.port_type != self.item.port_type and not self.judge_same_pipe(item):
 
-                self.drag_pipe.end_port = item
+                if self.drag_pipe.start_port:
+                    self.drag_pipe.end_port = item
+                else:
+                    self.drag_pipe.start_port = item
                 item.add_pipes(self.drag_pipe)
                 self.drag_pipe.update_position()
 
