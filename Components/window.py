@@ -38,6 +38,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         self.style_switch_widget = QtWidgets.QComboBox()
         self.style_switch_widget.addItems(("All Scene", "Current Scene", "Selected Items"))
         self.style_switch_widget.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
+        self.style_switch_widget.currentIndexChanged.connect(self.init_style)
 
         self.style_switch_layout = QtWidgets.QVBoxLayout()
         self.style_control.setLayout(self.style_switch_layout)
@@ -434,6 +435,79 @@ class NoteWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(self.view_widget)
         self.central_widget.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
         self.setCentralWidget(self.central_widget)
+
+    def init_style(self, current_index):
+        #   Overall
+        if current_index == 0:
+            #   Attribute Widget Init
+            self.color_changed("Attribute Widget", "Background", True)
+            self.color_changed("Attribute Widget", "Selected", True)
+            self.color_changed("Attribute Widget", "Border", True)
+            self.color_changed("Attribute Widget", "Selected Border", True)
+            #   Logic Widget Init
+            self.color_changed("Logic Widget", "Background", True)
+            self.color_changed("Logic Widget", "Selected Background", True)
+            self.color_changed("Logic Widget", "Border", True)
+            self.color_changed("Logic Widget", "Selected Border", True)
+            #   Pipe Widget Init
+            self.width_changed("Pipe Widget", True)
+            self.color_changed("Pipe Widget", "Background", True)
+            self.color_changed("Pipe Widget", "Selected Background", True)
+            #   Port Widget Init
+            self.width_changed("Port Widget", True)
+            self.color_changed("Port Widget", "Background", True)
+            self.color_changed("Port Widget", "Border", True)
+            self.color_changed("Port Widget", "Hovered Background", True)
+            self.color_changed("Port Widget", "Hovered Border", True)
+            self.color_changed("Port Widget", "Activated Background", True)
+            self.color_changed("Port Widget", "Activated Border", True)
+            #   Container Widget Init
+            self.width_changed("Container Widget", True)
+            self.color_changed("Container Widget", "Color", True)
+            self.color_changed("Container Widget", "Selected Color", True)
+
+        #   Scene
+        elif current_index == 1:
+            #   Attribute Widget Init
+            #       Style
+            if not self.view_widget.current_scene.attribute_style_font:
+                self.view_widget.current_scene.attribute_style_font = attribute.InputTextField.font
+            if not self.view_widget.current_scene.attribute_style_font_color_type:
+                self.view_widget.current_scene.attribute_style_font_color_type = attribute.InputTextField.font_color
+            if not self.view_widget.current_scene.attribute_style_color:
+                self.view_widget.current_scene.attribute_style_color = attribute.AttributeWidget.color
+            if not self.view_widget.current_scene.attribute_style_selected_color:
+                self.view_widget.current_scene.attribute_style_selected_color = attribute.AttributeWidget.selected_color
+            if not self.view_widget.current_scene.attribute_style_border_color:
+                self.view_widget.current_scene.attribute_style_border_color = attribute.AttributeWidget.border_color
+            if not self.view_widget.current_scene.attribute_style_border_selected_color:
+                self.view_widget.current_scene.attribute_style_border_selected_color = attribute.AttributeWidget.\
+                    selected_border_color
+            #       Label
+            self.label_color(self.view_widget.current_scene.attribute_style_font_color_type,
+                             self.attribute_style_color_label)
+            self.label_color(self.view_widget.current_scene.attribute_style_selected_color,
+                             self.attribute_style_color_label_selected)
+            self.label_color(self.view_widget.current_scene.attribute_style_border_color,
+                             self.attribute_style_color_border)
+            self.label_color(self.view_widget.current_scene.attribute_style_border_selected_color,
+                             self.attribute_style_color_selected_border)
+            #   Logic Widget Init
+
+    @staticmethod
+    def label_color(color, label):
+        color_style = '''
+        QLabel {
+            background-color: #%s;
+            border-style: outset;
+            border-width: 1px;
+            border-radius: 10px;
+            border-color: beige;
+            font: bold 8px;
+            padding: 6px;
+        }
+        ''' % str(hex(color.rgba()))[2:]
+        label.setStyleSheet(color_style)
 
     def color_changed(self, widget, content, init_flag=False):
         if widget == "Attribute Widget":

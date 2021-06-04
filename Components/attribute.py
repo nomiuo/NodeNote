@@ -1094,6 +1094,14 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         # MOVING
         self.was_moved = False
 
+        # DRAW LINE
+        self.vpath = None
+        self.hpath = None
+        self.hlast = None
+        self.vlast = None
+        self.hpath_flag = False
+        self.vpath_flag = False
+
     def design_ui(self):
         # select logic
         self.logic_combobox_input.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
@@ -1286,6 +1294,255 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
         self.moving = True
         self.was_moved = True
+
+        # draw line
+        #       init
+        offect = 5
+        line_hitem_up = None
+        line_hitem_down = None
+        line_vitem_left = None
+        line_vitem_right = None
+        move_h = None
+        move_v = None
+        hpath = None
+        vpath = None
+        line_hdistance_up = float("inf")
+        line_hdistance_down = float("inf")
+        line_vdistance_left = float("inf")
+        line_vdistance_right = float("inf")
+        pen = QtGui.QPen(QtGui.QColor(77, 148, 255), 2, QtCore.Qt.CustomDashLine, QtCore.Qt.RoundCap)
+        pen.setDashPattern((1, 3, 1, 3))
+
+        #       judge move direction
+        if not self.hlast:
+            self.hlast = self.scenePos().y()
+            move_h = constants.down
+        elif self.hlast > self.scenePos().y():
+            move_h = constants.up
+            self.hlast = self.scenePos().y()
+        elif self.hlast <= self.scenePos().y():
+            move_h = constants.down
+            self.hlast = self.scenePos().y()
+
+        if not self.vlast:
+            self.vlast = self.scenePos().x()
+            move_v = constants.left
+        elif self.vlast > self.scenePos().x():
+            move_v = constants.left
+            self.vlast = self.scenePos().x()
+        elif self.vlast <= self.scenePos().x():
+            move_v = constants.right
+            self.vlast = self.scenePos().x()
+
+        #       select close item
+        for item in self.scene().items():
+            if isinstance(item, (AttributeWidget, LogicWidget)):
+                if item is not self:
+                    #   different move directions
+                    if move_h == constants.up:
+                        #   find line_hitem_down
+                        if item.scenePos().y() + item.boundingRect().height() - offect <= self.scenePos().y():
+                            h_distance_down = self.scenePos().y() - (item.scenePos().y() + item.boundingRect().height())
+                            if h_distance_down < line_hdistance_down:
+                                line_hdistance_down = h_distance_down
+                                line_hitem_down = item
+                        #   find line_hitem_up
+                        if item.scenePos().y() - offect <= self.scenePos().y():
+                            h_distance_up = self.scenePos().y() - item.scenePos().y()
+                            if h_distance_up < line_hdistance_up:
+                                line_hdistance_up = h_distance_up
+                                line_hitem_up = item
+
+                    elif move_h == constants.down:
+                        #   find line_hitem_up
+                        if item.scenePos().y() + offect >= self.scenePos().y() + self.boundingRect().height():
+                            h_distance_up = item.scenePos().y() + item.boundingRect().height() - self.scenePos().y()
+                            if h_distance_up < line_hdistance_up:
+                                line_hdistance_up = h_distance_up
+                                line_hitem_up = item
+                        #   find line_hitem_down
+                        if item.y() + item.boundingRect().height() + offect >= self.y() + self.boundingRect().height():
+                            h_distance_down = item.scenePos().y() + item.boundingRect().height() - \
+                                              (self.scenePos().y() + self.boundingRect().height())
+                            if h_distance_down < line_hdistance_down:
+                                line_hdistance_down = h_distance_down
+                                line_hitem_down = item
+
+                    if move_v == constants.left:
+                        #   find line_vitem_right
+                        if item.scenePos().x() + item.boundingRect().width() - offect <= self.scenePos().x():
+                            v_distance_right = self.scenePos().x() - (item.scenePos().x() + item.boundingRect().width())
+                            if v_distance_right < line_vdistance_right:
+                                line_vdistance_right = v_distance_right
+                                line_vitem_right = item
+                        #   find line_vitem_left
+                        if item.x() - offect <= self.scenePos().x():
+                            v_distance_left = self.scenePos().x() - item.scenePos().x()
+                            if v_distance_left < line_vdistance_left:
+                                line_vdistance_left = v_distance_left
+                                line_vitem_left = item
+
+                    elif move_v == constants.right:
+                        #   find line_vitem_left
+                        if item.scenePos().x() + offect >= self.scenePos().x() + self.boundingRect().width():
+                            v_distance_left = item.scenePos().x() - (self.scenePos().x() + self.boundingRect().width())
+                            if v_distance_left < line_vdistance_left:
+                                line_vdistance_left = v_distance_left
+                                line_vitem_left = item
+                        #   find line_vitem_right
+                        if item.scenePos().x() + item.boundingRect().width() + offect >= \
+                                self.scenePos().x() + self.boundingRect().width():
+                            v_distance_right = item.scenePos().x() + item.boundingRect().width() - \
+                                               (self.scenePos().x() + self.boundingRect().width())
+                            if v_distance_right < line_vdistance_right:
+                                line_vdistance_right = v_distance_right
+                                line_vitem_right = item
+
+        #   calculate the closest hitem and vitem
+        #       hitem
+        if move_h == constants.up:
+            if line_hitem_down and line_hitem_up:
+
+                if line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height() >= \
+                        line_hitem_up.scenePos().y():
+                    hpath = QtWidgets.QGraphicsLineItem(
+                        self.scene().sceneRect().left(),
+                        line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height(),
+                        self.scene().sceneRect().right(),
+                        line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height())
+
+                elif line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height() < \
+                        line_hitem_up.scenePos().y():
+                    hpath = QtWidgets.QGraphicsLineItem(
+                        self.scene().sceneRect().left(),
+                        line_hitem_up.scenePos().y(),
+                        self.scene().sceneRect().right(),
+                        line_hitem_up.scenePos().y())
+
+            elif line_hitem_up and not line_hitem_down:
+
+                hpath = QtWidgets.QGraphicsLineItem(
+                    self.scene().sceneRect().left(),
+                    line_hitem_up.scenePos().y(),
+                    self.scene().sceneRect().right(),
+                    line_hitem_up.scenePos().y())
+
+        elif move_h == constants.down:
+            if line_hitem_down and line_hitem_up:
+
+                if line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height() < \
+                        line_hitem_up.scenePos().y():
+                    hpath = QtWidgets.QGraphicsLineItem(
+                        self.scene().sceneRect().left(),
+                        line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height(),
+                        self.scene().sceneRect().right(),
+                        line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height())
+
+                elif line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height() >= \
+                        line_hitem_up.scenePos().y():
+                    hpath = QtWidgets.QGraphicsLineItem(
+                        self.scene().sceneRect().left(),
+                        line_hitem_up.scenePos().y(),
+                        self.scene().sceneRect().right(),
+                        line_hitem_up.scenePos().y())
+
+            elif line_hitem_down and not line_hitem_up:
+
+                hpath = QtWidgets.QGraphicsLineItem(
+                    self.scene().sceneRect().left(),
+                    line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height(),
+                    self.scene().sceneRect().right(),
+                    line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height())
+
+        #       vitem
+        if move_v == constants.left:
+            if line_vitem_left and line_vitem_right:
+
+                if line_vitem_left.scenePos().x() > \
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width():
+                    vpath = QtWidgets.QGraphicsLineItem(
+                        line_vitem_left.scenePos().x(),
+                        self.scene().sceneRect().top(),
+                        line_vitem_left.scenePos().x(),
+                        self.scene().sceneRect().bottom())
+
+                elif line_vitem_left.scenePos().x() <= \
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width():
+                    vpath = QtWidgets.QGraphicsLineItem(
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                        self.scene().sceneRect().top(),
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                        self.scene().sceneRect().bottom())
+
+            elif line_vitem_left and not line_vitem_right:
+
+                vpath = QtWidgets.QGraphicsLineItem(
+                    line_vitem_left.scenePos().x(),
+                    self.scene().sceneRect().top(),
+                    line_vitem_left.scenePos().x(),
+                    self.scene().sceneRect().bottom())
+
+        elif move_v == constants.right:
+            if line_vitem_left and line_vitem_right:
+
+                if line_vitem_left.scenePos().x() <= \
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width():
+                    vpath = QtWidgets.QGraphicsLineItem(
+                        line_vitem_left.scenePos().x(),
+                        self.scene().sceneRect().top(),
+                        line_vitem_left.scenePos().x(),
+                        self.scene().sceneRect().bottom())
+
+                elif line_vitem_left.scenePos().x() > \
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width():
+                    vpath = QtWidgets.QGraphicsLineItem(
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                        self.scene().sceneRect().top(),
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                        self.scene().sceneRect().bottom())
+
+            elif line_vitem_right and not line_vitem_left:
+
+                vpath = QtWidgets.QGraphicsLineItem(
+                    line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                    self.scene().sceneRect().top(),
+                    line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                    self.scene().sceneRect().bottom())
+
+        if hpath:
+            if not self.hpath:
+                self.hpath = hpath
+                self.hpath.setPen(pen)
+                self.scene().addItem(self.hpath)
+            elif self.hpath is not hpath and self.hpath:
+                if self.hpath in self.scene().items():
+                    self.scene().removeItem(self.hpath)
+                self.hpath = hpath
+                self.hpath.setPen(pen)
+                self.scene().addItem(self.hpath)
+                self.hpath_flag = True
+        elif self.hpath_flag:
+            if self.hpath in self.scene().items():
+                self.scene().removeItem(self.hpath)
+                self.hpath = None
+
+        if vpath:
+            if not self.vpath:
+                self.vpath = vpath
+                self.vpath.setPen(pen)
+                self.scene().addItem(self.vpath)
+            elif self.vpath is not vpath and self.vpath:
+                if self.vpath in self.scene().items():
+                    self.scene().removeItem(self.vpath)
+                self.vpath = vpath
+                self.vpath.setPen(pen)
+                self.scene().addItem(self.vpath)
+                self.vpath_flag = True
+        elif self.vpath_flag:
+            if self.vpath in self.scene().items():
+                self.scene().removeItem(self.vpath)
+                self.vpath = None
+
         super(LogicWidget, self).mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
@@ -1294,6 +1551,12 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             self.scene().view.history.store_history("Logic Widget Position Changed")
         if self.scene().view.mode == constants.MODE_NOOP:
             self.colliding_release()
+
+        if self.vpath and self.vpath in self.scene().items():
+            self.scene().removeItem(self.vpath)
+        if self.hpath and self.hpath in self.scene().items():
+            self.scene().removeItem(self.hpath)
+
         super(LogicWidget, self).mouseReleaseEvent(event)
 
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
@@ -1569,6 +1832,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
         # MOVING
         self.was_moved = False
+
+        # DRAW LINE
+        self.vpath = None
+        self.hpath = None
+        self.hlast = None
+        self.vlast = None
+        self.hpath_flag = False
+        self.vpath_flag = False
 
     def paint(self, painter, option, widget=None) -> None:
         painter.save()
@@ -2029,7 +2300,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                 logic.end_pipe_animation()
 
         for sub_node in self.attribute_sub_widgets:
-            if  isinstance(sub_node, AttributeWidget) and not sub_node.attribute_animation:
+            if isinstance(sub_node, AttributeWidget) and not sub_node.attribute_animation:
                 sub_node.end_pipe_animation()
 
     def update_treelist(self):
@@ -2050,6 +2321,255 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
     def mouseMoveEvent(self, event) -> None:
         self.was_moved = True
         self.moving = True
+
+        # draw line
+        #       init
+        offect = 5
+        line_hitem_up = None
+        line_hitem_down = None
+        line_vitem_left = None
+        line_vitem_right = None
+        move_h = None
+        move_v = None
+        hpath = None
+        vpath = None
+        line_hdistance_up = float("inf")
+        line_hdistance_down = float("inf")
+        line_vdistance_left = float("inf")
+        line_vdistance_right = float("inf")
+        pen = QtGui.QPen(QtGui.QColor(77, 148, 255), 2, QtCore.Qt.CustomDashLine, QtCore.Qt.RoundCap)
+        pen.setDashPattern((1, 3, 1, 3))
+
+        #       judge move direction
+        if not self.hlast:
+            self.hlast = self.scenePos().y()
+            move_h = constants.down
+        elif self.hlast > self.scenePos().y():
+            move_h = constants.up
+            self.hlast = self.scenePos().y()
+        elif self.hlast <= self.scenePos().y():
+            move_h = constants.down
+            self.hlast = self.scenePos().y()
+
+        if not self.vlast:
+            self.vlast = self.scenePos().x()
+            move_v = constants.left
+        elif self.vlast > self.scenePos().x():
+            move_v = constants.left
+            self.vlast = self.scenePos().x()
+        elif self.vlast <= self.scenePos().x():
+            move_v = constants.right
+            self.vlast = self.scenePos().x()
+
+        #       select close item
+        for item in self.scene().items():
+            if isinstance(item, (AttributeWidget, LogicWidget)):
+                if item not in self.attribute_sub_widgets and item is not self:
+                    #   different move directions
+                    if move_h == constants.up:
+                        #   find line_hitem_down
+                        if item.scenePos().y() + item.boundingRect().height() - offect <= self.scenePos().y():
+                            h_distance_down = self.scenePos().y() - (item.scenePos().y() + item.boundingRect().height())
+                            if h_distance_down < line_hdistance_down:
+                                line_hdistance_down = h_distance_down
+                                line_hitem_down = item
+                        #   find line_hitem_up
+                        if item.scenePos().y() - offect <= self.scenePos().y():
+                            h_distance_up = self.scenePos().y() - item.scenePos().y()
+                            if h_distance_up < line_hdistance_up:
+                                line_hdistance_up = h_distance_up
+                                line_hitem_up = item
+
+                    elif move_h == constants.down:
+                        #   find line_hitem_up
+                        if item.scenePos().y() + offect >= self.scenePos().y() + self.boundingRect().height():
+                            h_distance_up = item.scenePos().y() + item.boundingRect().height() - self.scenePos().y()
+                            if h_distance_up < line_hdistance_up:
+                                line_hdistance_up = h_distance_up
+                                line_hitem_up = item
+                        #   find line_hitem_down
+                        if item.y() + item.boundingRect().height() + offect >= self.y() + self.boundingRect().height():
+                            h_distance_down = item.scenePos().y() + item.boundingRect().height() - \
+                                              (self.scenePos().y() + self.boundingRect().height())
+                            if h_distance_down < line_hdistance_down:
+                                line_hdistance_down = h_distance_down
+                                line_hitem_down = item
+
+                    if move_v == constants.left:
+                        #   find line_vitem_right
+                        if item.scenePos().x() + item.boundingRect().width() - offect <= self.scenePos().x():
+                            v_distance_right = self.scenePos().x() - (item.scenePos().x() + item.boundingRect().width())
+                            if v_distance_right < line_vdistance_right:
+                                line_vdistance_right = v_distance_right
+                                line_vitem_right = item
+                        #   find line_vitem_left
+                        if item.x() - offect <= self.scenePos().x():
+                            v_distance_left = self.scenePos().x() - item.scenePos().x()
+                            if v_distance_left < line_vdistance_left:
+                                line_vdistance_left = v_distance_left
+                                line_vitem_left = item
+
+                    elif move_v == constants.right:
+                        #   find line_vitem_left
+                        if item.scenePos().x() + offect >= self.scenePos().x() + self.boundingRect().width():
+                            v_distance_left = item.scenePos().x() - (self.scenePos().x() + self.boundingRect().width())
+                            if v_distance_left < line_vdistance_left:
+                                line_vdistance_left = v_distance_left
+                                line_vitem_left = item
+                        #   find line_vitem_right
+                        if item.scenePos().x() + item.boundingRect().width() + offect >= \
+                                self.scenePos().x() + self.boundingRect().width():
+                            v_distance_right = item.scenePos().x() + item.boundingRect().width() - \
+                                               (self.scenePos().x() + self.boundingRect().width())
+                            if v_distance_right < line_vdistance_right:
+                                line_vdistance_right = v_distance_right
+                                line_vitem_right = item
+
+        #   calculate the closest hitem and vitem
+        #       hitem
+        if move_h == constants.up:
+            if line_hitem_down and line_hitem_up:
+
+                if line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height() >= \
+                        line_hitem_up.scenePos().y():
+                    hpath = QtWidgets.QGraphicsLineItem(
+                        self.scene().sceneRect().left(),
+                        line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height(),
+                        self.scene().sceneRect().right(),
+                        line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height())
+
+                elif line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height() < \
+                        line_hitem_up.scenePos().y():
+                    hpath = QtWidgets.QGraphicsLineItem(
+                        self.scene().sceneRect().left(),
+                        line_hitem_up.scenePos().y(),
+                        self.scene().sceneRect().right(),
+                        line_hitem_up.scenePos().y())
+
+            elif line_hitem_up and not line_hitem_down:
+
+                hpath = QtWidgets.QGraphicsLineItem(
+                    self.scene().sceneRect().left(),
+                    line_hitem_up.scenePos().y(),
+                    self.scene().sceneRect().right(),
+                    line_hitem_up.scenePos().y())
+
+        elif move_h == constants.down:
+            if line_hitem_down and line_hitem_up:
+
+                if line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height() < \
+                        line_hitem_up.scenePos().y():
+                    hpath = QtWidgets.QGraphicsLineItem(
+                        self.scene().sceneRect().left(),
+                        line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height(),
+                        self.scene().sceneRect().right(),
+                        line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height())
+
+                elif line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height() >= \
+                        line_hitem_up.scenePos().y():
+                    hpath = QtWidgets.QGraphicsLineItem(
+                        self.scene().sceneRect().left(),
+                        line_hitem_up.scenePos().y(),
+                        self.scene().sceneRect().right(),
+                        line_hitem_up.scenePos().y())
+
+            elif line_hitem_down and not line_hitem_up:
+
+                hpath = QtWidgets.QGraphicsLineItem(
+                    self.scene().sceneRect().left(),
+                    line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height(),
+                    self.scene().sceneRect().right(),
+                    line_hitem_down.scenePos().y() + line_hitem_down.boundingRect().height())
+
+        #       vitem
+        if move_v == constants.left:
+            if line_vitem_left and line_vitem_right:
+
+                if line_vitem_left.scenePos().x() > \
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width():
+                    vpath = QtWidgets.QGraphicsLineItem(
+                        line_vitem_left.scenePos().x(),
+                        self.scene().sceneRect().top(),
+                        line_vitem_left.scenePos().x(),
+                        self.scene().sceneRect().bottom())
+
+                elif line_vitem_left.scenePos().x() <= \
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width():
+                    vpath = QtWidgets.QGraphicsLineItem(
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                        self.scene().sceneRect().top(),
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                        self.scene().sceneRect().bottom())
+
+            elif line_vitem_left and not line_vitem_right:
+
+                vpath = QtWidgets.QGraphicsLineItem(
+                    line_vitem_left.scenePos().x(),
+                    self.scene().sceneRect().top(),
+                    line_vitem_left.scenePos().x(),
+                    self.scene().sceneRect().bottom())
+
+        elif move_v == constants.right:
+            if line_vitem_left and line_vitem_right:
+
+                if line_vitem_left.scenePos().x() <= \
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width():
+                    vpath = QtWidgets.QGraphicsLineItem(
+                        line_vitem_left.scenePos().x(),
+                        self.scene().sceneRect().top(),
+                        line_vitem_left.scenePos().x(),
+                        self.scene().sceneRect().bottom())
+
+                elif line_vitem_left.scenePos().x() > \
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width():
+                    vpath = QtWidgets.QGraphicsLineItem(
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                        self.scene().sceneRect().top(),
+                        line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                        self.scene().sceneRect().bottom())
+
+            elif line_vitem_right and not line_vitem_left:
+
+                vpath = QtWidgets.QGraphicsLineItem(
+                    line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                    self.scene().sceneRect().top(),
+                    line_vitem_right.scenePos().x() + line_vitem_right.boundingRect().width(),
+                    self.scene().sceneRect().bottom())
+
+        if hpath:
+            if not self.hpath:
+                self.hpath = hpath
+                self.hpath.setPen(pen)
+                self.scene().addItem(self.hpath)
+            elif self.hpath is not hpath and self.hpath:
+                if self.hpath in self.scene().items():
+                    self.scene().removeItem(self.hpath)
+                self.hpath = hpath
+                self.hpath.setPen(pen)
+                self.scene().addItem(self.hpath)
+                self.hpath_flag = True
+        elif self.hpath_flag:
+            if self.hpath in self.scene().items():
+                self.scene().removeItem(self.hpath)
+                self.hpath = None
+
+        if vpath:
+            if not self.vpath:
+                self.vpath = vpath
+                self.vpath.setPen(pen)
+                self.scene().addItem(self.vpath)
+            elif self.vpath is not vpath and self.vpath:
+                if self.vpath in self.scene().items():
+                    self.scene().removeItem(self.vpath)
+                self.vpath = vpath
+                self.vpath.setPen(pen)
+                self.scene().addItem(self.vpath)
+                self.vpath_flag = True
+        elif self.vpath_flag:
+            if self.vpath in self.scene().items():
+                self.scene().removeItem(self.vpath)
+                self.vpath = None
+
         if self.resizing:
             self.mouse_update_node_size(event)
         else:
@@ -2061,6 +2581,12 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             if self.scene().view.mode == constants.MODE_NOOP:
                 self.scene().view.history.store_history("Attribute Widget Moved")
         self.colliding_release(event)
+
+        if self.vpath and self.vpath in self.scene().items():
+            self.scene().removeItem(self.vpath)
+        if self.hpath and self.hpath in self.scene().items():
+            self.scene().removeItem(self.hpath)
+
         if self.resizing:
             self.mouse_update_node_size(event)
             if self.scene().view.mode == constants.MODE_NOOP:

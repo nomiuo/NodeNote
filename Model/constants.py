@@ -12,7 +12,8 @@ __all__ = ["DEBUG_DRAW_PIPE", "DEBUG_EFFECT_SNOW", "DEBUG_VIEW_CHANGE_SCALE", "D
            "MODE_PIPE_DRAG", "MODE_NOOP", "MODE_PIPE_CUT", "MODE_CONTAINER",
            "SCALE_WIDGET",
            "PIPE_STATUS_NEW", "PIPE_STATUS_CHANGE", "PIPE_FIRST", "PIPE_MOVEING", "PIPE_COMMON", "PIPE_UPDATE",
-           "INPUT_NODE_START", "OUTPUT_NODE_START"]
+           "INPUT_NODE_START", "OUTPUT_NODE_START",
+           "down", "up", "left", "right"]
 
 
 # === DEBUG ===
@@ -76,3 +77,9 @@ PIPE_FIRST = 0
 PIPE_MOVEING = 1
 PIPE_COMMON = 2
 PIPE_UPDATE = 3
+
+# === MOVE ===
+down = 0
+up = 1
+left = 2
+right =3
