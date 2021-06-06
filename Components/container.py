@@ -25,7 +25,24 @@ class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
 
         self.deserialize_flag = False
 
+        # Style
+        self.width_flag = False
+        self.color_flag = False
+        self.selected_color_flag = False
+
     def paint(self, painter, option, widget=None) -> None:
+        #   Width and color init
+        if self.scene().container_style_width and not self.width_flag:
+            self.width = self.scene().container_style_width
+        if self.scene().container_style_color and not self.color_flag:
+            self.color = self.scene().container_style_selected_color
+        if self.scene().container_style_selected_color and not self.selected_color_flag:
+            self.selected_color = self.scene().container_style_selected_color
+
+        self.pen = QtGui.QPen(self.color, self.width)
+        self.pen.setDashPattern([1, 1])
+        self.selected_pen = QtGui.QPen(self.selected_color, self.width)
+
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setBrush(QtCore.Qt.NoBrush)
         painter.setPen(self.pen if not self.isSelected() else self.selected_pen)

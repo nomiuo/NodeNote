@@ -542,6 +542,10 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.current_scene = sub_scene
         self.current_scene_flag = sub_scene.sub_scene_flag
 
+        # Style init
+        self.mainwindow.style_switch_combox.setCurrentIndex(0)
+        self.mainwindow.style_switch_combox.setCurrentIndex(1)
+
         self.history.store_history("Create Sub Scene")
 
     def change_current_scene(self, sub_scene_item: QtWidgets.QTreeWidgetItem):
@@ -550,6 +554,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.setScene(self.current_scene)
         self.background_image = self.current_scene.background_image
         self.cutline = self.current_scene.cutline
+
+        self.mainwindow.style_switch_combox.setCurrentIndex(0)
+        self.mainwindow.style_switch_combox.setCurrentIndex(1)
 
     def delete_sub_scene(self, sub_scene_item: QtWidgets.QTreeWidgetItem):
         parent_flag = sub_scene_item.parent()

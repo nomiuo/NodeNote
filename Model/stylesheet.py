@@ -324,9 +324,9 @@ QLabel {
 }
 '''
 
-STYLE_QLABEL_NOCOLOR = '''
+STYLE_QLABEL_CHANGED = '''
 QLabel {
-    background-color: rgba(204, 255, 255, 200);
+    background-color: rgba(255, 204, 0, 200);
     border-style: outset;
     border-width: 1px;
     border-radius: 10px;
@@ -335,6 +335,32 @@ QLabel {
     padding: 6px;
 }
 '''
+
+STYLE_QLABEL_COMMON = '''
+QLabel {
+    background-color: rgba(153, 0, 255, 200);
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 8px;
+    padding: 6px;
+}
+'''
+
+
+STYLE_QLABEL_TITLE = '''
+QLabel {
+    background-color: rgba(51, 102, 153, 200);
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 8px;
+    padding: 6px;
+}
+'''
+
 
 STYLE_QLABEL_FILE = '''
 QLabel {

@@ -272,6 +272,16 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         self.pythonlighter = PythonHighlighter(self.document())
         self.editing_state = False
         self.font_size_editing = True
+        # style
+        self.font_flag = False
+        self.font_color_flag = False
+
+    def paint(self, painter: QtGui.QPainter, option, widget=None) -> None:
+        super(InputTextField, self).paint(painter, option, widget)
+        if self.scene() and self.scene().attribute_style_font and not self.font_flag:
+            self.document().setDefaultFont(self.scene().attribute_style_font)
+        if self.scene() and self.scene().attribute_style_font_color and not self.font_color_flag:
+            self.setDefaultTextColor(self.scene().attribute_style_font_color)
 
     @staticmethod
     def add_table(cursor):
@@ -1102,6 +1112,12 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.hpath_flag = False
         self.vpath_flag = False
 
+        # Style
+        self.background_color_flag = False
+        self.selected_background_color_flag = False
+        self.border_color_flag = False
+        self.selected_border_color_flag = False
+
     def design_ui(self):
         # select logic
         self.logic_combobox_input.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
@@ -1272,6 +1288,17 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
     def paint(self, painter, option, widget=None) -> None:
         super(LogicWidget, self).paint(painter, option, widget)
+
+        #   color init
+        if self.scene().logic_style_background_color and not self.background_color_flag:
+            self.background_color = self.scene().logic_style_background_color
+        if self.scene().logic_style_selected_background_color and not self.selected_background_color_flag:
+            self.selected_background_color = self.scene().logic_style_selected_background_color
+        if self.scene().logic_style_border_color and not self.border_color_flag:
+            self.border_color = self.scene().logic_style_border_color
+        if self.scene().logic_style_selected_border_color and not self.selected_border_color_flag:
+            self.selected_border_color = self.scene().logic_style_selected_border_color
+
         self.input_port.setPos(-port.Port.width / 2, self.size().height() / 2 - 3)
         self.output_port.setPos(self.size().width() - port.Port.width / 2, self.size().height() / 2 - 3)
 
@@ -1841,8 +1868,24 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.hpath_flag = False
         self.vpath_flag = False
 
+        # Style
+        self.color_flag = False
+        self.selected_color_flag = False
+        self.border_flag = False
+        self.selected_border_flag = False
+
     def paint(self, painter, option, widget=None) -> None:
         painter.save()
+
+        # color and width init
+        if self.scene().attribute_style_background_color and not self.color_flag:
+            self.color = self.scene().attribute_style_background_color
+        if self.scene().attribute_style_selected_background_color and not self.selected_color_flag:
+            self.selected_color = self.scene().attribute_style_selected_background_color
+        if self.scene().attribute_style_border_color and not self.border_flag:
+            self.border_color = self.scene().attribute_style_border_color
+        if self.scene().attribute_style_selected_border_color and not self.selected_border_flag:
+            self.selected_border_color = self.scene().attribute_style_selected_border_color
 
         # draw border
         bg_border = 1.0

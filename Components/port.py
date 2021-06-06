@@ -21,7 +21,7 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.port_truth = port_truth
         # BASIC SETTINGS
         self.setAcceptHoverEvents(True)
-        self.setFlag(self.ItemSendsScenePositionChanges, True)
+        self.setFlags(self.ItemSendsScenePositionChanges | self.ItemIsSelectable)
         self.setZValue(constants.Z_VAL_PORT)
         self.setCacheMode(constants.ITEM_CACHE_MODE)
 
@@ -31,6 +31,15 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
         # DRAW PARAMETERS
         self.border_size = 1
         self.hovered = False
+
+        # Style init
+        self.width_flag = False
+        self.color_flag = False
+        self.border_color_flag = False
+        self.hovered_color_flag = False
+        self.hovered_border_color_flag = False
+        self.activated_color_flag = False
+        self.activated_border_color_flag = False
 
     def get_node(self):
         return self.parentItem()
@@ -55,9 +64,25 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
             pipe.end_evaluation_feedback()
 
     def boundingRect(self) -> QtCore.QRectF:
+        # Width init
+        if self.scene().port_style_width and not self.width_flag:
+            self.width = self.scene().port_style_width
         return QtCore.QRectF(0.0, 0.0, self.width, self.width)
 
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
+        # Color init
+        if self.scene().port_style_color and not self.color_flag:
+            self.color = self.scene().port_style_color
+        if self.scene().port_style_border_color and not self.border_color_flag:
+            self.border_color = self.scene().port_style_border_color
+        if self.scene().port_style_hovered_color and not self.hovered_color_flag:
+            self.hovered_color = self.scene().port_style_hovered_color
+        if self.scene().port_style_hovered_border_color and not self.hovered_border_color_flag:
+            self.hovered_border_color = self.scene().port_style_hovered_border_color
+        if self.scene().port_style_activated_color and not self.activated_color_flag:
+            self.activated_color = self.scene().port_style_activated_color
+        if self.scene().port_style_activated_border_color and not self.activated_border_color_flag:
+            self.activated_border_color = self.scene().port_style_activated_border_color
         # SIZE
         rect_width = self.width / 1.8
         rect_height = self.width / 1.8

@@ -55,6 +55,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         # EDIT
         self.edit = attribute.SimpleTextField("Deafult", self)
         self.edit.setFont(QtGui.QFont("LucidaMacBold", 8))
+        self.edit.setDefaultTextColor(QtCore.Qt.black)
         bound_rect_width, bound_rect_height = self.edit.boundingRect().width(), self.edit.boundingRect().height()
         self.edit.setPos(self.path().pointAtPercent(0.5).x() - (bound_rect_width // 2),
                          self.path().pointAtPercent(0.5).y() - (bound_rect_height // 2))
@@ -73,6 +74,11 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.now_default_start = None
         self.now_default_end = None
         self.control = False
+
+        # Style init
+        self.width_flag = False
+        self.color_flag = False
+        self.selected_color_flag = False
 
     def perform_evaluation_feedback(self):
         if self.timeline.state() == QtCore.QTimeLine.NotRunning:
@@ -179,6 +185,13 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.update()
 
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
+        # Width and color init
+        if self.scene().pipe_style_width and not self.width_flag:
+            self.width = self.scene().pipe_style_width
+        if self.scene().pipe_style_background_color and not self.color_flag:
+            self.color = self.scene().self.scene().pipe_style_background_color
+        if self.scene().pipe_style_selected_background_color and not self.selected_color_flag:
+            self.selected_color = self.scene().pipe_style_selected_background_color
         # DEFAULT PEN
         pen = QtGui.QPen(self.color if not self.isSelected() else self.selected_color)
         pen.setWidth(self.width)

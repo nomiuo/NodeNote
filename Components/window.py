@@ -11,417 +11,7 @@ class NoteWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(NoteWindow, self).__init__()
 
-        self.UI_MainWindow()
-
-        # tool bar
-        self.toolbar = QtWidgets.QToolBar()
-        self.toolbar.setStyleSheet(stylesheet.STYLE_QTOOLBAR)
-        self.addToolBar(QtCore.Qt.LeftToolBarArea, self.toolbar)
-
-        # scene
-        self.scene_list = QtWidgets.QTreeWidget()
-        self.scene_list.setStyleSheet(stylesheet.STYLE_QTREEWIDGET)
-        self.scene_list.setAlternatingRowColors(True)
-        self.scene_list.setHeaderLabel("Scene List")
-        self.scene_list.setIndentation(8)
-
-        # style
-        self.style_control = QtWidgets.QWidget()
-        self.style_control_layout = QtWidgets.QGridLayout()
-
-        # tab widget
-        self.tab_widget = QtWidgets.QTabWidget()
-        self.tab_widget.addTab(self.scene_list, "Scene")
-        self.tab_widget.addTab(self.style_control, "Style")
-
-        # ================ Style ==============================
-        self.style_switch_widget = QtWidgets.QComboBox()
-        self.style_switch_widget.addItems(("All Scene", "Current Scene", "Selected Items"))
-        self.style_switch_widget.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
-        self.style_switch_widget.currentIndexChanged.connect(self.init_style)
-
-        self.style_switch_layout = QtWidgets.QVBoxLayout()
-        self.style_control.setLayout(self.style_switch_layout)
-        self.style_switch_layout.addWidget(self.style_switch_widget)
-        self.style_switch_layout.addLayout(self.style_control_layout)
-
-        #   =============== attribute widget========================
-        self.attribute_style = QtWidgets.QLabel("Attribute Widgets")
-        self.style_control_layout.addWidget(self.attribute_style, 0, 0, 1, -1)
-
-        #   font
-        self.attribute_style_font = None
-        self.attribute_style_font_color_type = None
-
-        self.attribute_style_font_label = QtWidgets.QLabel("Font")
-        self.attribute_style_font_select = QtWidgets.QPushButton("Select Font")
-        self.attribute_style_font_color = QtWidgets.QLabel("Current Font Color")
-        self.attribute_style_font_color_select = QtWidgets.QPushButton("Select Font Color")
-
-        self.attribute_style_font_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.attribute_style_font_select.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.attribute_style_font_color.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.attribute_style_font_color_select.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-
-        self.attribute_style_font_select.clicked.connect(lambda: self.font_changed(False))
-        self.attribute_style_font_color_select.clicked.connect(lambda: self.color_changed("Font", None))
-
-        self.style_control_layout.addWidget(self.attribute_style_font_label, 1, 0, 1, 1)
-        self.style_control_layout.addWidget(self.attribute_style_font_select, 1, 1, 1, 1)
-        self.style_control_layout.addWidget(self.attribute_style_font_color, 2, 0, 1, 1)
-        self.style_control_layout.addWidget(self.attribute_style_font_color_select, 2, 1, 1, 1)
-
-        self.font_changed(True)
-
-        #       color
-        self.attribute_style_color = None
-        self.attribute_style_selected_color = None
-        self.attribute_style_border_color = None
-        self.attribute_style_border_selected_color = None
-
-        self.attribute_style_color_select = QtWidgets.QPushButton("Select Background Color")
-        self.attribute_style_color_label = QtWidgets.QLabel("Current Background Color")
-        self.attribute_style_color_selected = QtWidgets.QPushButton("Select Selected Color")
-        self.attribute_style_color_label_selected = QtWidgets.QLabel("Current Selected Color")
-        self.attribute_style_color_border_selected = QtWidgets.QPushButton("Select Border Color")
-        self.attribute_style_color_border = QtWidgets.QLabel("Current Border Color")
-        self.attribute_style_color_selected_border_selected = QtWidgets.QPushButton("Select Selected Border Color")
-        self.attribute_style_color_selected_border = QtWidgets.QLabel("Current SelectedBorder Color")
-
-        self.attribute_style_color_select.clicked.connect(lambda: self.color_changed("Attribute Widget",
-                                                                                     "Background", False))
-        self.attribute_style_color_selected.clicked.connect(lambda: self.color_changed("Attribute Widget",
-                                                                                       "Selected", False))
-        self.attribute_style_color_border_selected.clicked.connect(lambda: self.color_changed("Attribute Widget",
-                                                                                              "Border", False))
-        self.attribute_style_color_selected_border_selected.clicked.connect(
-            lambda: self.color_changed("Attribute Widget",
-                                       "Selected Border", False))
-
-        self.attribute_style_color_label.setAutoFillBackground(True)
-        self.attribute_style_color_label_selected.setAutoFillBackground(True)
-        self.attribute_style_color_border.setAutoFillBackground(True)
-        self.attribute_style_color_selected_border.setAutoFillBackground(True)
-
-        self.attribute_style.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.attribute_style_color_select.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.attribute_style_color_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.attribute_style_color_selected.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.attribute_style_color_label_selected.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.attribute_style_color_border_selected.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.attribute_style_color_border.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.attribute_style_color_selected_border_selected.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.attribute_style_color_selected_border.setStyleSheet(stylesheet.STYLE_QLABEL)
-
-        self.color_changed("Attribute Widget", "Background", True)
-        self.color_changed("Attribute Widget", "Selected", True)
-        self.color_changed("Attribute Widget", "Border", True)
-        self.color_changed("Attribute Widget", "Selected Border", True)
-
-        self.style_control_layout.addWidget(self.attribute_style_color_label, 3, 0)
-        self.style_control_layout.addWidget(self.attribute_style_color_select, 3, 1)
-        self.style_control_layout.addWidget(self.attribute_style_color_label_selected, 4, 0)
-        self.style_control_layout.addWidget(self.attribute_style_color_selected, 4, 1)
-        self.style_control_layout.addWidget(self.attribute_style_color_border, 5, 0)
-        self.style_control_layout.addWidget(self.attribute_style_color_border_selected, 5, 1)
-        self.style_control_layout.addWidget(self.attribute_style_color_selected_border, 6, 0)
-        self.style_control_layout.addWidget(self.attribute_style_color_selected_border_selected, 6, 1)
-        # ==========================================================
-
-        # ================ Logic Widget =================================
-        # Color
-        self.logic_style_background_color = None
-        self.logic_style_selected_background_color = None
-        self.logic_style_border_color = None
-        self.logic_style_selected_border_color = None
-        # Widgets
-        #   label widgets
-        self.logic_style = QtWidgets.QLabel("Logic Widgets")
-        self.logic_style_background_color_label = QtWidgets.QLabel("Current Background Color")
-        self.logic_style_selected_background_color_label = QtWidgets.QLabel("Current Selected Background Color")
-        self.logic_style_border_color_label = QtWidgets.QLabel("Current Border Color")
-        self.logic_style_selected_border_color_label = QtWidgets.QLabel("Current Selected Border Color")
-        #   button widgets
-        self.logic_style_background_color_button = QtWidgets.QPushButton("Select Background Color")
-        self.logic_style_selected_background_color_button = QtWidgets.QPushButton("Select Selected Background Color")
-        self.logic_style_border_color_button = QtWidgets.QPushButton("Select Border Color")
-        self.logic_style_selected_border_color_button = QtWidgets.QPushButton("Select Selected Border Color")
-        #   added
-        self.style_control_layout.addWidget(self.logic_style, 7, 0, 1, -1)
-        self.style_control_layout.addWidget(self.logic_style_background_color_label, 8, 0)
-        self.style_control_layout.addWidget(self.logic_style_selected_background_color_label, 9, 0)
-        self.style_control_layout.addWidget(self.logic_style_border_color_label, 10, 0)
-        self.style_control_layout.addWidget(self.logic_style_selected_border_color_label, 11, 0)
-        self.style_control_layout.addWidget(self.logic_style_background_color_button, 8, 1)
-        self.style_control_layout.addWidget(self.logic_style_selected_background_color_button, 9, 1)
-        self.style_control_layout.addWidget(self.logic_style_border_color_button, 10, 1)
-        self.style_control_layout.addWidget(self.logic_style_selected_border_color_button, 11, 1)
-        # Stylesheet
-        #   label stylesheet
-        self.logic_style.setAutoFillBackground(True)
-        self.logic_style_background_color_label.setAutoFillBackground(True)
-        self.logic_style_selected_background_color_label.setAutoFillBackground(True)
-        self.logic_style_border_color_label.setAutoFillBackground(True)
-        self.logic_style_selected_border_color_label.setAutoFillBackground(True)
-        self.logic_style.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.logic_style_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.logic_style_selected_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.logic_style_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.logic_style_selected_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        #   button stylesheet
-        self.logic_style_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.logic_style_selected_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.logic_style_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.logic_style_selected_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        # Slots
-        self.logic_style_background_color_button.clicked.connect(lambda: self.color_changed(
-            "Logic Widget",
-            "Background",
-            False))
-        self.logic_style_selected_background_color_button.clicked.connect(lambda: self.color_changed(
-            "Logic Widget",
-            "Selected Background",
-            False
-        ))
-        self.logic_style_border_color_button.clicked.connect(lambda: self.color_changed(
-            "Logic Widget",
-            "Border",
-            False
-        ))
-        self.logic_style_selected_border_color_button.clicked.connect(lambda: self.color_changed(
-            "Logic Widget",
-            "Selected Border",
-            False
-        ))
-        # Init
-        self.color_changed(
-            "Logic Widget",
-            "Background",
-            True
-        )
-        self.color_changed(
-            "Logic Widget",
-            "Selected Background",
-            True
-        )
-        self.color_changed(
-            "Logic Widget",
-            "Border",
-            True
-        )
-        self.color_changed(
-            "Logic Widget",
-            "Selected Border",
-            True
-        )
-        # =========================================================
-        # ==================== Pipe =================================
-        #   Parameters
-        self.pipe_style_width = None
-        self.pipe_style_background_color = None
-        self.pipe_style_selected_background_color = None
-        #   Widgets
-        #       label
-        self.pipe_style_label = QtWidgets.QLabel("Pipe Widgets")
-        self.pipe_style_width_label = QtWidgets.QLabel("Current Width")
-        self.pipe_style_background_color_label = QtWidgets.QLabel("Current Background Color")
-        self.pipe_style_selected_background_color_label = QtWidgets.QLabel("Current Selected Background Color")
-        #       button
-        self.pipe_style_width_button = QtWidgets.QPushButton("Select Width")
-        self.pipe_style_background_color_button = QtWidgets.QPushButton("Select Background Color")
-        self.pipe_style_selected_background_color_button = QtWidgets.QPushButton("Select Selected Background Color")
-        #       added
-        self.style_control_layout.addWidget(self.pipe_style_label, 12, 0, 1, -1)
-        self.style_control_layout.addWidget(self.pipe_style_width_label, 13, 0)
-        self.style_control_layout.addWidget(self.pipe_style_background_color_label, 14, 0)
-        self.style_control_layout.addWidget(self.pipe_style_selected_background_color_label, 15, 0)
-        self.style_control_layout.addWidget(self.pipe_style_width_button, 13, 1)
-        self.style_control_layout.addWidget(self.pipe_style_background_color_button, 14, 1)
-        self.style_control_layout.addWidget(self.pipe_style_selected_background_color_button, 15, 1)
-        #   Stylesheeet
-        #       label stylesheet
-        self.pipe_style_label.setAutoFillBackground(True)
-        self.pipe_style_width_label.setAutoFillBackground(True)
-        self.pipe_style_background_color_label.setAutoFillBackground(True)
-        self.pipe_style_selected_background_color_label.setAutoFillBackground(True)
-        self.pipe_style_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.pipe_style_width_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.pipe_style_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.pipe_style_selected_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        #       button stylesheet
-        self.pipe_style_width_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.pipe_style_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.pipe_style_selected_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        #   Slots
-        self.pipe_style_width_button.clicked.connect(lambda: self.width_changed("Pipe Widget", False))
-        self.pipe_style_background_color_button.clicked.connect(lambda: self.color_changed("Pipe Widget", "Background",
-                                                                                           False))
-        self.pipe_style_selected_background_color_button.clicked.connect(lambda:
-                                                                         self.color_changed("Pipe Widget",
-                                                                                            "Selected Background",
-                                                                                            False))
-        #   Init
-        self.width_changed("Pipe Widget", True)
-        self.color_changed("Pipe Widget", "Background", True)
-        self.color_changed("Pipe Widget", "Selected Background", True)
-        # ==========================================================
-        # ==================== Port ===================================
-        #   Parameters
-        self.port_style_width = None
-        self.port_style_color = None
-        self.port_style_border_color = None
-        self.port_style_hovered_color = None
-        self.port_style_hovered_border_color = None
-        self.port_style_activated_color = None
-        self.port_style_activated_border_color = None
-        #   Widgets
-        #       label widgets
-        self.port_style_label = QtWidgets.QLabel("Port Widgets")
-        self.port_style_width_label = QtWidgets.QLabel("Current Width")
-        self.port_style_color_label = QtWidgets.QLabel("Current Background Color")
-        self.port_style_border_color_label = QtWidgets.QLabel("Current Border Color")
-        self.port_style_hovered_color_label = QtWidgets.QLabel("Current Hovered Background Color")
-        self.port_style_hovered_border_color_label = QtWidgets.QLabel("Current Hovered Border Color")
-        self.port_style_activated_color_label = QtWidgets.QLabel("Current Activated Background Color")
-        self.port_style_activated_border_color_label = QtWidgets.QLabel("Current Activated Border Color")
-        #       button widgets
-        self.port_style_width_button = QtWidgets.QPushButton("Select Width")
-        self.port_style_color_button = QtWidgets.QPushButton("Select Background Color")
-        self.port_style_border_color_button = QtWidgets.QPushButton("Select Border Color")
-        self.port_style_hovered_color_button = QtWidgets.QPushButton("Select Hovered Background Color")
-        self.port_style_hovered_border_color_button = QtWidgets.QPushButton("Select Hovered Border Color")
-        self.port_style_activated_color_button = QtWidgets.QPushButton("Select Activated Background Color")
-        self.port_style_activated_border_color_button = QtWidgets.QPushButton("Select Activated Border Color")
-        #       added
-        self.style_control_layout.addWidget(self.port_style_label, 16, 0, 1, -1)
-        self.style_control_layout.addWidget(self.port_style_width_label, 17, 0)
-        self.style_control_layout.addWidget(self.port_style_color_label, 18, 0)
-        self.style_control_layout.addWidget(self.port_style_border_color_label, 19, 0)
-        self.style_control_layout.addWidget(self.port_style_hovered_color_label, 20, 0)
-        self.style_control_layout.addWidget(self.port_style_hovered_border_color_label, 21, 0)
-        self.style_control_layout.addWidget(self.port_style_activated_color_label, 22, 0)
-        self.style_control_layout.addWidget(self.port_style_activated_border_color_label, 23, 0)
-        self.style_control_layout.addWidget(self.port_style_width_button, 17, 1)
-        self.style_control_layout.addWidget(self.port_style_color_button, 18, 1)
-        self.style_control_layout.addWidget(self.port_style_border_color_button, 19, 1)
-        self.style_control_layout.addWidget(self.port_style_hovered_color_button, 20, 1)
-        self.style_control_layout.addWidget(self.port_style_hovered_border_color_button, 21, 1)
-        self.style_control_layout.addWidget(self.port_style_activated_color_button, 22, 1)
-        self.style_control_layout.addWidget(self.port_style_activated_border_color_button, 23, 1)
-        #   Stylesheet
-        #       label stylesheet
-        self.port_style_label.setAutoFillBackground(True)
-        self.port_style_width_label.setAutoFillBackground(True)
-        self.port_style_color_label.setAutoFillBackground(True)
-        self.port_style_border_color_label.setAutoFillBackground(True)
-        self.port_style_hovered_color_label.setAutoFillBackground(True)
-        self.port_style_hovered_border_color_label.setAutoFillBackground(True)
-        self.port_style_activated_color_label.setAutoFillBackground(True)
-        self.port_style_activated_border_color_label.setAutoFillBackground(True)
-        self.port_style_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.port_style_width_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.port_style_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.port_style_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.port_style_hovered_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.port_style_hovered_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.port_style_activated_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.port_style_activated_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        #       button stylesheet
-        self.port_style_width_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.port_style_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.port_style_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.port_style_hovered_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.port_style_hovered_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.port_style_activated_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.port_style_activated_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        #   Slots
-        self.port_style_width_button.clicked.connect(lambda: self.width_changed("Port Widget", False))
-        self.port_style_color_button.clicked.connect(lambda: self.color_changed("Port Widget", "Background", False))
-        self.port_style_border_color_button.clicked.connect(lambda: self.color_changed("Port Widget", "Border", False))
-        self.port_style_hovered_color_button.clicked.connect(lambda: self.color_changed("Port Widget",
-                                                                                        "Hovered Background", False))
-        self.port_style_hovered_border_color_button.clicked.connect(lambda: self.color_changed("Port Widget",
-                                                                                               "Hovered Border", False))
-        self.port_style_activated_color_button.clicked.connect(lambda: self.color_changed("Port Widget",
-                                                                                          "Activated Background",
-                                                                                          False))
-        self.port_style_activated_border_color_button.clicked.connect(lambda: self.color_changed("Port Widget",
-                                                                                                 "Activated Border",
-                                                                                                 False))
-        #   Init
-        self.width_changed("Port Widget", True)
-        self.color_changed("Port Widget", "Background", True)
-        self.color_changed("Port Widget", "Border", True)
-        self.color_changed("Port Widget", "Hovered Background", True)
-        self.color_changed("Port Widget", "Hovered Border", True)
-        self.color_changed("Port Widget", "Activated Background", True)
-        self.color_changed("Port Widget", "Activated Border", True)
-        # ==========================================================
-        # ====================== Container =============================
-        #   Parameters
-        self.container_style_width = None
-        self.container_style_color = None
-        self.container_style_selected_color = None
-        #   Widgets
-        #       label widget
-        self.container_style_label = QtWidgets.QLabel("Container Widgets")
-        self.container_style_width_label = QtWidgets.QLabel("Current Width")
-        self.container_style_color_label = QtWidgets.QLabel("Current Color")
-        self.container_style_selected_color_label = QtWidgets.QLabel("Current Selected Color")
-        #       button widget
-        self.container_style_width_button = QtWidgets.QPushButton("Select Width")
-        self.container_style_color_button = QtWidgets.QPushButton("Select Color")
-        self.container_style_selected_color = QtWidgets.QPushButton("Select Selected Color")
-        #       added
-        self.style_control_layout.addWidget(self.container_style_label, 24, 0, 1, -1)
-        self.style_control_layout.addWidget(self.container_style_width_label, 25, 0)
-        self.style_control_layout.addWidget(self.container_style_color_label, 26, 0)
-        self.style_control_layout.addWidget(self.container_style_selected_color_label, 27, 0)
-        self.style_control_layout.addWidget(self.container_style_width_button, 25, 1)
-        self.style_control_layout.addWidget(self.container_style_color_button, 26, 1)
-        self.style_control_layout.addWidget(self.container_style_selected_color, 27, 1)
-        #   Stylesheeet
-        #       label stylesheet
-        self.container_style_label.setAutoFillBackground(True)
-        self.container_style_width_label.setAutoFillBackground(True)
-        self.container_style_color_label.setAutoFillBackground(True)
-        self.container_style_selected_color_label.setAutoFillBackground(True)
-        self.container_style_label.setStyleSheet(stylesheet.STYLE_QLABEL)
-        self.container_style_width_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.container_style_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        self.container_style_selected_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_NOCOLOR)
-        #       button stylesheet
-        self.container_style_width_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.container_style_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        self.container_style_selected_color.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
-        #   Slots
-        self.container_style_width_button.clicked.connect(lambda: self.width_changed("Container Widget", False))
-        self.container_style_color_button.clicked.connect(lambda: self.color_changed("Container Widget",
-                                                                                     "Color", False))
-        self.container_style_selected_color.clicked.connect(lambda: self.color_changed("Container Widget",
-                                                                                       "Selected Color", False))
-        #   Init
-        self.width_changed("Container Widget", True)
-        self.color_changed("Container Widget", "Color", True)
-        self.color_changed("Container Widget", "Selected Color", True)
-        # ==========================================================
-        # ============================   Style  =========================
-        #   init
-        self.font_changed(True, self.style_switch_widget.currentIndex())
-        #   slots
-        self.style_switch_widget.currentIndexChanged.connect(
-            lambda combox_index: self.font_changed(False, combox_index))
-        # ==========================================================
-        self.toolbar.addWidget(self.tab_widget)
-
-        self.central_widget = QtWidgets.QWidget()  # central widget
-        self.view_widget = View(self, self.central_widget)  # view widget
-        self.scene_list.itemClicked.connect(self.view_widget.change_current_scene)
-        self.layout = QtWidgets.QVBoxLayout(self.central_widget)  # layout contains two widgets
-        self.sky_widget = EffectSkyWidget(self.view_widget, self.central_widget)  # snow falling widget
-        self.UI_Widget()
-
-    def UI_MainWindow(self):
+        #   Window Init
         self.setWindowIcon(QtGui.QIcon('Resources/snow3.svg'))  # set icon
         self.setWindowTitle("Snow")  # set title
         self.resize(1200, 1000)  # set size
@@ -430,649 +20,1276 @@ class NoteWindow(QtWidgets.QMainWindow):
             (QtWidgets.QDesktopWidget().screenGeometry().height() - self.geometry().height()) // 2
         )
 
-    def UI_Widget(self):
+        # Tool bar
+        self.toolbar = QtWidgets.QToolBar()
+        self.toolbar.setStyleSheet(stylesheet.STYLE_QTOOLBAR)
+        self.addToolBar(QtCore.Qt.LeftToolBarArea, self.toolbar)
+        self.tab_widget = QtWidgets.QTabWidget()
+        self.toolbar.addWidget(self.tab_widget)
+
+        # Scene list widget
+        self.scene_list = QtWidgets.QTreeWidget()
+        self.scene_list.setStyleSheet(stylesheet.STYLE_QTREEWIDGET)
+        self.scene_list.setAlternatingRowColors(True)
+        self.scene_list.setHeaderLabel("Scene List")
+        self.scene_list.setIndentation(8)
+        self.tab_widget.addTab(self.scene_list, "Scene")
+
+        # Style list widget
+        self.style_list = QtWidgets.QWidget()
+        self.style_list_layout = QtWidgets.QGridLayout()
+        self.style_list.setLayout(self.style_list_layout)
+        self.tab_widget.addTab(self.style_list, "Style")
+        #   Switch widget
+        self.style_switch_combox = QtWidgets.QComboBox()
+        self.style_switch_combox.addItems(("All Scene", "Current Scene", "Selected Items"))
+        self.style_switch_combox.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
+        self.style_list_layout.addWidget(self.style_switch_combox, 0, 0, 1, -1)
+        self.style_switch_combox.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
+        #   Attribute widgets
+        #       Color and font
+        self.attribute_style_font = None
+        self.attribute_style_font_color = None
+        self.attribute_style_background_color = None
+        self.attribute_style_selected_background_color = None
+        self.attribute_style_border_color = None
+        self.attribute_style_selected_border_color = None
+        #       Label Widgets
+        #           init
+        self.attribute_style_label = QtWidgets.QLabel("Attribute Widgets")
+        self.attribute_style_font_label = QtWidgets.QLabel("Font")
+        self.attribute_style_font_color_label = QtWidgets.QLabel("Font Color")
+        self.attribute_style_background_color_label = QtWidgets.QLabel("Background Color")
+        self.attribute_style_selected_background_color_label = QtWidgets.QLabel("Selected Background Color")
+        self.attribute_style_border_color_label = QtWidgets.QLabel("Border Color")
+        self.attribute_style_selected_border_color_label = QtWidgets.QLabel("Selected Border Color")
+        #           added
+        self.style_list_layout.addWidget(self.attribute_style_label, 1, 0, 1, -1)
+        self.style_list_layout.addWidget(self.attribute_style_font_label, 2, 1, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_font_color_label, 3, 1, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_background_color_label, 4, 1, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_selected_background_color_label, 5, 1, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_border_color_label, 6, 1, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_selected_border_color_label, 7, 1, 1, 1)
+        #           stylesheet
+        self.attribute_style_label.setStyleSheet(stylesheet.STYLE_QLABEL_TITLE)
+        self.attribute_style_font_label.setStyleSheet(stylesheet.STYLE_QLABEL_COMMON)
+        self.attribute_style_font_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.attribute_style_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.attribute_style_selected_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.attribute_style_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.attribute_style_selected_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        #       Pushbutton Widgets
+        #           init
+        self.attribute_style_font_button = QtWidgets.QPushButton("Change Font")
+        self.attribute_style_font_color_button = QtWidgets.QPushButton("Change Font Color")
+        self.attribute_style_background_color_button = QtWidgets.QPushButton("Change Background Color")
+        self.attribute_style_selected_background_color_button = QtWidgets.QPushButton(
+            "Change Selected Background Color")
+        self.attribute_style_border_color_button = QtWidgets.QPushButton("Change Border Color")
+        self.attribute_style_selected_border_color_button = QtWidgets.QPushButton("Change Selected Border Color")
+        #           added
+        self.style_list_layout.addWidget(self.attribute_style_font_button, 2, 0, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_font_color_button, 3, 0, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_background_color_button, 4, 0, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_selected_background_color_button, 5, 0, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_border_color_button, 6, 0, 1, 1)
+        self.style_list_layout.addWidget(self.attribute_style_selected_border_color_button, 7, 0, 1, 1)
+        #           stylesheet
+        self.attribute_style_font_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.attribute_style_font_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.attribute_style_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.attribute_style_selected_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.attribute_style_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.attribute_style_selected_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+
+        #   Logic widgets
+        #       Color
+        self.logic_style_background_color = None
+        self.logic_style_selected_background_color = None
+        self.logic_style_border_color = None
+        self.logic_style_selected_border_color = None
+        #       label widgets
+        #           init
+        self.logic_style_label = QtWidgets.QLabel("Logic Widgets")
+        self.logic_style_background_color_label = QtWidgets.QLabel("Background Color")
+        self.logic_style_selected_background_color_label = QtWidgets.QLabel("Selected Background Color")
+        self.logic_style_border_color_label = QtWidgets.QLabel("Border Color")
+        self.logic_style_selected_border_color_label = QtWidgets.QLabel("Selected Border Color")
+        #           added
+        self.style_list_layout.addWidget(self.logic_style_label, 8, 0, 1, -1)
+        self.style_list_layout.addWidget(self.logic_style_background_color_label, 9, 1)
+        self.style_list_layout.addWidget(self.logic_style_selected_background_color_label, 10, 1)
+        self.style_list_layout.addWidget(self.logic_style_border_color_label, 11, 1)
+        self.style_list_layout.addWidget(self.logic_style_selected_border_color_label, 12, 1)
+        #           stylesheet
+        self.logic_style_label.setStyleSheet(stylesheet.STYLE_QLABEL_TITLE)
+        self.logic_style_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.logic_style_selected_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.logic_style_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.logic_style_selected_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        #       button widgets
+        #           init
+        self.logic_style_background_color_button = QtWidgets.QPushButton("Change Background Color")
+        self.logic_style_selected_background_color_button = QtWidgets.QPushButton("Change Selected Background Color")
+        self.logic_style_border_color_button = QtWidgets.QPushButton("Change Border Color")
+        self.logic_style_selected_border_color_button = QtWidgets.QPushButton("Change Selected Border Color")
+        #           added
+        self.style_list_layout.addWidget(self.logic_style_background_color_button, 9, 0)
+        self.style_list_layout.addWidget(self.logic_style_selected_background_color_button, 10, 0)
+        self.style_list_layout.addWidget(self.logic_style_border_color_button, 11, 0)
+        self.style_list_layout.addWidget(self.logic_style_selected_border_color_button, 12, 0)
+        #           stylesheet
+        self.logic_style_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.logic_style_selected_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.logic_style_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.logic_style_selected_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+
+        #   Pipe widgets
+        #       Color and width
+        self.pipe_style_width = None
+        self.pipe_style_background_color = None
+        self.pipe_style_selected_background_color = None
+        #       Label widgets
+        #           init
+        self.pipe_style_label = QtWidgets.QLabel("Pipe Widgets")
+        self.pipe_style_width_label = QtWidgets.QLabel("Width")
+        self.pipe_style_background_color_label = QtWidgets.QLabel("Background Color")
+        self.pipe_style_selected_background_color_label = QtWidgets.QLabel("Selected Background Color")
+        #           added
+        self.style_list_layout.addWidget(self.pipe_style_label, 13, 0, 1, -1)
+        self.style_list_layout.addWidget(self.pipe_style_width_label, 14, 1)
+        self.style_list_layout.addWidget(self.pipe_style_background_color_label, 15, 1)
+        self.style_list_layout.addWidget(self.pipe_style_selected_background_color_label, 16, 1)
+        #           stylesheet
+        self.pipe_style_label.setStyleSheet(stylesheet.STYLE_QLABEL_TITLE)
+        self.pipe_style_width_label.setStyleSheet(stylesheet.STYLE_QLABEL_COMMON)
+        self.pipe_style_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.pipe_style_selected_background_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        #       Pushbutton widgets
+        #           init
+        self.pipe_style_width_button = QtWidgets.QPushButton("Change Width")
+        self.pipe_style_background_color_button = QtWidgets.QPushButton("Change Background Color")
+        self.pipe_style_selected_background_color_button = QtWidgets.QPushButton("Change Selected Background Color")
+        #           added
+        self.style_list_layout.addWidget(self.pipe_style_width_button, 14, 0)
+        self.style_list_layout.addWidget(self.pipe_style_background_color_button, 15, 0)
+        self.style_list_layout.addWidget(self.pipe_style_selected_background_color_button, 16, 0)
+        #           stylesheet
+        self.pipe_style_width_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.pipe_style_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.pipe_style_selected_background_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+
+        #   Port Widgets
+        #       Width and Color
+        self.port_style_width = None
+        self.port_style_color = None
+        self.port_style_border_color = None
+        self.port_style_hovered_color = None
+        self.port_style_hovered_border_color = None
+        self.port_style_activated_color = None
+        self.port_style_activated_border_color = None
+        #       Label widgets
+        #           init
+        self.port_style_label = QtWidgets.QLabel("Port Widgets")
+        self.port_style_width_label = QtWidgets.QLabel("Width")
+        self.port_style_color_label = QtWidgets.QLabel("Background Color")
+        self.port_style_border_color_label = QtWidgets.QLabel("Border Color")
+        self.port_style_hovered_color_label = QtWidgets.QLabel("Hovered Background Color")
+        self.port_style_hovered_border_color_label = QtWidgets.QLabel("Hovered Border Color")
+        self.port_style_activated_color_label = QtWidgets.QLabel("Activated Background Color")
+        self.port_style_activated_border_color_label = QtWidgets.QLabel("Activated Border Color")
+        #           added
+        self.style_list_layout.addWidget(self.port_style_label, 17, 0, 1, -1)
+        self.style_list_layout.addWidget(self.port_style_width_label, 18, 1)
+        self.style_list_layout.addWidget(self.port_style_color_label, 19, 1)
+        self.style_list_layout.addWidget(self.port_style_border_color_label, 20, 1)
+        self.style_list_layout.addWidget(self.port_style_hovered_color_label, 21, 1)
+        self.style_list_layout.addWidget(self.port_style_hovered_border_color_label, 22, 1)
+        self.style_list_layout.addWidget(self.port_style_activated_color_label, 23, 1)
+        self.style_list_layout.addWidget(self.port_style_activated_border_color_label, 24, 1)
+        #           stylesheet
+        self.port_style_label.setStyleSheet(stylesheet.STYLE_QLABEL_TITLE)
+        self.port_style_width_label.setStyleSheet(stylesheet.STYLE_QLABEL_COMMON)
+        self.port_style_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.port_style_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.port_style_hovered_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.port_style_hovered_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.port_style_activated_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.port_style_activated_border_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        #       Pushbutton widgets
+        #           init
+        self.port_style_width_button = QtWidgets.QPushButton("Change Width")
+        self.port_style_color_button = QtWidgets.QPushButton("Change Background Color")
+        self.port_style_border_color_button = QtWidgets.QPushButton("Change Border Color")
+        self.port_style_hovered_color_button = QtWidgets.QPushButton("Change Hovered Background Color")
+        self.port_style_hovered_border_color_button = QtWidgets.QPushButton("Change Hovered Border Color")
+        self.port_style_activated_color_button = QtWidgets.QPushButton("Change Activated Background Color")
+        self.port_style_activated_border_color_button = QtWidgets.QPushButton("Change Activated Border Color")
+        #           added
+        self.style_list_layout.addWidget(self.port_style_width_button, 18, 0)
+        self.style_list_layout.addWidget(self.port_style_color_button, 19, 0)
+        self.style_list_layout.addWidget(self.port_style_border_color_button, 20, 0)
+        self.style_list_layout.addWidget(self.port_style_hovered_color_button, 21, 0)
+        self.style_list_layout.addWidget(self.port_style_hovered_border_color_button, 22, 0)
+        self.style_list_layout.addWidget(self.port_style_activated_color_button, 23, 0)
+        self.style_list_layout.addWidget(self.port_style_activated_border_color_button, 24, 0)
+        #           stylesheet
+        self.port_style_width_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.port_style_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.port_style_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.port_style_hovered_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.port_style_hovered_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.port_style_activated_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.port_style_activated_border_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+
+        #   Container widgets
+        #       Width and Color
+        self.container_style_width = None
+        self.container_style_color = None
+        self.container_style_selected_color = None
+        #       Label widgets
+        #           init
+        self.container_style_label = QtWidgets.QLabel("Container Widgets")
+        self.container_style_width_label = QtWidgets.QLabel("Width")
+        self.container_style_color_label = QtWidgets.QLabel("Color")
+        self.container_style_selected_color_label = QtWidgets.QLabel("Selected Color")
+        #           added
+        self.style_list_layout.addWidget(self.container_style_label, 25, 0, 1, -1)
+        self.style_list_layout.addWidget(self.container_style_width_label, 26, 1)
+        self.style_list_layout.addWidget(self.container_style_color_label, 27, 1)
+        self.style_list_layout.addWidget(self.container_style_selected_color_label, 28, 1)
+        #           stylesheet
+        self.container_style_label.setStyleSheet(stylesheet.STYLE_QLABEL_TITLE)
+        self.container_style_width_label.setStyleSheet(stylesheet.STYLE_QLABEL_COMMON)
+        self.container_style_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        self.container_style_selected_color_label.setStyleSheet(stylesheet.STYLE_QLABEL_CHANGED)
+        #       Pushbutton widgets
+        #           init
+        self.container_style_width_button = QtWidgets.QPushButton("Change Width")
+        self.container_style_color_button = QtWidgets.QPushButton("Change Color")
+        self.container_style_selected_color_button = QtWidgets.QPushButton("Change Selected Color")
+        #           added
+        self.style_list_layout.addWidget(self.container_style_width_button, 26, 0)
+        self.style_list_layout.addWidget(self.container_style_color_button, 27, 0)
+        self.style_list_layout.addWidget(self.container_style_selected_color_button, 28, 0)
+        #           stylesheet
+        self.container_style_width_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.container_style_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+        self.container_style_selected_color_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+
+        #   Slots Controller
+        self.style_switch_combox.currentIndexChanged.connect(self.init_style)
+        self.init_style(current_index=self.style_switch_combox.currentIndex())
+
+        # Widget Init
+        self.central_widget = QtWidgets.QWidget()  # central widget
+        self.view_widget = View(self, self.central_widget)  # view widget
+        self.scene_list.itemClicked.connect(self.view_widget.change_current_scene)
+        self.layout = QtWidgets.QVBoxLayout(self.central_widget)  # layout contains two widgets
+        self.sky_widget = EffectSkyWidget(self.view_widget, self.central_widget)  # snow falling widget
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.view_widget)
         self.central_widget.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
         self.setCentralWidget(self.central_widget)
 
-    def init_style(self, current_index):
-        #   Overall
-        if current_index == 0:
-            #   Attribute Widget Init
-            self.color_changed("Attribute Widget", "Background", True)
-            self.color_changed("Attribute Widget", "Selected", True)
-            self.color_changed("Attribute Widget", "Border", True)
-            self.color_changed("Attribute Widget", "Selected Border", True)
-            #   Logic Widget Init
-            self.color_changed("Logic Widget", "Background", True)
-            self.color_changed("Logic Widget", "Selected Background", True)
-            self.color_changed("Logic Widget", "Border", True)
-            self.color_changed("Logic Widget", "Selected Border", True)
-            #   Pipe Widget Init
-            self.width_changed("Pipe Widget", True)
-            self.color_changed("Pipe Widget", "Background", True)
-            self.color_changed("Pipe Widget", "Selected Background", True)
-            #   Port Widget Init
-            self.width_changed("Port Widget", True)
-            self.color_changed("Port Widget", "Background", True)
-            self.color_changed("Port Widget", "Border", True)
-            self.color_changed("Port Widget", "Hovered Background", True)
-            self.color_changed("Port Widget", "Hovered Border", True)
-            self.color_changed("Port Widget", "Activated Background", True)
-            self.color_changed("Port Widget", "Activated Border", True)
-            #   Container Widget Init
-            self.width_changed("Container Widget", True)
-            self.color_changed("Container Widget", "Color", True)
-            self.color_changed("Container Widget", "Selected Color", True)
-
-        #   Scene
-        elif current_index == 1:
-            #   Attribute Widget Init
-            #       Style
-            if not self.view_widget.current_scene.attribute_style_font:
-                self.view_widget.current_scene.attribute_style_font = attribute.InputTextField.font
-            if not self.view_widget.current_scene.attribute_style_font_color_type:
-                self.view_widget.current_scene.attribute_style_font_color_type = attribute.InputTextField.font_color
-            if not self.view_widget.current_scene.attribute_style_color:
-                self.view_widget.current_scene.attribute_style_color = attribute.AttributeWidget.color
-            if not self.view_widget.current_scene.attribute_style_selected_color:
-                self.view_widget.current_scene.attribute_style_selected_color = attribute.AttributeWidget.selected_color
-            if not self.view_widget.current_scene.attribute_style_border_color:
-                self.view_widget.current_scene.attribute_style_border_color = attribute.AttributeWidget.border_color
-            if not self.view_widget.current_scene.attribute_style_border_selected_color:
-                self.view_widget.current_scene.attribute_style_border_selected_color = attribute.AttributeWidget.\
-                    selected_border_color
-            #       Label
-            self.label_color(self.view_widget.current_scene.attribute_style_font_color_type,
-                             self.attribute_style_color_label)
-            self.label_color(self.view_widget.current_scene.attribute_style_selected_color,
-                             self.attribute_style_color_label_selected)
-            self.label_color(self.view_widget.current_scene.attribute_style_border_color,
-                             self.attribute_style_color_border)
-            self.label_color(self.view_widget.current_scene.attribute_style_border_selected_color,
-                             self.attribute_style_color_selected_border)
-            #   Logic Widget Init
-
     @staticmethod
-    def label_color(color, label):
+    def color_label_changed(label, color):
         color_style = '''
-        QLabel {
-            background-color: #%s;
-            border-style: outset;
-            border-width: 1px;
-            border-radius: 10px;
-            border-color: beige;
-            font: bold 8px;
-            padding: 6px;
-        }
-        ''' % str(hex(color.rgba()))[2:]
+         QLabel {
+             background-color: #%s;
+             border-style: outset;
+             border-width: 1px;
+             border-radius: 10px;
+             border-color: beige;
+             font: bold 8px;
+             padding: 6px;
+         }
+         ''' % str(hex(color.rgba()))[2:]
         label.setStyleSheet(color_style)
 
-    def color_changed(self, widget, content, init_flag=False):
-        if widget == "Attribute Widget":
-            if content == "Background":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.attribute_style_color = color
-                else:
-                    self.attribute_style_color = attribute.AttributeWidget.color
+    @staticmethod
+    def font_label_changed(label: QtWidgets.QLabel, font: QtGui.QFont):
+        label.setText("Font: %s %d" % (font.family(), font.pointSize()))
 
-                color_style = '''
-                QLabel {
-                    background-color: #%s;
-                    border-style: outset;
-                    border-width: 1px;
-                    border-radius: 10px;
-                    border-color: beige;
-                    font: bold 8px;
-                    padding: 6px;
-                }
-                ''' % str(hex(self.attribute_style_color.rgba()))[2:]
-                self.attribute_style_color_label.setStyleSheet(color_style)
+    @staticmethod
+    def width_label_changed(label: QtWidgets.QLabel, width):
+        label.setText("Width: %s" % str(width))
 
-                attribute.AttributeWidget.color = self.attribute_style_color
-            elif content == "Selected":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.attribute_style_selected_color = color
-                else:
-                    self.attribute_style_selected_color = attribute.AttributeWidget.selected_color
+    def color_changed(self, widget_type, current_index):
+        if widget_type == "Attribute_font_color":
+            font_color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                         QtWidgets.QColorDialog.ShowAlphaChannel)
+            if font_color:
+                if current_index == 0:
+                    for item in self.view_widget.attribute_widgets:
+                        if not item.scene().attribute_style_font_color and \
+                                not item.attribute_widget.label_item.font_color_flag:
+                            attribute.InputTextField.font_color = font_color
+                            item.attribute_widget.label_item.setDefaultTextColor(font_color)
+                    self.color_label_changed(self.attribute_style_font_color_label, attribute.InputTextField.font_color)
 
-                color_style = '''
-                QLabel {
-                    background-color: #%s;
-                    border-style: outset;
-                    border-width: 1px;
-                    border-radius: 10px;
-                    border-color: beige;
-                    font: bold 8px;
-                    padding: 6px;
-                }
-                ''' % str(hex(self.attribute_style_selected_color.rgba()))[2:]
-                self.attribute_style_color_label_selected.setStyleSheet(color_style)
+                elif current_index == 1:
+                    self.view_widget.current_scene.attribute_style_font_color = font_color
+                    for item in self.view_widget.current_scene.items():
+                        if isinstance(item, attribute.AttributeWidget) \
+                                and not item.attribute_widget.label_item.font_color_flag:
+                            item.attribute_widget.label_item.setDefaultTextColor(font_color)
+                    self.color_label_changed(self.attribute_style_font_color_label,
+                                             self.view_widget.current_scene.attribute_style_font_color)
 
-                attribute.AttributeWidget.selected_color = self.attribute_style_selected_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.AttributeWidget):
+                            item.attribute_widget.label_item.setDefaultTextColor(font_color)
+                            item.attribute_widget.label_item.font_color_flag = True
+                            self.color_label_changed(self.attribute_style_font_color_label,
+                                                     font_color)
 
-            elif content == "Border":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.attribute_style_border_color = color
-                else:
-                    self.attribute_style_border_color = attribute.AttributeWidget.border_color
+        elif widget_type == "Attribute_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    attribute.AttributeWidget.color = color
+                    self.color_label_changed(self.attribute_style_background_color_label,
+                                             attribute.AttributeWidget.color)
 
-                color_style = '''
-                                QLabel {
-                                    background-color: #%s;
-                                    border-style: outset;
-                                    border-width: 1px;
-                                    border-radius: 10px;
-                                    border-color: beige;
-                                    font: bold 8px;
-                                    padding: 6px;
-                                }
-                                ''' % str(hex(self.attribute_style_border_color.rgba()))[2:]
-                self.attribute_style_color_border.setStyleSheet(color_style)
+                elif current_index == 1:
+                    self.view_widget.current_scene.attribute_style_background_color = color
+                    self.color_label_changed(self.attribute_style_background_color_label,
+                                             self.view_widget.current_scene.attribute_style_background_color)
 
-                attribute.AttributeWidget.border_color = self.attribute_style_border_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.AttributeWidget):
+                            item.color = color
+                            item.color_flag = True
+                            self.color_label_changed(self.attribute_style_background_color_label,
+                                                     color)
 
-            elif content == "Selected Border":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.attribute_style_border_selected_color = color
-                else:
-                    self.attribute_style_border_selected_color = attribute.AttributeWidget.selected_border_color
+        elif widget_type == "Attribute_selected_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    attribute.AttributeWidget.selected_color = color
+                    self.color_label_changed(self.attribute_style_selected_background_color_label,
+                                             attribute.AttributeWidget.selected_color)
 
-                color_style = '''
-                                                QLabel {
-                                                    background-color: #%s;
-                                                    border-style: outset;
-                                                    border-width: 1px;
-                                                    border-radius: 10px;
-                                                    border-color: beige;
-                                                    font: bold 8px;
-                                                    padding: 6px;
-                                                }
-                                                ''' % str(hex(self.attribute_style_border_selected_color.rgba()))[2:]
-                self.attribute_style_color_selected_border.setStyleSheet(color_style)
+                elif current_index == 1:
+                    self.view_widget.current_scene.attribute_style_selected_background_color = color
+                    self.color_label_changed(self.attribute_style_selected_background_color_label,
+                                             self.view_widget.current_scene.attribute_style_selected_background_color)
 
-                attribute.AttributeWidget.selected_border_color = self.attribute_style_border_selected_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.AttributeWidget):
+                            item.selected_color = color
+                            item.selected_color_flag = True
+                            self.color_label_changed(self.attribute_style_selected_background_color_label,
+                                                     color)
 
-        elif widget == "Font":
-            font_type = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                        "Select Color",
-                                                        QtWidgets.QColorDialog.ShowAlphaChannel)
-            if font_type:
-                self.attribute_style_font_color_type = font_type
-            attribute.InputTextField.font_color = self.attribute_style_font_color_type
-            font_style_color = '''
-            QLabel {
-                background-color: rgba(204, 255, 255, 200);
-                border-style: outset;
-                border-width: 1px;
-                border-radius: 10px;
-                border-color: beige;
-                font: bold 8px;
-                padding: 6px;
-                color: #%s;
-            }
-            ''' % str(hex(self.attribute_style_font_color_type.rgba()))[2:]
-            self.attribute_style_font_color.setStyleSheet(font_style_color)
+        elif widget_type == "Attribute_border_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    attribute.AttributeWidget.border_color = color
+                    self.color_label_changed(self.attribute_style_border_color_label,
+                                             attribute.AttributeWidget.border_color)
 
-            for attribute_widget in self.view_widget.attribute_widgets:
-                attribute_widget.attribute_widget.label_item.font_color = self.attribute_style_font_color_type
-                attribute_widget.attribute_widget.label_item.setDefaultTextColor(self.attribute_style_font_color_type)
+                elif current_index == 1:
+                    self.view_widget.current_scene.attribute_style_border_color = color
+                    self.color_label_changed(self.attribute_style_border_color_label,
+                                             self.view_widget.current_scene.attribute_style_border_color)
 
-        elif widget == "Logic Widget":
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.AttributeWidget):
+                            item.border_color = color
+                            item.border_flag = True
+                            self.color_label_changed(self.attribute_style_border_color_label,
+                                                     color)
 
-            if content == "Background":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.logic_style_background_color = color
-                else:
-                    self.logic_style_background_color = attribute.LogicWidget.background_color
+        elif widget_type == "Attribute_selected_border_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    attribute.AttributeWidget.selected_border_color = color
+                    self.color_label_changed(self.attribute_style_selected_border_color_label,
+                                             attribute.AttributeWidget.selected_border_color)
 
-                color_style = '''
-                                        QLabel {
-                                            background-color: #%s;
-                                            border-style: outset;
-                                            border-width: 1px;
-                                            border-radius: 10px;
-                                            border-color: beige;
-                                            font: bold 8px;
-                                            padding: 6px;
-                                        }
-                                        ''' % str(
-                    hex(self.logic_style_background_color.rgba()))[2:]
-                self.logic_style_background_color_label.setStyleSheet(color_style)
+                elif current_index == 1:
+                    self.view_widget.current_scene.attribute_style_selected_border_color = color
+                    self.color_label_changed(self.attribute_style_selected_border_color_label,
+                                             self.view_widget.current_scene.attribute_style_selected_border_color)
 
-                attribute.LogicWidget.background_color = self.logic_style_background_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.AttributeWidget):
+                            item.selected_border_color = color
+                            item.selected_border_flag = True
+                            self.color_label_changed(self.attribute_style_selected_border_color_label,
+                                                     color)
 
-            elif content == "Selected Background":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.logic_style_selected_background_color = color
-                else:
-                    self.logic_style_selected_background_color = attribute.LogicWidget.selected_background_color
+        elif widget_type == "Logic_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    attribute.LogicWidget.background_color = color
+                    self.color_label_changed(self.logic_style_background_color_label,
+                                             attribute.LogicWidget.background_color)
 
-                color_style = '''
-                                        QLabel {
-                                            background-color: #%s;
-                                            border-style: outset;
-                                            border-width: 1px;
-                                            border-radius: 10px;
-                                            border-color: beige;
-                                            font: bold 8px;
-                                            padding: 6px;
-                                        }
-                                        ''' % str(
-                    hex(self.logic_style_selected_background_color.rgba()))[2:]
-                self.logic_style_selected_background_color_label.setStyleSheet(color_style)
+                elif current_index == 1:
+                    self.view_widget.current_scene.logic_style_background_color = color
+                    self.color_label_changed(self.logic_style_background_color_label,
+                                             self.view_widget.current_scene.logic_style_background_color)
 
-                attribute.LogicWidget.selected_background_color = self.logic_style_selected_background_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.LogicWidget):
+                            item.background_color = color
+                            item.background_color_flag = True
+                            self.color_label_changed(self.logic_style_background_color_label,
+                                                     color)
 
-            elif content == "Border":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.logic_style_border_color = color
-                else:
-                    self.logic_style_border_color = attribute.LogicWidget.border_color
+        elif widget_type == "Logic_selected_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    attribute.LogicWidget.selected_background_color = color
+                    self.color_label_changed(self.logic_style_selected_background_color_label,
+                                             attribute.LogicWidget.selected_background_color)
 
-                color_style = '''
-                                        QLabel {
-                                            background-color: #%s;
-                                            border-style: outset;
-                                            border-width: 1px;
-                                            border-radius: 10px;
-                                            border-color: beige;
-                                            font: bold 8px;
-                                            padding: 6px;
-                                        }
-                                        ''' % str(
-                    hex(self.logic_style_border_color.rgba()))[2:]
-                self.logic_style_border_color_label.setStyleSheet(color_style)
+                elif current_index == 1:
+                    self.view_widget.current_scene.logic_style_selected_background_color = color
+                    self.color_label_changed(self.logic_style_selected_background_color_label,
+                                             self.view_widget.current_scene.logic_style_selected_background_color)
 
-                attribute.LogicWidget.border_color = self.logic_style_border_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.LogicWidget):
+                            item.selected_background_color = color
+                            item.selected_background_color_flag = True
+                            self.color_label_changed(self.logic_style_selected_background_color_label,
+                                                     color)
 
-            elif content == "Selected Border":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.logic_style_selected_border_color = color
-                else:
-                    self.logic_style_selected_border_color = attribute.LogicWidget.selected_border_color
+        elif widget_type == "Logic_border_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    attribute.LogicWidget.border_color = color
+                    self.color_label_changed(self.logic_style_border_color_label, attribute.LogicWidget.border_color)
 
-                color_style = '''
-                                        QLabel {
-                                            background-color: #%s;
-                                            border-style: outset;
-                                            border-width: 1px;
-                                            border-radius: 10px;
-                                            border-color: beige;
-                                            font: bold 8px;
-                                            padding: 6px;
-                                        }
-                                        ''' % str(
-                    hex(self.logic_style_selected_border_color.rgba()))[2:]
-                self.logic_style_selected_border_color_label.setStyleSheet(color_style)
+                elif current_index == 1:
+                    self.view_widget.current_scene.logic_style_border_color = color
+                    self.color_label_changed(self.logic_style_border_color_label,
+                                             self.view_widget.current_scene.logic_style_border_color)
 
-                attribute.LogicWidget.selected_border_color = self.logic_style_selected_border_color
-        elif widget == "Pipe Widget":
-            if content == "Background":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.pipe_style_background_color = color
-                else:
-                    self.pipe_style_background_color = pipe.Pipe.color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.LogicWidget):
+                            item.border_color = color
+                            item.border_color_flag = True
+                            self.color_label_changed(self.logic_style_border_color_label,
+                                                     color)
 
-                color_style = '''
-                                            QLabel {
-                                                background-color: #%s;
-                                                border-style: outset;
-                                                border-width: 1px;
-                                                border-radius: 10px;
-                                                border-color: beige;
-                                                font: bold 8px;
-                                                padding: 6px;
-                                            }
-                                            ''' % str(
-                    hex(self.pipe_style_background_color.rgba()))[2:]
-                self.pipe_style_background_color_label.setStyleSheet(color_style)
+        elif widget_type == "Logic_selected_border_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    attribute.LogicWidget.selected_border_color = color
+                    self.color_label_changed(self.logic_style_selected_border_color_label,
+                                             attribute.LogicWidget.selected_border_color)
 
-                pipe.Pipe.color = self.pipe_style_background_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.logic_style_selected_border_color = color
+                    self.color_label_changed(self.logic_style_selected_border_color_label,
+                                             self.view_widget.current_scene.logic_style_selected_border_color)
 
-            elif content == "Selected Background":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.pipe_style_selected_background_color = color
-                else:
-                    self.pipe_style_selected_background_color = pipe.Pipe.selected_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.LogicWidget):
+                            item.selected_border_color = color
+                            item.selected_border_color_flag = True
+                            self.color_label_changed(self.logic_style_selected_border_color_label,
+                                                     color)
 
-                color_style = '''
-                                            QLabel {
-                                                background-color: #%s;
-                                                border-style: outset;
-                                                border-width: 1px;
-                                                border-radius: 10px;
-                                                border-color: beige;
-                                                font: bold 8px;
-                                                padding: 6px;
-                                            }
-                                            ''' % str(
-                    hex(self.pipe_style_selected_background_color.rgba()))[2:]
-                self.pipe_style_selected_background_color_label.setStyleSheet(color_style)
+        elif widget_type == "Pipe_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    pipe.Pipe.color = color
+                    self.color_label_changed(self.pipe_style_background_color_label, pipe.Pipe.color)
 
-                pipe.Pipe.selected_color = self.pipe_style_selected_background_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.pipe_style_background_color = color
+                    self.color_label_changed(self.pipe_style_background_color_label,
+                                             self.view_widget.current_scene.pipe_style_background_color)
 
-        elif widget == "Port Widget":
-            if content == "Background":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.port_style_color = color
-                else:
-                    self.port_style_color = port.Port.color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, pipe.Pipe):
+                            item.color = color
+                            item.color_flag = True
+                            self.color_label_changed(self.pipe_style_background_color_label,
+                                                     color)
 
-                color_style = '''
-                                                            QLabel {
-                                                                background-color: #%s;
-                                                                border-style: outset;
-                                                                border-width: 1px;
-                                                                border-radius: 10px;
-                                                                border-color: beige;
-                                                                font: bold 8px;
-                                                                padding: 6px;
-                                                            }
-                                                            ''' % str(
-                    hex(self.port_style_color.rgba()))[2:]
-                self.port_style_color_label.setStyleSheet(color_style)
+        elif widget_type == "Pipe_selected_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    pipe.Pipe.selected_color = color
+                    self.color_label_changed(self.pipe_style_selected_background_color_label, pipe.Pipe.selected_color)
 
-                port.Port.color = self.port_style_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.pipe_style_selected_background_color = color
+                    self.color_label_changed(self.pipe_style_selected_background_color_label,
+                                             self.view_widget.current_scene.pipe_style_selected_background_color)
 
-            elif content == "Border":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.port_style_border_color = color
-                else:
-                    self.port_style_border_color = port.Port.border_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, pipe.Pipe):
+                            item.selected_color = color
+                            item.selected_color_flag = True
+                            self.color_label_changed(self.pipe_style_selected_background_color_label,
+                                                     color)
 
-                color_style = '''
-                                                            QLabel {
-                                                                background-color: #%s;
-                                                                border-style: outset;
-                                                                border-width: 1px;
-                                                                border-radius: 10px;
-                                                                border-color: beige;
-                                                                font: bold 8px;
-                                                                padding: 6px;
-                                                            }
-                                                            ''' % str(
-                    hex(self.port_style_border_color.rgba()))[2:]
-                self.port_style_border_color_label.setStyleSheet(color_style)
+        elif widget_type == "Port_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    port.Port.color = color
+                    self.color_label_changed(self.port_style_color_label, port.Port.color)
 
-                port.Port.border_color = self.port_style_border_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.port_style_color = color
+                    self.color_label_changed(self.port_style_color_label,
+                                             self.view_widget.current_scene.port_style_color)
 
-            elif content == "Hovered Background":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.port_style_hovered_color = color
-                else:
-                    self.port_style_hovered_color = port.Port.hovered_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, port.Port):
+                            item.color = color
+                            item.color_flag = True
+                            self.color_label_changed(self.port_style_color_label,
+                                                     color)
 
-                color_style = '''
-                                                            QLabel {
-                                                                background-color: #%s;
-                                                                border-style: outset;
-                                                                border-width: 1px;
-                                                                border-radius: 10px;
-                                                                border-color: beige;
-                                                                font: bold 8px;
-                                                                padding: 6px;
-                                                            }
-                                                            ''' % str(
-                    hex(self.port_style_hovered_color.rgba()))[2:]
-                self.port_style_hovered_color_label.setStyleSheet(color_style)
+        elif widget_type == "Port_border_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    port.Port.border_color = color
+                    self.color_label_changed(self.port_style_border_color_label, port.Port.border_color)
 
-                port.Port.hovered_color = self.port_style_hovered_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.port_style_border_color = color
+                    self.color_label_changed(self.port_style_border_color_label,
+                                             self.view_widget.current_scene.port_style_border_color)
 
-            elif content == "Hovered Border":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.port_style_hovered_border_color = color
-                else:
-                    self.port_style_hovered_border_color = port.Port.hovered_border_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, port.Port):
+                            item.border_color = color
+                            item.border_color_flag = True
+                            self.color_label_changed(self.port_style_border_color_label,
+                                                     color)
 
-                color_style = '''
-                                                            QLabel {
-                                                                background-color: #%s;
-                                                                border-style: outset;
-                                                                border-width: 1px;
-                                                                border-radius: 10px;
-                                                                border-color: beige;
-                                                                font: bold 8px;
-                                                                padding: 6px;
-                                                            }
-                                                            ''' % str(
-                    hex(self.port_style_hovered_border_color.rgba()))[2:]
-                self.port_style_hovered_border_color_label.setStyleSheet(color_style)
+        elif widget_type == "Port_hovered_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    port.Port.hovered_color = color
+                    self.color_label_changed(self.port_style_hovered_color_label, port.Port.hovered_color)
 
-                port.Port.hovered_border_color = self.port_style_hovered_border_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.port_style_hovered_color = color
+                    self.color_label_changed(self.port_style_hovered_color_label,
+                                             self.view_widget.current_scene.port_style_hovered_color)
 
-            elif content == "Activated Color":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.port_style_activated_color = color
-                else:
-                    self.port_style_activated_color = port.Port.activated_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, port.Port):
+                            item.hovered_color = color
+                            item.hovered_color_flag = True
+                            self.color_label_changed(self.port_style_hovered_color_label,
+                                                     color)
 
-                color_style = '''
-                                                            QLabel {
-                                                                background-color: #%s;
-                                                                border-style: outset;
-                                                                border-width: 1px;
-                                                                border-radius: 10px;
-                                                                border-color: beige;
-                                                                font: bold 8px;
-                                                                padding: 6px;
-                                                            }
-                                                            ''' % str(
-                    hex(self.port_style_activated_color.rgba()))[2:]
-                self.port_style_activated_color_label.setStyleSheet(color_style)
+        elif widget_type == "Port_hovered_border_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    port.Port.hovered_border_color = color
+                    self.color_label_changed(self.port_style_hovered_border_color_label, port.Port.hovered_border_color)
 
-                port.Port.activated_color = self.port_style_activated_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.port_style_hovered_border_color = color
+                    self.color_label_changed(self.port_style_hovered_border_color_label,
+                                             self.view_widget.current_scene.port_style_hovered_border_color)
 
-            elif content == "Activated Border":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.port_style_activated_border_color = color
-                else:
-                    self.port_style_activated_border_color = port.Port.activated_border_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, port.Port):
+                            item.hovered_border_color = color
+                            item.hovered_border_color_flag = True
+                            self.color_label_changed(self.port_style_hovered_border_color_label,
+                                                     color)
 
-                color_style = '''
-                                                            QLabel {
-                                                                background-color: #%s;
-                                                                border-style: outset;
-                                                                border-width: 1px;
-                                                                border-radius: 10px;
-                                                                border-color: beige;
-                                                                font: bold 8px;
-                                                                padding: 6px;
-                                                            }
-                                                            ''' % str(
-                    hex(self.port_style_activated_border_color.rgba()))[2:]
-                self.port_style_activated_border_color_label.setStyleSheet(color_style)
+        elif widget_type == "Port_activated_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    port.Port.activated_color = color
+                    self.color_label_changed(self.port_style_activated_color_label, port.Port.activated_color)
 
-                port.Port.activated_border_color = self.port_style_activated_border_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.port_style_activated_color = color
+                    self.color_label_changed(self.port_style_activated_color_label,
+                                             self.view_widget.current_scene.port_style_activated_color)
 
-        elif widget == "Container Widget":
-            if content == "Color":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.container_style_color = color
-                else:
-                    self.container_style_color = container.Container.color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, port.Port):
+                            item.activated_color = color
+                            item.activated_color_flag = True
+                            self.color_label_changed(self.port_style_activated_color_label,
+                                                     color)
 
-                color_style = '''
-                                                                           QLabel {
-                                                                               background-color: #%s;
-                                                                               border-style: outset;
-                                                                               border-width: 1px;
-                                                                               border-radius: 10px;
-                                                                               border-color: beige;
-                                                                               font: bold 8px;
-                                                                               padding: 6px;
-                                                                           }
-                                                                           ''' % str(
-                    hex(self.container_style_color.rgba()))[2:]
-                self.container_style_color_label.setStyleSheet(color_style)
+        elif widget_type == "Port_activated_border_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    port.Port.activated_border_color = color
+                    self.color_label_changed(self.port_style_activated_border_color_label,
+                                             port.Port.activated_border_color)
 
-                container.Container.color = self.container_style_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.port_style_activated_border_color = color
+                    self.color_label_changed(self.port_style_activated_border_color_label,
+                                             self.view_widget.current_scene.port_style_activated_border_color)
 
-            elif content == "Selected Color":
-                if not init_flag:
-                    color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None,
-                                                            "Select Color",
-                                                            QtWidgets.QColorDialog.ShowAlphaChannel)
-                    if color:
-                        self.container_style_selected_color = color
-                else:
-                    self.container_style_selected_color = container.Container.selected_color
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, port.Port):
+                            item.activated_border_color = color
+                            item.activated_border_color_flag = True
+                            self.color_label_changed(self.port_style_activated_border_color_label,
+                                                     color)
 
-                color_style = '''
-                                                                           QLabel {
-                                                                               background-color: #%s;
-                                                                               border-style: outset;
-                                                                               border-width: 1px;
-                                                                               border-radius: 10px;
-                                                                               border-color: beige;
-                                                                               font: bold 8px;
-                                                                               padding: 6px;
-                                                                           }
-                                                                           ''' % str(
-                    hex(self.container_style_selected_color.rgba()))[2:]
-                self.container_style_selected_color_label.setStyleSheet(color_style)
+        elif widget_type == "Container_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    container.Container.color = color
+                    self.color_label_changed(self.container_style_color_label, container.Container.color)
 
-                container.Container.selected_color = self.container_style_selected_color
+                elif current_index == 1:
+                    self.view_widget.current_scene.container_style_color = color
+                    self.color_label_changed(self.container_style_color_label,
+                                             self.view_widget.current_scene.container_style_color)
 
-    def font_changed(self, init_flag: bool, combox_index=0):
-        if combox_index == 0:
-            if not init_flag:
-                font_type, ok = QtWidgets.QFontDialog.getFont()
-                if font_type and ok:
-                    self.attribute_style_font = font_type
-                attribute.InputTextField.font = self.attribute_style_font
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, container.Container):
+                            item.color = color
+                            item.color_flag = True
+                            self.color_label_changed(self.container_style_color_label,
+                                                     color)
 
-                for item in self.view_widget.attribute_widgets:
-                    item.attribute_widget.label_item.document().setDefaultFont(self.attribute_style_font)
-                    item.text_change_node_shape()
-                    item.update_pipe_position()
-            else:
-                self.attribute_style_font = attribute.InputTextField.font
+        elif widget_type == "Container_selected_color":
+            color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
+                                                    QtWidgets.QColorDialog.ShowAlphaChannel)
+            if color:
+                if current_index == 0:
+                    container.Container.selected_color = color
+                    self.color_label_changed(self.container_style_selected_color_label,
+                                             container.Container.selected_color)
 
-            self.attribute_style_font_label.setText("Font: %s %d" % (self.attribute_style_font.family(),
-                                                                     self.attribute_style_font.pointSize()))
-        elif combox_index == 1:
-            if not init_flag:
-                font_type, ok = QtWidgets.QFontDialog.getFont()
-                if font_type and ok:
+                elif current_index == 1:
+                    self.view_widget.current_scene.container_style_selected_color = color
+                    self.color_label_changed(self.container_style_selected_color_label,
+                                             self.view_widget.current_scene.container_style_selected_color)
+
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, container.Container):
+                            item.selected_color = color
+                            item.selected_color_flag = True
+                            self.color_label_changed(self.container_style_selected_color_label,
+                                                     color)
+
+    def font_changed(self, widget_type, current_index):
+        if widget_type == "Attribute":
+            font_type, ok = QtWidgets.QFontDialog.getFont()
+            if font_type and ok:
+                if current_index == 0:
+                    for item in self.view_widget.attribute_widgets:
+                        if not item.scene().attribute_style_font and not item.attribute_widget.label_item.font_flag:
+                            attribute.InputTextField.font = font_type
+                            item.attribute_widget.label_item.document().setDefaultFont(font_type)
+                            item.text_change_node_shape()
+                    self.font_label_changed(self.attribute_style_font_label, attribute.InputTextField.font)
+
+                elif current_index == 1:
                     self.view_widget.current_scene.attribute_style_font = font_type
+                    for item in self.view_widget.current_scene.items():
+                        if isinstance(item, attribute.AttributeWidget) \
+                                and not item.attribute_widget.label_item.font_flag:
+                            item.attribute_widget.label_item.document().setDefaultFont(font_type)
+                            item.text_change_node_shape()
+                    self.font_label_changed(self.attribute_style_font_label,
+                                            self.view_widget.current_scene.attribute_style_font)
 
-                for item in self.view_widget.current_scene.items():
-                    if isinstance(item, attribute.AttributeWidget):
-                        item.attribute_widget.label_item.document().setDefaultFont(self.attribute_style_font)
-                        item.text_change_node_shape()
-                        item.update_pipe_position()
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, attribute.AttributeWidget):
+                            item.attribute_widget.label_item.document().setDefaultFont(font_type)
+                            item.text_change_node_shape()
+                            item.attribute_widget.label_item.font_flag = True
+                            self.font_label_changed(self.attribute_style_font_label,
+                                                    font_type)
 
+    def width_changed(self, widget_type, current_index):
+        if widget_type == "Pipe_width":
+            width, ok = QtWidgets.QInputDialog.getDouble(self, "Get Double Width",
+                                                         "Width", 2, 0.1, 15.0, 2, QtCore.Qt.WindowFlags(), 0.5)
+            if width and ok:
+                if current_index == 0:
+                    pipe.Pipe.width = width
+                    self.width_label_changed(self.pipe_style_width_label, pipe.Pipe.width)
+
+                elif current_index == 1:
+                    self.view_widget.current_scene.pipe_style_width = width
+                    self.width_label_changed(self.pipe_style_width_label,
+                                             self.view_widget.current_scene.pipe_style_width)
+
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, pipe.Pipe):
+                            item.width = width
+                            item.width_flag = True
+                            self.width_label_changed(self.pipe_style_width_label, width)
+
+        elif widget_type == "Port_width":
+            width, ok = QtWidgets.QInputDialog.getDouble(self, "Get Double Width",
+                                                         "Width", 22, 8, 40, 2, QtCore.Qt.WindowFlags(), 2)
+            if width and ok:
+                if current_index == 0:
+                    port.Port.width = width
+                    self.width_label_changed(self.port_style_width_label, port.Port.width)
+
+                elif current_index == 1:
+                    self.view_widget.current_scene.port_style_width = width
+                    self.width_label_changed(self.port_style_width_label,
+                                             self.view_widget.current_scene.port_style_width)
+
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, port.Port):
+                            item.width = width
+                            item.width_flag = True
+                            self.width_label_changed(self.port_style_width_label, width)
+
+        elif widget_type == "Container_width":
+            width, ok = QtWidgets.QInputDialog.getDouble(self, "Get Double Width",
+                                                         "Width", 2, 0.1, 15.0, 2, QtCore.Qt.WindowFlags(), 0.5)
+            if width and ok:
+                if current_index == 0:
+                    container.Container.width = width
+                    self.width_label_changed(self.container_style_width_label, container.Container.width)
+
+                elif current_index == 1:
+                    self.view_widget.current_scene.container_style_width = width
+                    self.width_label_changed(self.container_style_width_label,
+                                             self.view_widget.current_scene.container_style_width)
+
+                elif current_index == 2:
+                    for item in self.view_widget.current_scene.selectedItems():
+                        if isinstance(item, container.Container):
+                            item.width = width
+                            item.width_flag = True
+                            self.width_label_changed(self.container_style_width_label, width)
+
+    def init_attribute(self, current_index):
+        if current_index == 0:
+            #   change current parameters
+            #       font
+            self.font_label_changed(self.attribute_style_font_label, attribute.InputTextField.font)
+            #       color
+            self.color_label_changed(self.attribute_style_font_color_label, attribute.InputTextField.font_color)
+            self.color_label_changed(self.attribute_style_background_color_label, attribute.AttributeWidget.color)
+            self.color_label_changed(self.attribute_style_selected_background_color_label,
+                                     attribute.AttributeWidget.selected_color)
+            self.color_label_changed(self.attribute_style_border_color_label, attribute.AttributeWidget.border_color)
+            self.color_label_changed(self.attribute_style_selected_border_color_label,
+                                     attribute.AttributeWidget.selected_border_color)
+            #   change slots
+            #       font
+            self.attribute_style_font_button.clicked.connect(
+                lambda x: self.font_changed("Attribute", current_index))
+            #       color
+            self.attribute_style_font_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_font_color", current_index))
+            self.attribute_style_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_color", current_index))
+            self.attribute_style_selected_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_selected_color", current_index))
+            self.attribute_style_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_border_color", current_index))
+            self.attribute_style_selected_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_selected_border_color", current_index))
+
+        elif current_index == 1:
+            #   change current parameters
+            #       font
+            if self.view_widget.current_scene.attribute_style_font:
+                self.font_label_changed(self.attribute_style_font_label,
+                                        self.view_widget.current_scene.attribute_style_font)
             else:
-                self.view_widget.current_scene.attribute_style_font = attribute.InputTextField.font
-
-            self.attribute_style_font_label.setText("Font: %s %d" % (self.attribute_style_font.family(),
-                                                                     self.attribute_style_font.pointSize()))
-
-    def width_changed(self, widget, init_flag: bool):
-        if widget == "Pipe Widget":
-            if not init_flag:
-                width, ok = QtWidgets.QInputDialog.getDouble(self, "Get Double Width",
-                                                             "Width", 2, 0.1, 15.0, 2, QtCore.Qt.WindowFlags(), 0.5)
-                if ok and width:
-                    self.pipe_style_width = width
+                self.font_label_changed(self.attribute_style_font_label, attribute.InputTextField.font)
+            #       color
+            if self.view_widget.current_scene.attribute_style_font_color:
+                self.color_label_changed(self.attribute_style_font_color_label,
+                                         self.view_widget.current_scene.attribute_style_font_color)
             else:
-                self.pipe_style_width = pipe.Pipe.width
-
-            pipe.Pipe.width = self.pipe_style_width
-            self.pipe_style_width_label.setText("Current Width: %s" % str(self.pipe_style_width))
-
-        elif widget == "Port Widget":
-            if not init_flag:
-                width, ok = QtWidgets.QInputDialog.getDouble(self, "Get Double Width",
-                                                             "Width", 22.0, 2.0, 40.0, 2, QtCore.Qt.WindowFlags(), 2)
-                if width and ok:
-                    self.port_style_width = width
+                self.color_label_changed(self.attribute_style_font_color_label, attribute.InputTextField.font_color)
+            if self.view_widget.current_scene.attribute_style_background_color:
+                self.color_label_changed(self.attribute_style_background_color_label,
+                                         self.view_widget.current_scene.attribute_style_background_color)
             else:
-                self.port_style_width = port.Port.width
-
-            port.Port.width = self.port_style_width
-            self.port_style_width_label.setText("Current Width: %s" % str(self.port_style_width))
-
-        elif widget == "Container Widget":
-            if not init_flag:
-                width, ok = QtWidgets.QInputDialog.getDouble(self, "Get Double Width",
-                                                             "Width", 4.0, 0.5, 8.0, 2, QtCore.Qt.WindowFlags(), 0.5)
-                if width and ok:
-                    self.container_style_width = width
+                self.color_label_changed(self.attribute_style_background_color_label, attribute.AttributeWidget.color)
+            if self.view_widget.current_scene.attribute_style_selected_background_color:
+                self.color_label_changed(self.attribute_style_selected_background_color_label,
+                                         self.view_widget.current_scene.attribute_style_selected_background_color)
             else:
-                self.container_style_width = container.Container.width
+                self.color_label_changed(self.attribute_style_selected_background_color_label,
+                                         attribute.AttributeWidget.selected_color)
+            if self.view_widget.current_scene.attribute_style_border_color:
+                self.color_label_changed(self.attribute_style_border_color_label,
+                                         self.view_widget.current_scene.attribute_style_border_color)
+            else:
+                self.color_label_changed(self.attribute_style_border_color_label,
+                                         attribute.AttributeWidget.border_color)
+            if self.view_widget.current_scene.attribute_style_selected_border_color:
+                self.color_label_changed(self.attribute_style_selected_border_color_label,
+                                         self.view_widget.current_scene.attribute_style_selected_border_color)
+            else:
+                self.color_label_changed(self.attribute_style_selected_border_color_label,
+                                         attribute.AttributeWidget.selected_border_color)
+            #   change slots
+            #       font
+            self.attribute_style_font_button.disconnect()
+            self.attribute_style_font_button.clicked.connect(
+                lambda x: self.font_changed("Attribute", current_index))
+            #       color
+            self.attribute_style_font_color_button.disconnect()
+            self.attribute_style_font_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_font_color", current_index))
+            self.attribute_style_background_color_button.disconnect()
+            self.attribute_style_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_color", current_index))
+            self.attribute_style_selected_background_color_button.disconnect()
+            self.attribute_style_selected_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_selected_color", current_index))
+            self.attribute_style_border_color_button.disconnect()
+            self.attribute_style_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_border_color", current_index))
+            self.attribute_style_selected_border_color_button.disconnect()
+            self.attribute_style_selected_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_selected_border_color", current_index))
 
-            container.Container.width = self.container_style_width
-            self.container_style_width_label.setText("Current Width: %s" % str(self.container_style_width))
+        elif current_index == 2:
+            #   change slots
+            #       font
+            self.attribute_style_font_button.disconnect()
+            self.attribute_style_font_button.clicked.connect(
+                lambda x: self.font_changed("Attribute", current_index))
+            #       color
+            self.attribute_style_font_color_button.disconnect()
+            self.attribute_style_font_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_font_color", current_index))
+            self.attribute_style_background_color_button.disconnect()
+            self.attribute_style_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_color", current_index))
+            self.attribute_style_selected_background_color_button.disconnect()
+            self.attribute_style_selected_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_selected_color", current_index))
+            self.attribute_style_border_color_button.disconnect()
+            self.attribute_style_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_border_color", current_index))
+            self.attribute_style_selected_border_color_button.disconnect()
+            self.attribute_style_selected_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Attribute_selected_border_color", current_index))
+
+    def init_logic(self, current_index):
+        if current_index == 0:
+            #   change current parameters
+            #       color
+            self.color_label_changed(self.logic_style_background_color_label, attribute.LogicWidget.background_color)
+            self.color_label_changed(self.logic_style_selected_background_color_label,
+                                     attribute.LogicWidget.selected_background_color)
+            self.color_label_changed(self.logic_style_border_color_label, attribute.LogicWidget.border_color)
+            self.color_label_changed(self.logic_style_selected_border_color_label,
+                                     attribute.LogicWidget.selected_border_color)
+            #   change slots
+            self.logic_style_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_color", current_index))
+            self.logic_style_selected_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_selected_color", current_index))
+            self.logic_style_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_border_color", current_index))
+            self.logic_style_selected_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_selected_border_color", current_index))
+
+        elif current_index == 1:
+            #   change current parameters
+            #       color
+            if not self.view_widget.current_scene.logic_style_background_color:
+                self.color_label_changed(self.logic_style_background_color_label,
+                                         attribute.LogicWidget.background_color)
+            else:
+                self.color_label_changed(self.logic_style_background_color_label,
+                                         self.view_widget.current_scene.logic_style_background_color)
+
+            if not self.view_widget.current_scene.logic_style_selected_background_color:
+                self.color_label_changed(self.logic_style_selected_background_color_label,
+                                         attribute.LogicWidget.selected_background_color)
+            else:
+                self.color_label_changed(self.logic_style_selected_background_color_label,
+                                         self.view_widget.current_scene.logic_style_selected_background_color)
+
+            if not self.view_widget.current_scene.logic_style_border_color:
+                self.color_label_changed(self.logic_style_border_color_label, attribute.LogicWidget.border_color)
+            else:
+                self.color_label_changed(self.logic_style_border_color_label,
+                                         self.view_widget.current_scene.logic_style_selected_background_color)
+
+            if not self.view_widget.current_scene.logic_style_selected_border_color:
+                self.color_label_changed(self.logic_style_selected_border_color_label,
+                                         attribute.LogicWidget.selected_border_color)
+            else:
+                self.color_label_changed(self.logic_style_selected_border_color_label,
+                                         self.view_widget.current_scene.logic_style_selected_border_color)
+
+            #   change slots
+            self.logic_style_background_color_button.disconnect()
+            self.logic_style_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_color", current_index))
+
+            self.logic_style_selected_background_color_button.disconnect()
+            self.logic_style_selected_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_selected_color", current_index))
+
+            self.logic_style_border_color_button.disconnect()
+            self.logic_style_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_border_color", current_index))
+
+            self.logic_style_selected_border_color_button.disconnect()
+            self.logic_style_selected_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_selected_border_color", current_index))
+
+        elif current_index == 2:
+            #   change slots
+            self.logic_style_background_color_button.disconnect()
+            self.logic_style_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_color", current_index))
+
+            self.logic_style_selected_background_color_button.disconnect()
+            self.logic_style_selected_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_selected_color", current_index))
+
+            self.logic_style_border_color_button.disconnect()
+            self.logic_style_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_border_color", current_index))
+
+            self.logic_style_selected_border_color_button.disconnect()
+            self.logic_style_selected_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Logic_selected_border_color", current_index))
+
+    def init_pipe(self, current_index):
+        if current_index == 0:
+            #   change current parameters
+            #       width
+            self.width_label_changed(self.pipe_style_width_label, pipe.Pipe.width)
+            #       color
+            self.color_label_changed(self.pipe_style_background_color_label, pipe.Pipe.color)
+            self.color_label_changed(self.pipe_style_selected_background_color_label, pipe.Pipe.selected_color)
+            #   change slots
+            #       width
+            self.pipe_style_width_button.clicked.connect(lambda x: self.width_changed("Pipe_width", current_index))
+            #       color
+            self.pipe_style_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Pipe_color", current_index))
+            self.pipe_style_selected_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Pipe_selected_color", current_index))
+
+        elif current_index == 1:
+            #   change current parameters
+            #       width
+            if self.view_widget.current_scene.pipe_style_width:
+                self.width_label_changed(self.pipe_style_width_label, self.view_widget.current_scene.pipe_style_width)
+            else:
+                self.width_label_changed(self.pipe_style_width_label, pipe.Pipe.width)
+            #       color
+            if self.view_widget.current_scene.pipe_style_background_color:
+                self.color_label_changed(self.pipe_style_background_color_label,
+                                         self.view_widget.current_scene.pipe_style_background_color)
+            else:
+                self.color_label_changed(self.pipe_style_background_color_label, pipe.Pipe.color)
+
+            if self.view_widget.current_scene.pipe_style_selected_background_color:
+                self.color_label_changed(self.pipe_style_background_color_label,
+                                         self.view_widget.current_scene.pipe_style_selected_background_color)
+            else:
+                self.color_label_changed(self.pipe_style_selected_background_color_label, pipe.Pipe.selected_color)
+
+            #   change slots
+            #       width
+            self.pipe_style_width_button.disconnect()
+            self.pipe_style_width_button.clicked.connect(lambda x: self.width_changed("Pipe_width", current_index))
+            #       color
+            self.pipe_style_background_color_button.disconnect()
+            self.pipe_style_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Pipe_color", current_index))
+
+            self.pipe_style_selected_background_color_button.disconnect()
+            self.pipe_style_selected_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Pipe_selected_color", current_index))
+
+        elif current_index == 2:
+            #   change slots
+            #       width
+            self.pipe_style_width_button.disconnect()
+            self.pipe_style_width_button.clicked.connect(lambda x: self.width_changed("Pipe_width", current_index))
+            #       color
+            self.pipe_style_background_color_button.disconnect()
+            self.pipe_style_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Pipe_color", current_index))
+
+            self.pipe_style_selected_background_color_button.disconnect()
+            self.pipe_style_selected_background_color_button.clicked.connect(
+                lambda x: self.color_changed("Pipe_selected_color", current_index))
+
+    def init_port(self, current_index):
+        if current_index == 0:
+            #   change current parameters
+            #       width
+            self.width_label_changed(self.port_style_width_label, port.Port.width)
+            #       color
+            self.color_label_changed(self.port_style_color_label, port.Port.color)
+            self.color_label_changed(self.port_style_border_color_label, port.Port.border_color)
+            self.color_label_changed(self.port_style_hovered_color_label, port.Port.hovered_color)
+            self.color_label_changed(self.port_style_hovered_border_color_label, port.Port.hovered_border_color)
+            self.color_label_changed(self.port_style_activated_color_label, port.Port.activated_color)
+            self.color_label_changed(self.port_style_activated_border_color_label, port.Port.activated_border_color)
+            #   change slots
+            #       width
+            self.port_style_width_button.clicked.connect(lambda x: self.width_changed("Port_width", current_index))
+            #       color
+            self.port_style_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_color", current_index))
+            self.port_style_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_border_color", current_index))
+            self.port_style_hovered_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_hovered_color", current_index))
+            self.port_style_hovered_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_hovered_border_color", current_index))
+            self.port_style_activated_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_activated_color", current_index))
+            self.port_style_activated_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_activated_border_color", current_index))
+
+        elif current_index == 1:
+            #   change current parameters
+            #       width
+            if not self.view_widget.current_scene.port_style_width:
+                self.width_label_changed(self.port_style_width_label, port.Port.width)
+            else:
+                self.width_label_changed(self.port_style_width_label, self.view_widget.current_scene.port_style_width)
+            #       color
+            if not self.view_widget.current_scene.port_style_color:
+                self.color_label_changed(self.port_style_color_label, port.Port.color)
+            else:
+                self.color_label_changed(self.port_style_color_label, self.view_widget.current_scene.port_style_color)
+
+            if not self.view_widget.current_scene.port_style_border_color:
+                self.color_label_changed(self.port_style_border_color_label, port.Port.border_color)
+            else:
+                self.color_label_changed(self.port_style_border_color_label,
+                                         self.view_widget.current_scene.port_style_border_color)
+
+            if not self.view_widget.current_scene.port_style_hovered_color:
+                self.color_label_changed(self.port_style_hovered_color_label, port.Port.hovered_color)
+            else:
+                self.color_label_changed(self.port_style_hovered_color_label,
+                                         self.view_widget.current_scene.port_style_hovered_color)
+
+            if not self.view_widget.current_scene.port_style_hovered_border_color:
+                self.color_label_changed(self.port_style_hovered_border_color_label, port.Port.hovered_border_color)
+            else:
+                self.color_label_changed(self.port_style_hovered_border_color_label,
+                                         self.view_widget.current_scene.port_style_hovered_border_color)
+
+            if not self.view_widget.current_scene.port_style_activated_color:
+                self.color_label_changed(self.port_style_activated_color_label, port.Port.activated_color)
+            else:
+                self.color_label_changed(self.port_style_activated_color_label,
+                                         self.view_widget.current_scene.port_style_activated_color)
+
+            if not self.view_widget.current_scene.port_style_activated_border_color:
+                self.color_label_changed(self.port_style_activated_border_color_label, port.Port.activated_border_color)
+            else:
+                self.color_label_changed(self.port_style_activated_border_color_label,
+                                         self.view_widget.current_scene.port_style_activated_border_color)
+
+            #   change slots
+            #       width
+            self.port_style_width_button.disconnect()
+            self.port_style_width_button.clicked.connect(lambda x: self.width_changed("Port_width", current_index))
+            #       color
+            self.port_style_color_button.disconnect()
+            self.port_style_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_color", current_index))
+
+            self.port_style_border_color_button.disconnect()
+            self.port_style_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_border_color", current_index))
+
+            self.port_style_hovered_color_button.disconnect()
+            self.port_style_hovered_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_hovered_color", current_index))
+
+            self.port_style_hovered_border_color_button.disconnect()
+            self.port_style_hovered_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_hovered_border_color", current_index))
+
+            self.port_style_activated_color_button.disconnect()
+            self.port_style_activated_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_activated_color", current_index))
+
+            self.port_style_activated_border_color_button.disconnect()
+            self.port_style_activated_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_activated_border_color", current_index))
+
+        elif current_index == 2:
+            #   change slots
+            #       width
+            self.port_style_width_button.disconnect()
+            self.port_style_width_button.clicked.connect(lambda x: self.width_changed("Port_width", current_index))
+            #       color
+            self.port_style_color_button.disconnect()
+            self.port_style_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_color", current_index))
+
+            self.port_style_border_color_button.disconnect()
+            self.port_style_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_border_color", current_index))
+
+            self.port_style_hovered_color_button.disconnect()
+            self.port_style_hovered_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_hovered_color", current_index))
+
+            self.port_style_hovered_border_color_button.disconnect()
+            self.port_style_hovered_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_hovered_border_color", current_index))
+
+            self.port_style_activated_color_button.disconnect()
+            self.port_style_activated_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_activated_color", current_index))
+
+            self.port_style_activated_border_color_button.disconnect()
+            self.port_style_activated_border_color_button.clicked.connect(
+                lambda x: self.color_changed("Port_activated_border_color", current_index))
+
+    def init_container(self, current_index):
+        if current_index == 0:
+            #   change current parameters
+            #       width
+            self.width_label_changed(self.container_style_width_label, container.Container.width)
+            #       color
+            self.color_label_changed(self.container_style_color_label, container.Container.color)
+            self.color_label_changed(self.container_style_selected_color_label, container.Container.selected_color)
+            #   chang slots
+            #       width
+            self.container_style_width_button.clicked.connect(
+                lambda x: self.width_changed("Container_width", current_index))
+            #       color
+            self.container_style_color_button.clicked.connect(
+                lambda x: self.color_changed("Container_color", current_index))
+            self.container_style_selected_color_button.clicked.connect(
+                lambda x: self.color_changed("Container_selected_color", current_index))
+
+        elif current_index == 1:
+            #   change current parameters
+            #       width
+            if not self.view_widget.current_scene.container_style_width:
+                self.width_label_changed(self.container_style_width_label, container.Container.width)
+            else:
+                self.width_label_changed(self.container_style_width_label,
+                                         self.view_widget.current_scene.container_style_width)
+            #       color
+            if not self.view_widget.current_scene.container_style_color:
+                self.color_label_changed(self.container_style_color_label, container.Container.color)
+            else:
+                self.color_label_changed(self.container_style_color_label,
+                                         self.view_widget.current_scene.container_style_color)
+
+            if not self.view_widget.current_scene.container_style_selected_color:
+                self.color_label_changed(self.container_style_selected_color_label, container.Container.selected_color)
+            else:
+                self.color_label_changed(self.container_style_selected_color_label,
+                                         self.view_widget.current_scene.container_style_selected_color)
+
+            #   chang slots
+            #       width
+            self.container_style_width_button.disconnect()
+            self.container_style_width_button.clicked.connect(
+                lambda x: self.width_changed("Container_width", current_index))
+            #       color
+            self.container_style_color_button.disconnect()
+            self.container_style_color_button.clicked.connect(
+                lambda x: self.color_changed("Container_color", current_index))
+
+            self.container_style_selected_color_button.disconnect()
+            self.container_style_selected_color_button.clicked.connect(
+                lambda x: self.color_changed("Container_selected_color", current_index))
+
+        elif current_index == 2:
+            #   chang slots
+            #       width
+            self.container_style_width_button.disconnect()
+            self.container_style_width_button.clicked.connect(
+                lambda x: self.width_changed("Container_width", current_index))
+            #       color
+            self.container_style_color_button.disconnect()
+            self.container_style_color_button.clicked.connect(
+                lambda x: self.color_changed("Container_color", current_index))
+
+            self.container_style_selected_color_button.disconnect()
+            self.container_style_selected_color_button.clicked.connect(
+                lambda x: self.color_changed("Container_selected_color", current_index))
+
+    def init_style(self, current_index):
+        self.init_attribute(current_index)
+        self.init_logic(current_index)
+        self.init_pipe(current_index)
+        self.init_port(current_index)
+        self.init_container(current_index)
 
     def resizeEvent(self, a0) -> None:
         super(NoteWindow, self).resizeEvent(a0)

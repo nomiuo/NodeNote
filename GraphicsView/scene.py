@@ -28,12 +28,12 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
         #   =============== attribute widget========================
         #       font
         self.attribute_style_font = None
-        self.attribute_style_font_color_type = None
+        self.attribute_style_font_color = None
         #       color
-        self.attribute_style_color = None
-        self.attribute_style_selected_color = None
+        self.attribute_style_background_color = None
+        self.attribute_style_selected_background_color = None
         self.attribute_style_border_color = None
-        self.attribute_style_border_selected_color = None
+        self.attribute_style_selected_border_color = None
         #   =================================================
 
         #   =============== logic widget==========================
