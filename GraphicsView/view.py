@@ -135,6 +135,15 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                     item.start_pipe_animation()
                 else:
                     item.end_pipe_animation()
+
+        if len(self.current_scene.selectedItems()) >= 1:
+            for item in self.current_scene.selectedItems():
+                if isinstance(item, pipe.Pipe):
+                    if item.timeline.state() == QtCore.QTimeLine.NotRunning:
+                        item.perform_evaluation_feedback()
+                    elif item.timeline.state() == QtCore.QTimeLine.Running:
+                        item.end_evaluation_feedback()
+
         self.history.store_history("update pipe animation")
 
     def search_text(self):
