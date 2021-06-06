@@ -697,7 +697,12 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
     @staticmethod
     def paste(cursor):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
-        if mime_data.hasHtml():
+        if mime_data.hasText():
+            text = mime_data.text()
+            cursor.insertText(text)
+            if constants.DEBUG_RICHTEXT:
+                print("PASTE: ", text)
+        elif mime_data.hasHtml():
             cursor.insertHtml(mime_data.html())
         if mime_data.hasImage():
             image = QtGui.QImage(mime_data.imageData())
@@ -730,11 +735,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
                     break
             else:
                 return
-        elif mime_data.hasText():
-            text = mime_data.text()
-            cursor.insertText(text)
-            if constants.DEBUG_RICHTEXT:
-                print("PASTE: ", text)
 
     def keyPressEvent(self, event) -> None:
         # insert key text into text field.
