@@ -250,7 +250,7 @@ class SimpleTextField(QtWidgets.QGraphicsTextItem):
 class InputTextField(QtWidgets.QGraphicsTextItem):
     edit_finished = QtCore.pyqtSignal(bool)
     start_editing = QtCore.pyqtSignal()
-
+    
     font = QtGui.QFont("Inconsolata", 8)
     font_color = QtGui.QColor(0, 0, 0, 255)
 
@@ -275,11 +275,18 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         # style
         self.font_flag = False
         self.font_color_flag = False
+        self.resize_flag = True
 
     def paint(self, painter: QtGui.QPainter, option, widget=None) -> None:
         super(InputTextField, self).paint(painter, option, widget)
         if self.scene() and self.scene().attribute_style_font and not self.font_flag:
             self.document().setDefaultFont(self.scene().attribute_style_font)
+            if self.resize_flag:
+                if constants.DEBUG_FONT:
+                    print("resize node size case the change of it's font")
+                self.node.text_change_node_shape()
+                self.node.resize(20, 10)
+                self.resize_flag = False
         if self.scene() and self.scene().attribute_style_font_color and not self.font_color_flag:
             self.setDefaultTextColor(self.scene().attribute_style_font_color)
 
@@ -1617,7 +1624,19 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             ('next attribute widgets', next_attribute_widgets),
             ('next logic widgets', next_logic_widgets),
             ('last attribute widgets', last_attribute_widgets),
-            ('last logic widgets', last_logic_widgets)
+            ('last logic widgets', last_logic_widgets),
+
+            # style
+            ('item color', self.background_color.rgba()),
+            ('item selected color', self.selected_border_color.rgba()),
+            ('item border color', self.border_color.rgba()),
+            ('item selected border color', self.selected_border_color.rgba()),
+
+            # flag
+            ('color flag', self.background_color_flag),
+            ('selected color flag', self.selected_background_color_flag),
+            ('border color flag', self.border_color_flag),
+            ('selected border color flag', self.selected_border_color_flag)
         ])
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
@@ -1635,6 +1654,25 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             # ports
             self.input_port.deserialize(data['input port'], hashmap, view, flag=True)
             self.output_port.deserialize(data['output port'], hashmap, view, flag=True)
+            # style
+            self.background_color = QtGui.QColor()
+            self.background_color.setRgba(data['item color'])
+
+            self.selected_border_color = QtGui.QColor()
+            self.selected_border_color.setRgba(data['item selected color'])
+
+            self.border_color = QtGui.QColor()
+            self.border_color.setRgba(data['item border color'])
+
+            self.selected_border_color = QtGui.QColor()
+            self.selected_border_color.setRgba(data['item selected border color'])
+
+            # flag
+            self.background_color_flag = data['color flag']
+            self.selected_background_color_flag = data['selected color flag']
+            self.border_color_flag = data['border color flag']
+            self.selected_border_color_flag = data['selected border color flag']
+
             return True
         else:
             pass
@@ -2707,7 +2745,24 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             ('last attribute widgets', last_attribute_widgets),
             ('last logic widgets', last_logic_widgets),
             ('attribute sub widgets', attribute_sub_widgets),
-            ('sub scene', self.sub_scene.serialize() if self.sub_scene else None)
+            ('sub scene', self.sub_scene.serialize() if self.sub_scene else None),
+
+            # style
+            ('item font family', self.attribute_widget.label_item.font.family()),
+            ('item font size', self.attribute_widget.label_item.font.pointSize()),
+            ('item font color', self.attribute_widget.label_item.font_color.rgba()),
+            ('item color', self.color.rgba()),
+            ('item selected color', self.selected_color.rgba()),
+            ('item border color', self.border_color.rgba()),
+            ('item selected border color', self.selected_border_color.rgba()),
+
+            # flag
+            ('font flag', self.attribute_widget.label_item.font_flag),
+            ('font color flag', self.attribute_widget.label_item.font_color_flag),
+            ('color flag', self.color_flag),
+            ('selected color flag', self.selected_color_flag),
+            ('border flag', self.border_flag),
+            ('selected border flag', self.selected_border_flag)
         ])
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
@@ -2726,6 +2781,37 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             self.false_input_port.deserialize(data['input false port'], hashmap, view, flag=True)
             self.true_output_port.deserialize(data['output true port'], hashmap, view, flag=True)
             self.false_output_port.deserialize(data['output false port'], hashmap, view, flag=True)
+            # style
+            font = QtGui.QFont()
+            font.setFamily(data['item font family'])
+            font.setPointSize(data['item font size'])
+            self.attribute_widget.label_item.font = font
+            self.attribute_widget.label_item.document().setDefaultFont(font)
+
+            self.attribute_widget.label_item.font_color = QtGui.QColor()
+            self.attribute_widget.label_item.font_color.setRgba(data['item font color'])
+            self.attribute_widget.label_item.setDefaultTextColor(self.attribute_widget.label_item.font_color)
+
+            self.color = QtGui.QColor()
+            self.color.setRgba(data['item color'])
+
+            self.selected_color = QtGui.QColor()
+            self.selected_color.setRgba(data['item selected color'])
+
+            self.border_color = QtGui.QColor()
+            self.border_color.setRgba(data['item border color'])
+
+            self.selected_border_color = QtGui.QColor()
+            self.selected_border_color.setRgba(data['item selected border color'])
+
+            self.attribute_widget.label_item.font_flag = data['font flag']
+            self.attribute_widget.label_item.font_color_flag = data['font color flag']
+
+            self.color_flag = data['color flag']
+            self.selected_color_flag = data['selected color flag']
+            self.border_flag = data['border flag']
+            self.selected_border_flag = data['selected border flag']
+
             # sub scene
             if data['sub scene']:
                 # save scene and flag

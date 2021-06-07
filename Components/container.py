@@ -65,7 +65,13 @@ class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
     def serialize(self):
         return OrderedDict([
             ('id', self.id),
-            ('points', self.points)
+            ('points', self.points),
+            ('width', self.width),
+            ('color', self.color.rgba()),
+            ('selected color', self.selected_color.rgba()),
+            ('width flag', self.width_flag),
+            ('color flag', self.color_flag),
+            ('selected color flag', self.selected_color_flag)
         ])
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
@@ -77,4 +83,18 @@ class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         # draw point
         self.points = data['points']
         self.deserialize_flag = True
+        # style
+        self.width = data['width']
+
+        self.color = QtGui.QColor()
+        self.color.setRgba(data['color'])
+
+        self.selected_color = QtGui.QColor()
+        self.selected_color.setRgba(data['selected color'])
+
+        # flag
+        self.width_flag = data['width flag']
+        self.color_flag = data['color flag']
+        self.selected_color_flag = data['selected color flag']
+
         return True

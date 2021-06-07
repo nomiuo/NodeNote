@@ -10,7 +10,8 @@ class EffectBackground(QtSvg.QGraphicsSvgItem):
         self.view = view
         self.width = 1080
         self.height = 900
-        self.svg = QtSvg.QSvgRenderer("Resources/Background/Colorful-Stingrays.svg")
+        self.name = "Resources/Background/Colorful-Stingrays.svg"
+        self.svg = QtSvg.QSvgRenderer(self.name)
         self.setSharedRenderer(self.svg)
 
     def resize(self, width, height):
@@ -18,6 +19,7 @@ class EffectBackground(QtSvg.QGraphicsSvgItem):
         self.height = height
 
     def change_svg(self, path):
+        self.name = path
         self.svg = QtSvg.QSvgRenderer(path)
         self.setSharedRenderer(self.svg)
 

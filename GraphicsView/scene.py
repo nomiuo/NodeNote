@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from Components import effect_background, effect_cutline, attribute, pipe, container, port
 from Model import serializable, constants
 
@@ -70,6 +70,10 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
         self.container_style_selected_color = None
         #   =================================================
 
+        #   Background
+        self.brush = QtGui.QBrush(QtGui.QImage("Resources/Background/scene_background.png"))
+        self.setBackgroundBrush(self.brush)
+
     def get_id_attribute(self, attribute_id) -> attribute.AttributeWidget:
         for item in self.items():
             if isinstance(item, attribute.AttributeWidget):
@@ -123,10 +127,52 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
 
         return OrderedDict([
             ('id', self.id),
+
             ('attribute widgets', attribute_widgets),
             ('logic widgets', logic_widgets),
             ('pipe widgets', pipe_widgets),
-            ('container widgets', container_widgets)
+            ('container widgets', container_widgets),
+
+            ('background image', self.background_image.name),
+
+            ('attribute font family', self.attribute_style_font.family() if self.attribute_style_font else None),
+            ('attribute font size', self.attribute_style_font.pointSize() if self.attribute_style_font else None),
+            ('attribute font color', self.attribute_style_font_color.rgba()
+                if self.attribute_style_font_color else None),
+            ('attribute color', self.attribute_style_background_color.rgba()
+                if self.attribute_style_background_color else None),
+            ('attribute selected color', self.attribute_style_selected_background_color.rgba()
+                if self.attribute_style_selected_background_color else None),
+            ('attribute border color', self.attribute_style_border_color.rgba()
+                if self.attribute_style_border_color else None),
+            ('attribute selected border color', self.attribute_style_selected_border_color.rgba()
+                if self.attribute_style_selected_border_color else None),
+            ('logic color', self.logic_style_background_color.rgba()
+                if self.logic_style_background_color else None),
+            ('logic selected color', self.logic_style_selected_background_color.rgba()
+                if self.logic_style_selected_background_color else None),
+            ('logic border color', self.logic_style_border_color.rgba()
+                if self.logic_style_border_color else None),
+            ('logic selected border color', self.logic_style_selected_border_color.rgba()
+                if self.logic_style_selected_border_color else None),
+            ('pipe width', self.pipe_style_width if self.pipe_style_width else None),
+            ('pipe color', self.pipe_style_background_color.rgba() if self.pipe_style_background_color else None),
+            ('pipe selected color', self.pipe_style_selected_background_color.rgba()
+                if self.pipe_style_selected_background_color else None),
+            ('port width', self.port_style_width if self.port_style_width else None),
+            ('port color', self.port_style_color.rgba() if self.port_style_color else None),
+            ('port border color', self.port_style_border_color.rgba() if self.port_style_border_color else None),
+            ('port hovered color', self.port_style_hovered_color.rgba() if self.port_style_hovered_color else None),
+            ('port hovered border color', self.port_style_hovered_border_color.rgba()
+                if self.port_style_hovered_border_color else None),
+            ('port activated color', self.port_style_activated_color.rgba()
+                if self.port_style_activated_color else None),
+            ('port activated border color', self.port_style_activated_border_color.rgba()
+                if self.port_style_activated_border_color else None),
+            ('container width', self.container_style_width if self.container_style_width else None),
+            ('container color', self.container_style_color.rgba() if self.container_style_color else None),
+            ('container selected color', self.container_style_selected_color.rgba()
+                if self.container_style_selected_color else None)
         ])
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
@@ -152,8 +198,148 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
                 end_port.update_pipes_position()
             # deserialize container widgets with all
             for container_data in data['container widgets']:
-                container.Container(QtCore.QPointF(container_data['points'][0][0], container_data['points'][0][1])).\
+                container.Container(QtCore.QPointF(container_data['points'][0][0], container_data['points'][0][1])). \
                     deserialize(container_data, hashmap, view, flag)
+            # background image
+            self.background_image.change_svg(data['background image'])
+            # style
+            if data['attribute font family'] and data['attribute font size']:
+                font = QtGui.QFont()
+                font.setFamily(data['attribute font family'])
+                font.setPointSize(data['attribute font size'])
+                self.attribute_style_font = font
+            else:
+                self.attribute_style_font = None
+
+            if data['attribute font color']:
+                self.attribute_style_font_color = QtGui.QColor()
+                self.attribute_style_font_color.setRgba(data['attribute font color'])
+            else:
+                self.attribute_style_font_color = None
+
+            if data['attribute color']:
+                self.attribute_style_background_color = QtGui.QColor()
+                self.attribute_style_background_color.setRgba(data['attribute color'])
+            else:
+                self.attribute_style_background_color = None
+
+            if data['attribute selected color']:
+                self.attribute_style_selected_background_color = QtGui.QColor()
+                self.attribute_style_selected_background_color.setRgba(data['attribute selected color'])
+            else:
+                self.attribute_style_selected_background_color = None
+
+            if data['attribute border color']:
+                self.attribute_style_border_color = QtGui.QColor()
+                self.attribute_style_border_color.setRgba(data['attribute border color'])
+            else:
+                self.attribute_style_border_color = None
+
+            if data['attribute selected border color']:
+                self.attribute_style_selected_border_color = QtGui.QColor()
+                self.attribute_style_selected_border_color.setRgba(data['attribute selected border color'])
+            else:
+                self.attribute_style_selected_border_color = None
+
+            if data['logic color']:
+                self.logic_style_background_color = QtGui.QColor()
+                self.logic_style_background_color.setRgba(data['logic color'])
+            else:
+                self.logic_style_background_color = None
+
+            if data['logic selected color']:
+                self.logic_style_selected_background_color = QtGui.QColor()
+                self.logic_style_selected_background_color.setRgba(data['logic selected color'])
+            else:
+                self.logic_style_selected_background_color = None
+
+            if data['logic border color']:
+                self.logic_style_border_color = QtGui.QColor()
+                self.logic_style_border_color.setRgba(data['logic border color'])
+            else:
+                self.logic_style_border_color = None
+
+            if data['logic selected border color']:
+                self.logic_style_selected_border_color = QtGui.QColor()
+                self.logic_style_selected_border_color.setRgba(data['logic selected border color'])
+            else:
+                self.logic_style_selected_border_color = None
+
+            if data['pipe width']:
+                self.pipe_style_width = data['pipe width']
+            else:
+                self.pipe_style_width = None
+
+            if data['pipe color']:
+                self.pipe_style_background_color = QtGui.QColor()
+                self.pipe_style_background_color.setRgba(data['pipe color'])
+            else:
+                self.pipe_style_background_color = None
+
+            if data['pipe selected color']:
+                self.pipe_style_selected_background_color = QtGui.QColor()
+                self.pipe_style_selected_background_color.setRgba(data['pipe selected color'])
+            else:
+                self.pipe_style_selected_background_color = None
+
+            if data['port width']:
+                self.port_style_width = data['port width']
+            else:
+                self.port_style_width = None
+
+            if data['port color']:
+                self.port_style_color = QtGui.QColor()
+                self.port_style_color.setRgba(data['port color'])
+            else:
+                self.port_style_color = None
+
+            if data['port border color']:
+                self.port_style_border_color = QtGui.QColor()
+                self.port_style_border_color.setRgba(data['port border color'])
+            else:
+                self.port_style_border_color = None
+
+            if data['port hovered color']:
+                self.port_style_hovered_color = QtGui.QColor()
+                self.port_style_hovered_color.setRgba(data['port hovered color'])
+            else:
+                self.port_style_hovered_color = None
+
+            if data['port hovered border color']:
+                self.port_style_hovered_border_color = QtGui.QColor()
+                self.port_style_hovered_border_color.setRgba(data['port hovered border color'])
+            else:
+                self.port_style_hovered_border_color = None
+
+            if data['port activated color']:
+                self.port_style_activated_color = QtGui.QColor()
+                self.port_style_activated_color.setRgba(data['port activated color'])
+            else:
+                self.port_style_activated_color = None
+
+            if data['port activated border color']:
+                self.port_style_activated_border_color = QtGui.QColor()
+                self.port_style_activated_border_color.setRgba(data['port activated border color'])
+            else:
+                self.port_style_activated_border_color = None
+
+            if data['container width']:
+                self.container_style_width = data['container width']
+            else:
+                self.container_style_width = None
+
+            if data['container color']:
+                self.container_style_color = QtGui.QColor()
+                self.container_style_color.setRgba(data['container color'])
+            else:
+                self.container_style_color = None
+
+            if data['container selected color']:
+                self.container_style_selected_color = QtGui.QColor()
+                self.container_style_selected_color.setRgba(data['container selected color'])
+            else:
+                self.container_style_selected_color = None
+
         elif flag is False:
             for item in self.items():
                 # deserialize attribute widgets second time
@@ -214,7 +400,7 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
                                 pipe_widget = self.get_id_pipe(pipe_id)
                                 item.false_output_port.pipes.append(pipe_widget)
                                 item.update_pipe_position()
-            # deserialize logic widgets second time
+                # deserialize logic widgets second time
                 elif isinstance(item, attribute.LogicWidget):
                     for logic_widget_data in data['logic widgets']:
                         # traverse list and find right logic

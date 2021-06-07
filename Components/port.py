@@ -153,7 +153,23 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
             ('id', self.id),
             ('port type', self.port_type),
             ('port truth', self.port_truth),
-            ('pipes', pipes)
+            ('pipes', pipes),
+            # style
+            ('width', self.width),
+            ('color', self.color.rgba()),
+            ('border color', self.border_color.rgba()),
+            ('hovered color', self.hovered_color.rgba()),
+            ('hovered border color', self.hovered_border_color.rgba()),
+            ('activated color', self.activated_color.rgba()),
+            ('activated border color', self.activated_border_color.rgba()),
+            # flag
+            ('width flag', self.width_flag),
+            ('color flag', self.color_flag),
+            ('border color flag', self.border_color_flag),
+            ('hovered color flag', self.hovered_color_flag),
+            ('hovered border color flag', self.hovered_border_color_flag),
+            ('activated color flag', self.activated_color_flag),
+            ('activated border color flag', self.activated_border_color_flag)
         ])
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
@@ -161,6 +177,37 @@ class Port(QtWidgets.QGraphicsWidget, serializable.Serializable):
             # id and hashmap
             self.id = data['id']
             hashmap[data['id']] = self
+
+            # style
+            self.width = data['width']
+
+            self.color = QtGui.QColor()
+            self.color.setRgba(data['color'])
+
+            self.border_color = QtGui.QColor()
+            self.border_color.setRgba(data['border color'])
+
+            self.hovered_color = QtGui.QColor()
+            self.hovered_color.setRgba(data['hovered color'])
+
+            self.hovered_border_color = QtGui.QColor()
+            self.hovered_border_color.setRgba(data['hovered border color'])
+
+            self.activated_color = QtGui.QColor()
+            self.activated_color.setRgba(data['activated color'])
+
+            self.activated_border_color = QtGui.QColor()
+            self.activated_border_color.setRgba(data['activated border color'])
+
+            # flag
+            self.width_flag = data['width flag']
+            self.color_flag = data['color flag']
+            self.border_color_flag = data['border color flag']
+            self.hovered_color_flag = data['hovered color flag']
+            self.hovered_border_color_flag = data['hovered border color flag']
+            self.activated_color_flag = data['activated color flag']
+            self.activated_border_color_flag = data['activated border color flag']
+
         else:
             # deserialize pipes
             pass

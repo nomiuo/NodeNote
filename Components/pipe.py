@@ -189,7 +189,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         if self.scene().pipe_style_width and not self.width_flag:
             self.width = self.scene().pipe_style_width
         if self.scene().pipe_style_background_color and not self.color_flag:
-            self.color = self.scene().self.scene().pipe_style_background_color
+            self.color = self.scene().pipe_style_background_color
         if self.scene().pipe_style_selected_background_color and not self.selected_color_flag:
             self.selected_color = self.scene().pipe_style_selected_background_color
         # DEFAULT PEN
@@ -313,7 +313,14 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             ('last default start point x', self.last_default_start.x()),
             ('last default start point y', self.last_default_start.y()),
             ('last default end point x', self.last_default_end.x()),
-            ('last default end point y', self.last_default_end.y())
+            ('last default end point y', self.last_default_end.y()),
+            # style
+            ('width', self.width),
+            ('color', self.color.rgba()),
+            ('selected color', self.selected_color.rgba()),
+            ('width flag', self.width_flag),
+            ('color flag', self.color_flag),
+            ('selected color flag', self.selected_color_flag)
         ])
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
@@ -325,6 +332,20 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         hashmap[data['id']] = self
         # text
         self.edit.setPlainText(data['text'])
+        # style
+        self.width = data['width']
+
+        self.color = QtGui.QColor()
+        self.color.setRgba(data['color'])
+
+        self.selected_color = QtGui.QColor()
+        self.selected_color.setRgba(data['selected color'])
+
+        # flag
+        self.width_flag = data['width flag']
+        self.color_flag = data['color flag']
+        self.selected_color_flag = data['selected color flag']
+
         # control point
         self.control_start_point = QtCore.QPointF(data['start control point x'], data['start control point y'])
         self.control_end_point = QtCore.QPointF(data['end control point x'], data['end control point y'])

@@ -577,6 +577,49 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             parent_flag.removeChild(sub_scene_item)
             sub_scene_item.data(0, QtCore.Qt.ToolTipRole).attribute_widget.sub_scene = None
 
+    def print_item(self, part: str):
+        if part == "Scene":
+            pic = QtGui.QPixmap(self.current_scene.sceneRect().width(), self.current_scene.sceneRect().height())
+            painter = QtGui.QPainter(pic)
+            painter.setRenderHint(QtGui.QPainter.Antialiasing)
+            self.current_scene.removeItem(self.background_image)
+            self.current_scene.render(painter)
+            self.current_scene.addItem(self.background_image)
+            painter.end()
+            name, ok = QtWidgets.QFileDialog.getSaveFileName(self, "Save Image", "./", "Images (*.png *.jpg)")
+            if name and ok:
+                pic.save(name)
+        elif part == "Items":
+            if self.current_scene.selectedItems():
+                left = float("+inf")
+                right = float("-inf")
+                top = float("+inf")
+                bottom = float("-inf")
+                for item in self.current_scene.selectedItems():
+                    if item.scenePos().x() <= left:
+                        left = item.scenePos().x()
+                    if item.scenePos().x() + item.boundingRect().width() >= right:
+                        right = item.scenePos().x() + item.boundingRect().width()
+                    if item.scenePos().y() <= top:
+                        top = item.scenePos().y()
+                    if item.scenePos().y() + item.boundingRect().height() >= bottom:
+                        bottom = item.scenePos().x() + item.boundingRect().width()
+
+                print(right, left, bottom, top)
+                pic = QtGui.QPixmap(abs(right - left), abs(bottom - top))
+                painter = QtGui.QPainter(pic)
+                painter.setRenderHint(QtGui.QPainter.Antialiasing)
+                self.current_scene.removeItem(self.background_image)
+                self.current_scene.clearSelection()
+                self.current_scene.render(painter,
+                                          target=QtCore.QRectF(),
+                                          source=QtCore.QRectF(left, top, right - left, bottom - top))
+                self.current_scene.addItem(self.background_image)
+                painter.end()
+                name, ok = QtWidgets.QFileDialog.getSaveFileName(self, "Save Image", "./", "Images (*.png *.jpg)")
+                if name and ok:
+                    pic.save(name)
+
     def mousePressEvent(self, event) -> None:
         try:
             self.itemAt(event.pos()).scenePos()  # debug for scale, i don't understand but it works
@@ -639,7 +682,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
     def keyPressEvent(self, event) -> None:
         super(View, self).keyPressEvent(event)
-        if int(event.modifiers()) & QtCore.Qt.ShiftModifier and self.mode == constants.MODE_PIPE_DRAG:
+        if self.mode == constants.MODE_PIPE_DRAG and int(event.modifiers()) & QtCore.Qt.ShiftModifier:
             self.drag_pipe_release(None)
             self.mode = constants.MODE_NOOP
         if event.key() == QtCore.Qt.Key_0 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
@@ -661,6 +704,12 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             self.save_to_file("Graph.json")
         if event.key() == QtCore.Qt.Key_O and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.load_from_file("Graph.json")
+        if event.key() == QtCore.Qt.Key_P and int(event.modifiers()) & QtCore.Qt.ControlModifier and \
+                int(event.modifiers()) & QtCore.Qt.AltModifier:
+            self.print_item(part="Scene")
+        if event.key() == QtCore.Qt.Key_P and int(event.modifiers()) & QtCore.Qt.ControlModifier and \
+                int(event.modifiers()) & QtCore.Qt.ShiftModifier:
+            self.print_item(part="Items")
 
     def contextMenuEvent(self, event) -> None:
         super(View, self).contextMenuEvent(event)
@@ -701,7 +750,31 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
     def serialize(self):
         return OrderedDict([
             ('root scene', self.root_scene.serialize()),
-            ('current scene', self.current_scene.id)
+            ('current scene', self.current_scene.id),
+            ('attribute font family', attribute.InputTextField.font.family()),
+            ('attribute font size', attribute.InputTextField.font.pointSize()),
+            ('attribute font color', attribute.InputTextField.font_color.rgba()),
+            ('attribute color', attribute.AttributeWidget.color.rgba()),
+            ('attribute selected color', attribute.AttributeWidget.selected_color.rgba()),
+            ('attribute border color', attribute.AttributeWidget.border_color.rgba()),
+            ('attribute selected border color', attribute.AttributeWidget.selected_border_color.rgba()),
+            ('logic color', attribute.LogicWidget.background_color.rgba()),
+            ('logic selected color', attribute.LogicWidget.selected_background_color.rgba()),
+            ('logic border color', attribute.LogicWidget.border_color.rgba()),
+            ('logic selected border color', attribute.LogicWidget.selected_border_color.rgba()),
+            ('pipe width', pipe.Pipe.width),
+            ('pipe color', pipe.Pipe.color.rgba()),
+            ('pipe selected color', pipe.Pipe.selected_color.rgba()),
+            ('port width', port.Port.width),
+            ('port color', port.Port.color.rgba()),
+            ('port border color', port.Port.border_color.rgba()),
+            ('port hovered color', port.Port.hovered_color.rgba()),
+            ('port hovered border color', port.Port.hovered_border_color.rgba()),
+            ('port activated color', port.Port.activated_color.rgba()),
+            ('port activated border color', port.Port.activated_border_color.rgba()),
+            ('container width', container.Container.width),
+            ('container color', container.Container.color.rgba()),
+            ('container selected color', container.Container.selected_color.rgba())
         ])
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
@@ -714,6 +787,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.logic_widgets = list()
         self.pipes = list()
         self.containers = list()
+
         # set root scene
         self.root_scene_flag = QtWidgets.QTreeWidgetItem(
             self.mainwindow.scene_list,
@@ -725,6 +799,46 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.background_image = self.current_scene.background_image
         self.cutline = self.current_scene.cutline
         self.setScene(self.current_scene)
+
+        # style
+        #   attribute widget
+        attribute.InputTextField.font = QtGui.QFont()
+        attribute.InputTextField.font.setFamily(data['attribute font family'])
+        attribute.InputTextField.font.setPointSize(data['attribute font size'])
+        attribute.InputTextField.font_color.setRgba(data['attribute font color'])
+
+        attribute.AttributeWidget.color.setRgba(data['attribute color'])
+        attribute.AttributeWidget.selected_color.setRgba(data['attribute selected color'])
+        attribute.AttributeWidget.border_color.setRgba(data['attribute border color'])
+        attribute.AttributeWidget.selected_border_color.setRgba(data['attribute selected border color'])
+
+        #   logic widget
+        attribute.LogicWidget.background_color.setRgba(data['logic color'])
+        attribute.LogicWidget.selected_background_color.setRgba(data['logic selected color'])
+        attribute.LogicWidget.border_color.setRgba(data['logic border color'])
+        attribute.LogicWidget.selected_border_color.setRgba(data['logic selected border color'])
+
+        #   pipe widget
+        pipe.Pipe.width = data['pipe width']
+        pipe.Pipe.color.setRgba(data['pipe color'])
+        pipe.Pipe.selected_color.setRgba(data['pipe selected color'])
+
+        #   port widget
+        port.Port.width = data['port width']
+        port.Port.color.setRgba(data['port color'])
+        port.Port.border_color.setRgba(data['port border color'])
+        port.Port.hovered_color.setRgba(data['port hovered color'])
+        port.Port.hovered_border_color.setRgba(data['port hovered border color'])
+        port.Port.activated_color.setRgba(data['port activated color'])
+        port.Port.activated_border_color.setRgba(data['port activated border color'])
+
+        #   container widget
+        container.Container.width = data['container width']
+        container.Container.color.setRgba(data['container color'])
+        container.Container.selected_color.setRgba(data['container selected color'])
+
+        self.mainwindow.style_switch_combox.setCurrentIndex(1)
+        self.mainwindow.style_switch_combox.setCurrentIndex(0)
         # create contents
         hashmap = {}
         self.root_scene.deserialize(data['root scene'], hashmap, view, flag=True)

@@ -3,7 +3,7 @@ from Components import attribute
 
 
 __all__ = ["DEBUG_DRAW_PIPE", "DEBUG_EFFECT_SNOW", "DEBUG_VIEW_CHANGE_SCALE", "DEBUG_TUPLE_NODE_SCALE",
-           "DEBUG_CUT_LINE", "DEBUG_HISTORY",
+           "DEBUG_CUT_LINE", "DEBUG_HISTORY", "DEBUG_FONT",
            "Z_VAL_PORT", "Z_VAL_NODE", "Z_VAL_PIPE", "Z_VAL_CUTLINE",
            "NODE_HEIGHT", "NODE_WIDTH", "NODE_LAYOUT_MARGINS", "NODE_SEL_BORDER_COLOR", "NODE_SEL_COLOR",
            "NODE_ICON_SIZE",
@@ -28,6 +28,7 @@ DEBUG_CUT_LINE = False
 DEBUG_COLLIDING = False
 DEBUG_HISTORY = False
 DEBUG_DESERIALIZE = False
+DEBUG_FONT = True
 
 # === DRAW STACK ORDER ===
 Z_VAL_PIPE = 2
@@ -82,4 +83,4 @@ PIPE_UPDATE = 3
 down = 0
 up = 1
 left = 2
-right =3
+right = 3

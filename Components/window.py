@@ -341,6 +341,7 @@ class NoteWindow(QtWidgets.QMainWindow):
                 elif current_index == 2:
                     for item in self.view_widget.current_scene.selectedItems():
                         if isinstance(item, attribute.AttributeWidget):
+                            item.attribute_widget.label_item.font_color = font_color
                             item.attribute_widget.label_item.setDefaultTextColor(font_color)
                             item.attribute_widget.label_item.font_color_flag = True
                             self.color_label_changed(self.attribute_style_font_color_label,
@@ -739,8 +740,8 @@ class NoteWindow(QtWidgets.QMainWindow):
             if font_type and ok:
                 if current_index == 0:
                     for item in self.view_widget.attribute_widgets:
+                        attribute.InputTextField.font = font_type
                         if not item.scene().attribute_style_font and not item.attribute_widget.label_item.font_flag:
-                            attribute.InputTextField.font = font_type
                             item.attribute_widget.label_item.document().setDefaultFont(font_type)
                             item.text_change_node_shape()
                     self.font_label_changed(self.attribute_style_font_label, attribute.InputTextField.font)
@@ -752,6 +753,7 @@ class NoteWindow(QtWidgets.QMainWindow):
                                 and not item.attribute_widget.label_item.font_flag:
                             item.attribute_widget.label_item.document().setDefaultFont(font_type)
                             item.text_change_node_shape()
+                            item.resize(20, 10)
                     self.font_label_changed(self.attribute_style_font_label,
                                             self.view_widget.current_scene.attribute_style_font)
 
@@ -840,17 +842,28 @@ class NoteWindow(QtWidgets.QMainWindow):
                                      attribute.AttributeWidget.selected_border_color)
             #   change slots
             #       font
+            self.attribute_style_font_button.disconnect()
             self.attribute_style_font_button.clicked.connect(
                 lambda x: self.font_changed("Attribute", current_index))
+
             #       color
+            self.attribute_style_font_color_button.disconnect()
             self.attribute_style_font_color_button.clicked.connect(
                 lambda x: self.color_changed("Attribute_font_color", current_index))
+
+            self.attribute_style_background_color_button.disconnect()
             self.attribute_style_background_color_button.clicked.connect(
                 lambda x: self.color_changed("Attribute_color", current_index))
+
+            self.attribute_style_selected_background_color_button.disconnect()
             self.attribute_style_selected_background_color_button.clicked.connect(
                 lambda x: self.color_changed("Attribute_selected_color", current_index))
+
+            self.attribute_style_border_color_button.disconnect()
             self.attribute_style_border_color_button.clicked.connect(
                 lambda x: self.color_changed("Attribute_border_color", current_index))
+
+            self.attribute_style_selected_border_color_button.disconnect()
             self.attribute_style_selected_border_color_button.clicked.connect(
                 lambda x: self.color_changed("Attribute_selected_border_color", current_index))
 
