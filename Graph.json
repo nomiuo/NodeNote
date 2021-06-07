@@ -1,28 +1,26 @@
 {
     "root scene": {
-        "id": 140605233222704,
+        "id": 139640766010416,
         "attribute widgets": [
             {
-                "id": 140605233056928,
+                "id": 139640765846144,
                 "width": 61.9375,
                 "height": 32.0,
-                "x": 221.0,
-                "y": -275.0,
+                "x": -327.0,
+                "y": -128.0,
                 "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
                 "input true port": {
-                    "id": 140604819108480,
+                    "id": 139640765847584,
                     "port type": 0,
                     "port truth": true,
-                    "pipes": [
-                        140604819219360
-                    ],
+                    "pipes": [],
                     "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
+                    "color": 4281430884,
+                    "border color": 4280142487,
+                    "hovered color": 4279315282,
+                    "hovered border color": 4287168291,
+                    "activated color": 4279119163,
+                    "activated border color": 4285245121,
                     "width flag": false,
                     "color flag": false,
                     "border color flag": false,
@@ -32,17 +30,17 @@
                     "activated border color flag": false
                 },
                 "input false port": {
-                    "id": 140604819108768,
+                    "id": 139640765847872,
                     "port type": 0,
                     "port truth": false,
                     "pipes": [],
                     "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
+                    "color": 4281430884,
+                    "border color": 4280142487,
+                    "hovered color": 4279315282,
+                    "hovered border color": 4287168291,
+                    "activated color": 4279119163,
+                    "activated border color": 4285245121,
                     "width flag": false,
                     "color flag": false,
                     "border color flag": false,
@@ -52,17 +50,17 @@
                     "activated border color flag": false
                 },
                 "output true port": {
-                    "id": 140604819108624,
+                    "id": 139640765847728,
                     "port type": 1,
                     "port truth": true,
                     "pipes": [],
                     "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
+                    "color": 4281430884,
+                    "border color": 4280142487,
+                    "hovered color": 4279315282,
+                    "hovered border color": 4287168291,
+                    "activated color": 4279119163,
+                    "activated border color": 4285245121,
                     "width flag": false,
                     "color flag": false,
                     "border color flag": false,
@@ -72,17 +70,17 @@
                     "activated border color flag": false
                 },
                 "output false port": {
-                    "id": 140604819108912,
+                    "id": 139640765848016,
                     "port type": 1,
                     "port truth": false,
                     "pipes": [],
                     "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
+                    "color": 4281430884,
+                    "border color": 4280142487,
+                    "hovered color": 4279315282,
+                    "hovered border color": 4287168291,
+                    "activated color": 4279119163,
+                    "activated border color": 4285245121,
                     "width flag": false,
                     "color flag": false,
                     "border color flag": false,
@@ -94,1865 +92,166 @@
                 "next attribute widgets": [],
                 "next logic widgets": [],
                 "last attribute widgets": [],
-                "last logic widgets": [
-                    140604819111072
-                ],
-                "attribute sub widgets": [],
-                "sub scene": null,
-                "item font family": "Inconsolata",
-                "item font size": 8,
-                "item font color": 4294901760,
-                "item color": 4294901760,
-                "item selected color": 4294901760,
-                "item border color": 4294901760,
-                "item selected border color": 4294901760,
-                "font flag": false,
-                "font color flag": false,
-                "color flag": false,
-                "selected color flag": false,
-                "border flag": false,
-                "selected border flag": false
-            },
-            {
-                "id": 140605233054336,
-                "width": 61.9375,
-                "height": 32.0,
-                "x": -295.0,
-                "y": -199.0,
-                "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
-                "input true port": {
-                    "id": 140605233055776,
-                    "port type": 0,
-                    "port truth": true,
-                    "pipes": [],
-                    "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
-                    "width flag": false,
-                    "color flag": false,
-                    "border color flag": false,
-                    "hovered color flag": false,
-                    "hovered border color flag": false,
-                    "activated color flag": false,
-                    "activated border color flag": false
-                },
-                "input false port": {
-                    "id": 140605233056064,
-                    "port type": 0,
-                    "port truth": false,
-                    "pipes": [],
-                    "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
-                    "width flag": false,
-                    "color flag": false,
-                    "border color flag": false,
-                    "hovered color flag": false,
-                    "hovered border color flag": false,
-                    "activated color flag": false,
-                    "activated border color flag": false
-                },
-                "output true port": {
-                    "id": 140605233055920,
-                    "port type": 1,
-                    "port truth": true,
-                    "pipes": [
-                        140604819109344
-                    ],
-                    "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
-                    "width flag": false,
-                    "color flag": false,
-                    "border color flag": false,
-                    "hovered color flag": false,
-                    "hovered border color flag": false,
-                    "activated color flag": false,
-                    "activated border color flag": false
-                },
-                "output false port": {
-                    "id": 140605233056208,
-                    "port type": 1,
-                    "port truth": false,
-                    "pipes": [],
-                    "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
-                    "width flag": false,
-                    "color flag": false,
-                    "border color flag": false,
-                    "hovered color flag": false,
-                    "hovered border color flag": false,
-                    "activated color flag": false,
-                    "activated border color flag": false
-                },
-                "next attribute widgets": [],
-                "next logic widgets": [
-                    140604819111072
-                ],
-                "last attribute widgets": [],
                 "last logic widgets": [],
                 "attribute sub widgets": [],
-                "sub scene": null,
+                "sub scene": {
+                    "id": 139640765848592,
+                    "attribute widgets": [
+                        {
+                            "id": 139640765967664,
+                            "width": 61.9375,
+                            "height": 32.0,
+                            "x": -233.0,
+                            "y": -164.0,
+                            "contents": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Inconsolata'; font-size:8pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;\">Node</p></body></html>",
+                            "input true port": {
+                                "id": 139640765966224,
+                                "port type": 0,
+                                "port truth": true,
+                                "pipes": [],
+                                "width": 16.0,
+                                "color": 4281430884,
+                                "border color": 4280142487,
+                                "hovered color": 4279315282,
+                                "hovered border color": 4287168291,
+                                "activated color": 4279119163,
+                                "activated border color": 4285245121,
+                                "width flag": false,
+                                "color flag": false,
+                                "border color flag": false,
+                                "hovered color flag": false,
+                                "hovered border color flag": false,
+                                "activated color flag": false,
+                                "activated border color flag": false
+                            },
+                            "input false port": {
+                                "id": 139640765965936,
+                                "port type": 0,
+                                "port truth": false,
+                                "pipes": [],
+                                "width": 16.0,
+                                "color": 4281430884,
+                                "border color": 4280142487,
+                                "hovered color": 4279315282,
+                                "hovered border color": 4287168291,
+                                "activated color": 4279119163,
+                                "activated border color": 4285245121,
+                                "width flag": false,
+                                "color flag": false,
+                                "border color flag": false,
+                                "hovered color flag": false,
+                                "hovered border color flag": false,
+                                "activated color flag": false,
+                                "activated border color flag": false
+                            },
+                            "output true port": {
+                                "id": 139640765966080,
+                                "port type": 1,
+                                "port truth": true,
+                                "pipes": [],
+                                "width": 16.0,
+                                "color": 4281430884,
+                                "border color": 4280142487,
+                                "hovered color": 4279315282,
+                                "hovered border color": 4287168291,
+                                "activated color": 4279119163,
+                                "activated border color": 4285245121,
+                                "width flag": false,
+                                "color flag": false,
+                                "border color flag": false,
+                                "hovered color flag": false,
+                                "hovered border color flag": false,
+                                "activated color flag": false,
+                                "activated border color flag": false
+                            },
+                            "output false port": {
+                                "id": 139640765965792,
+                                "port type": 1,
+                                "port truth": false,
+                                "pipes": [],
+                                "width": 16.0,
+                                "color": 4281430884,
+                                "border color": 4280142487,
+                                "hovered color": 4279315282,
+                                "hovered border color": 4287168291,
+                                "activated color": 4279119163,
+                                "activated border color": 4285245121,
+                                "width flag": false,
+                                "color flag": false,
+                                "border color flag": false,
+                                "hovered color flag": false,
+                                "hovered border color flag": false,
+                                "activated color flag": false,
+                                "activated border color flag": false
+                            },
+                            "next attribute widgets": [],
+                            "next logic widgets": [],
+                            "last attribute widgets": [],
+                            "last logic widgets": [],
+                            "attribute sub widgets": [],
+                            "sub scene": null,
+                            "item font family": "Inconsolata",
+                            "item font size": 8,
+                            "item font color": 4278190080,
+                            "item color": 2112225279,
+                            "item selected color": 520093695,
+                            "item border color": 4281219394,
+                            "item selected border color": 4294889258,
+                            "font flag": false,
+                            "font color flag": false,
+                            "color flag": false,
+                            "selected color flag": false,
+                            "border flag": false,
+                            "selected border flag": false
+                        }
+                    ],
+                    "logic widgets": [],
+                    "pipe widgets": [],
+                    "container widgets": [],
+                    "background image": "/home/yetao/Projects/PyQt5/NodeNote/Resources/Background/Flat-Mountains.svg",
+                    "attribute font family": null,
+                    "attribute font size": null,
+                    "attribute font color": null,
+                    "attribute color": null,
+                    "attribute selected color": null,
+                    "attribute border color": null,
+                    "attribute selected border color": null,
+                    "logic color": null,
+                    "logic selected color": null,
+                    "logic border color": null,
+                    "logic selected border color": null,
+                    "pipe width": null,
+                    "pipe color": null,
+                    "pipe selected color": null,
+                    "port width": null,
+                    "port color": null,
+                    "port border color": null,
+                    "port hovered color": null,
+                    "port hovered border color": null,
+                    "port activated color": null,
+                    "port activated border color": null,
+                    "container width": null,
+                    "container color": null,
+                    "container selected color": null
+                },
                 "item font family": "Inconsolata",
                 "item font size": 8,
-                "item font color": 4294901760,
-                "item color": 4294901760,
-                "item selected color": 4294901760,
-                "item border color": 4294901760,
-                "item selected border color": 4294901760,
-                "font flag": false,
-                "font color flag": false,
-                "color flag": false,
-                "selected color flag": false,
-                "border flag": false,
-                "selected border flag": false
-            }
-        ],
-        "logic widgets": [
-            {
-                "id": 140604819111072,
-                "x": -102.0,
-                "y": -241.0,
-                "input truth": 0,
-                "output truth": 0,
-                "input port": {
-                    "id": 140604819111216,
-                    "port type": 0,
-                    "port truth": true,
-                    "pipes": [
-                        140604819109344
-                    ],
-                    "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
-                    "width flag": false,
-                    "color flag": false,
-                    "border color flag": false,
-                    "hovered color flag": false,
-                    "hovered border color flag": false,
-                    "activated color flag": false,
-                    "activated border color flag": false
-                },
-                "output port": {
-                    "id": 140604819111360,
-                    "port type": 1,
-                    "port truth": true,
-                    "pipes": [
-                        140604819219360
-                    ],
-                    "width": 16.0,
-                    "color": 4294901760,
-                    "border color": 4294901760,
-                    "hovered color": 4294901760,
-                    "hovered border color": 4294901760,
-                    "activated color": 4294901760,
-                    "activated border color": 4294901760,
-                    "width flag": false,
-                    "color flag": false,
-                    "border color flag": false,
-                    "hovered color flag": false,
-                    "hovered border color flag": false,
-                    "activated color flag": false,
-                    "activated border color flag": false
-                },
-                "next attribute widgets": [
-                    140605233056928
-                ],
-                "next logic widgets": [],
-                "last attribute widgets": [
-                    140605233054336
-                ],
-                "last logic widgets": [],
+                "item font color": 4278190080,
                 "item color": 2112225279,
-                "item selected color": 4294901760,
-                "item border color": 4294901760,
-                "item selected border color": 4294901760,
+                "item selected color": 520093695,
+                "item border color": 4281219394,
+                "item selected border color": 4294889258,
+                "font flag": false,
+                "font color flag": false,
                 "color flag": false,
                 "selected color flag": false,
-                "border color flag": false,
-                "selected border color flag": false
+                "border flag": false,
+                "selected border flag": false
             }
         ],
-        "pipe widgets": [
-            {
-                "id": 140604819219360,
-                "start port": 140604819111360,
-                "end port": 140604819108480,
-                "text": "Deafult",
-                "start control point x": 133.5,
-                "start control point y": -206.5,
-                "end control point x": 133.5,
-                "end control point y": -267.0,
-                "last default start point x": 133.5,
-                "last default start point y": -206.5,
-                "last default end point x": 133.5,
-                "last default end point y": -267.0,
-                "width": 2,
-                "color": 4294901760,
-                "selected color": 4294901760,
-                "width flag": false,
-                "color flag": false,
-                "selected color flag": false
-            },
-            {
-                "id": 140604819109344,
-                "start port": 140605233055920,
-                "end port": 140604819111216,
-                "text": "Deafult",
-                "start control point x": -175.53125,
-                "start control point y": -191.0,
-                "end control point x": -175.53125,
-                "end control point y": -206.5,
-                "last default start point x": -175.53125,
-                "last default start point y": -191.0,
-                "last default end point x": -175.53125,
-                "last default end point y": -206.5,
-                "width": 2,
-                "color": 4294901760,
-                "selected color": 4294901760,
-                "width flag": false,
-                "color flag": false,
-                "selected color flag": false
-            }
-        ],
-        "container widgets": [
-            {
-                "id": 140604819110640,
-                "points": [
-                    [
-                        -210.0,
-                        -53.0
-                    ],
-                    [
-                        -203.0,
-                        -57.0
-                    ],
-                    [
-                        -187.0,
-                        -66.0
-                    ],
-                    [
-                        -133.0,
-                        -86.0
-                    ],
-                    [
-                        -120.0,
-                        -90.0
-                    ],
-                    [
-                        -113.0,
-                        -91.0
-                    ],
-                    [
-                        -106.0,
-                        -92.0
-                    ],
-                    [
-                        -99.0,
-                        -93.0
-                    ],
-                    [
-                        -93.0,
-                        -94.0
-                    ],
-                    [
-                        -87.0,
-                        -94.0
-                    ],
-                    [
-                        -87.0,
-                        -94.0
-                    ],
-                    [
-                        -82.0,
-                        -94.0
-                    ],
-                    [
-                        -79.0,
-                        -94.0
-                    ],
-                    [
-                        -77.0,
-                        -94.0
-                    ],
-                    [
-                        -76.0,
-                        -94.0
-                    ],
-                    [
-                        -76.0,
-                        -94.0
-                    ],
-                    [
-                        -75.0,
-                        -94.0
-                    ],
-                    [
-                        -75.0,
-                        -94.0
-                    ],
-                    [
-                        -74.0,
-                        -93.0
-                    ],
-                    [
-                        -74.0,
-                        -93.0
-                    ],
-                    [
-                        -73.0,
-                        -93.0
-                    ],
-                    [
-                        -73.0,
-                        -93.0
-                    ],
-                    [
-                        -72.0,
-                        -92.0
-                    ],
-                    [
-                        -72.0,
-                        -92.0
-                    ],
-                    [
-                        -71.0,
-                        -91.0
-                    ],
-                    [
-                        -71.0,
-                        -91.0
-                    ],
-                    [
-                        -70.0,
-                        -90.0
-                    ],
-                    [
-                        -69.0,
-                        -89.0
-                    ],
-                    [
-                        -69.0,
-                        -87.0
-                    ],
-                    [
-                        -69.0,
-                        -87.0
-                    ],
-                    [
-                        -68.0,
-                        -86.0
-                    ],
-                    [
-                        -67.0,
-                        -84.0
-                    ],
-                    [
-                        -66.0,
-                        -82.0
-                    ],
-                    [
-                        -65.0,
-                        -80.0
-                    ],
-                    [
-                        -65.0,
-                        -80.0
-                    ],
-                    [
-                        -64.0,
-                        -78.0
-                    ],
-                    [
-                        -63.0,
-                        -75.0
-                    ],
-                    [
-                        -62.0,
-                        -73.0
-                    ],
-                    [
-                        -61.0,
-                        -70.0
-                    ],
-                    [
-                        -60.0,
-                        -67.0
-                    ],
-                    [
-                        -60.0,
-                        -67.0
-                    ],
-                    [
-                        -58.0,
-                        -64.0
-                    ],
-                    [
-                        -57.0,
-                        -60.0
-                    ],
-                    [
-                        -55.0,
-                        -56.0
-                    ],
-                    [
-                        -54.0,
-                        -51.0
-                    ],
-                    [
-                        -54.0,
-                        -51.0
-                    ],
-                    [
-                        -53.0,
-                        -47.0
-                    ],
-                    [
-                        -52.0,
-                        -44.0
-                    ],
-                    [
-                        -51.0,
-                        -41.0
-                    ],
-                    [
-                        -51.0,
-                        -38.0
-                    ],
-                    [
-                        -51.0,
-                        -36.0
-                    ],
-                    [
-                        -51.0,
-                        -34.0
-                    ],
-                    [
-                        -51.0,
-                        -34.0
-                    ],
-                    [
-                        -51.0,
-                        -32.0
-                    ],
-                    [
-                        -51.0,
-                        -30.0
-                    ],
-                    [
-                        -51.0,
-                        -27.0
-                    ],
-                    [
-                        -52.0,
-                        -25.0
-                    ],
-                    [
-                        -53.0,
-                        -22.0
-                    ],
-                    [
-                        -53.0,
-                        -22.0
-                    ],
-                    [
-                        -55.0,
-                        -18.0
-                    ],
-                    [
-                        -57.0,
-                        -15.0
-                    ],
-                    [
-                        -60.0,
-                        -11.0
-                    ],
-                    [
-                        -62.0,
-                        -8.0
-                    ],
-                    [
-                        -65.0,
-                        -4.0
-                    ],
-                    [
-                        -65.0,
-                        -4.0
-                    ],
-                    [
-                        -70.0,
-                        -1.0
-                    ],
-                    [
-                        -75.0,
-                        3.0
-                    ],
-                    [
-                        -83.0,
-                        6.0
-                    ],
-                    [
-                        -83.0,
-                        6.0
-                    ],
-                    [
-                        -93.0,
-                        9.0
-                    ],
-                    [
-                        -105.0,
-                        10.0
-                    ],
-                    [
-                        -116.0,
-                        10.0
-                    ],
-                    [
-                        -124.0,
-                        10.0
-                    ],
-                    [
-                        -132.0,
-                        9.0
-                    ],
-                    [
-                        -132.0,
-                        9.0
-                    ],
-                    [
-                        -139.0,
-                        8.0
-                    ],
-                    [
-                        -145.0,
-                        6.0
-                    ],
-                    [
-                        -150.0,
-                        5.0
-                    ],
-                    [
-                        -154.0,
-                        4.0
-                    ],
-                    [
-                        -154.0,
-                        4.0
-                    ],
-                    [
-                        -157.0,
-                        2.0
-                    ],
-                    [
-                        -160.0,
-                        0.0
-                    ],
-                    [
-                        -163.0,
-                        -2.0
-                    ],
-                    [
-                        -165.0,
-                        -3.0
-                    ],
-                    [
-                        -165.0,
-                        -3.0
-                    ],
-                    [
-                        -167.0,
-                        -6.0
-                    ],
-                    [
-                        -169.0,
-                        -8.0
-                    ],
-                    [
-                        -172.0,
-                        -11.0
-                    ],
-                    [
-                        -175.0,
-                        -14.0
-                    ],
-                    [
-                        -178.0,
-                        -17.0
-                    ],
-                    [
-                        -178.0,
-                        -17.0
-                    ],
-                    [
-                        -181.0,
-                        -21.0
-                    ],
-                    [
-                        -184.0,
-                        -24.0
-                    ],
-                    [
-                        -187.0,
-                        -27.0
-                    ],
-                    [
-                        -189.0,
-                        -29.0
-                    ],
-                    [
-                        -189.0,
-                        -29.0
-                    ],
-                    [
-                        -191.0,
-                        -31.0
-                    ],
-                    [
-                        -193.0,
-                        -32.0
-                    ],
-                    [
-                        -194.0,
-                        -33.0
-                    ],
-                    [
-                        -195.0,
-                        -34.0
-                    ],
-                    [
-                        -195.0,
-                        -35.0
-                    ],
-                    [
-                        -195.0,
-                        -35.0
-                    ],
-                    [
-                        -196.0,
-                        -36.0
-                    ],
-                    [
-                        -197.0,
-                        -36.0
-                    ],
-                    [
-                        -197.0,
-                        -37.0
-                    ],
-                    [
-                        -198.0,
-                        -38.0
-                    ],
-                    [
-                        -198.0,
-                        -38.0
-                    ],
-                    [
-                        -199.0,
-                        -39.0
-                    ],
-                    [
-                        -199.0,
-                        -39.0
-                    ],
-                    [
-                        -200.0,
-                        -40.0
-                    ],
-                    [
-                        -200.0,
-                        -41.0
-                    ],
-                    [
-                        -201.0,
-                        -42.0
-                    ],
-                    [
-                        -202.0,
-                        -43.0
-                    ],
-                    [
-                        -202.0,
-                        -43.0
-                    ],
-                    [
-                        -202.0,
-                        -44.0
-                    ],
-                    [
-                        -202.0,
-                        -45.0
-                    ],
-                    [
-                        -203.0,
-                        -46.0
-                    ],
-                    [
-                        -203.0,
-                        -46.0
-                    ],
-                    [
-                        -203.0,
-                        -47.0
-                    ],
-                    [
-                        -203.0,
-                        -47.0
-                    ],
-                    [
-                        -203.0,
-                        -48.0
-                    ],
-                    [
-                        -204.0,
-                        -48.0
-                    ],
-                    [
-                        -204.0,
-                        -49.0
-                    ],
-                    [
-                        -204.0,
-                        -49.0
-                    ],
-                    [
-                        -205.0,
-                        -50.0
-                    ],
-                    [
-                        -205.0,
-                        -50.0
-                    ],
-                    [
-                        -206.0,
-                        -51.0
-                    ],
-                    [
-                        -206.0,
-                        -51.0
-                    ],
-                    [
-                        -207.0,
-                        -52.0
-                    ],
-                    [
-                        -207.0,
-                        -52.0
-                    ],
-                    [
-                        -208.0,
-                        -52.0
-                    ],
-                    [
-                        -208.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ],
-                    [
-                        -209.0,
-                        -52.0
-                    ]
-                ],
-                "width": 4,
-                "color": 4278190207,
-                "selected color": 4289353087,
-                "width flag": false,
-                "color flag": false,
-                "selected color flag": false
-            }
-        ],
+        "logic widgets": [],
+        "pipe widgets": [],
+        "container widgets": [],
         "background image": "Resources/Background/Colorful-Stingrays.svg",
         "attribute font family": null,
         "attribute font size": null,
@@ -1979,29 +278,29 @@
         "container color": null,
         "container selected color": null
     },
-    "current scene": 140605233222704,
+    "current scene": 139640765848592,
     "attribute font family": "Inconsolata",
     "attribute font size": 8,
-    "attribute font color": 4294901760,
-    "attribute color": 4294901760,
-    "attribute selected color": 4294901760,
-    "attribute border color": 4294901760,
-    "attribute selected border color": 4294901760,
+    "attribute font color": 4278190080,
+    "attribute color": 2112225279,
+    "attribute selected color": 520093695,
+    "attribute border color": 4281219394,
+    "attribute selected border color": 4294889258,
     "logic color": 2112225279,
-    "logic selected color": 4294901760,
-    "logic border color": 4294901760,
-    "logic selected border color": 4294901760,
+    "logic selected color": 520093695,
+    "logic border color": 4281219394,
+    "logic selected border color": 4294889258,
     "pipe width": 2,
-    "pipe color": 4294901760,
-    "pipe selected color": 4294901760,
+    "pipe color": 2147549132,
+    "pipe selected color": 4278229369,
     "port width": 16.0,
-    "port color": 4294901760,
-    "port border color": 4294901760,
-    "port hovered color": 4294901760,
-    "port hovered border color": 4294901760,
-    "port activated color": 4294901760,
-    "port activated border color": 4294901760,
+    "port color": 4281430884,
+    "port border color": 4280142487,
+    "port hovered color": 4279315282,
+    "port hovered border color": 4287168291,
+    "port activated color": 4279119163,
+    "port activated border color": 4285245121,
     "container width": 4,
-    "container color": 4278190207,
-    "container selected color": 4289353087
+    "container color": 4294934656,
+    "container selected color": 2155872256
 }

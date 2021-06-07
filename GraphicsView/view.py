@@ -542,14 +542,19 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
             sub_scene_flag.setData(0, QtCore.Qt.ToolTipRole, sub_scene)
             sub_scene_flag.setExpanded(True)
+
+            self.setScene(sub_scene)
+            self.current_scene = sub_scene
+            self.current_scene_flag = sub_scene.sub_scene_flag
         else:
+
             sub_scene = attribute_widget.sub_scene
+
+            self.setScene(sub_scene)
+            self.current_scene = sub_scene
+            self.current_scene_flag = sub_scene.sub_scene_flag
             self.background_image = self.current_scene.background_image
             self.cutline = self.current_scene.cutline
-
-        self.setScene(sub_scene)
-        self.current_scene = sub_scene
-        self.current_scene_flag = sub_scene.sub_scene_flag
 
         # Style init
         self.mainwindow.style_switch_combox.setCurrentIndex(0)
@@ -839,10 +844,12 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
         self.mainwindow.style_switch_combox.setCurrentIndex(1)
         self.mainwindow.style_switch_combox.setCurrentIndex(0)
+
         # create contents
         hashmap = {}
         self.root_scene.deserialize(data['root scene'], hashmap, view, flag=True)
         self.root_scene.deserialize(data['root scene'], hashmap, view, flag=False)
+
         # recover current scene
         iterator = QtWidgets.QTreeWidgetItemIterator(self.mainwindow.scene_list)
         while iterator.value():
@@ -855,4 +862,5 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 self.cutline = self.current_scene.cutline
                 self.setScene(self.current_scene)
                 break
+
         return True
