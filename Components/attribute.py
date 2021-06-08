@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from Model import constants, stylesheet, serializable
 from Components import port, pipe
 
-__all__ = ["SubConstituteWidget", "InputTextField",
+__all__ = ["SubConstituteWidget", "InputTextField", "PythonHighlighter",
            "LogicWidget", "TruthWidget", "AttributeWidget", "AttributeFile"]
 
 
@@ -269,8 +269,9 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         self.setDefaultTextColor(self.font_color)
         self.document().setIndentWidth(4)
         self.document().setDefaultFont(self.font)
-        self.pythonlighter = PythonHighlighter(self.document())
+        self.pythonlighter = None
         self.editing_state = False
+        self.linkActivated.connect(self.hyper_link)
         self.font_size_editing = True
         # style
         self.font_flag = False
@@ -573,6 +574,16 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         image = image.scaled(size.width() * 0.5, size.height() * 0.5,
                              QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
         return image
+
+    @staticmethod
+    def hyper_link(hyperlink):
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.PointingHandCursor)
+        try:
+            validators.url(hyperlink)
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(hyperlink))
+        except Exception as e:
+            print("Valid hyperlink: ", e)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
 
     def font_format(self, font_type):
         cursor = self.textCursor()
@@ -882,9 +893,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
 
     def mousePressEvent(self, event) -> None:
         # change focus into node
-        hyperlink = self.textCursor().charFormat().isAnchor()
-        if hyperlink:
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.PointingHandCursor)
         if self.objectName() == "MouseLocked":
             super(InputTextField, self).mousePressEvent(event)
         else:
@@ -896,16 +904,6 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         pass
 
     def mouseReleaseEvent(self, event) -> None:
-        # change focus into node
-        hyperlink = self.textCursor().charFormat().isAnchor()
-        if hyperlink:
-            url = self.textCursor().charFormat().anchorHref()
-            try:
-                validators.url(url)
-                QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
-            except Exception as e:
-                print("Valid hyperlink: ", e)
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
         if self.objectName() == "MouseLocked":
             super(InputTextField, self).mouseReleaseEvent(event)
         else:
@@ -916,11 +914,12 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         # get focus
         super(InputTextField, self).mouseDoubleClickEvent(event)
         self.setFlag(QtWidgets.QGraphicsWidget.ItemIsFocusable, True)
+        self.editing_state = True
         self.start_editing.emit()
         self.setFocus()
 
     def focusInEvent(self, event) -> None:
-        self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
+        self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction | QtCore.Qt.LinksAccessibleByMouse)
         self.setObjectName("MouseLocked")
         self.text_before_editing = self.toHtml()
         self.mouseMoveEvent = self.origMoveEvent
@@ -930,6 +929,7 @@ class InputTextField(QtWidgets.QGraphicsTextItem):
         super(InputTextField, self).focusOutEvent(event)
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.setObjectName("Nothing")
+        self.editing_state = False
         if constants.DEBUG_RICHTEXT:
             print("Html contents:\n", self.toHtml())
         if not self.editing_state or self.font_size_editing:

@@ -1,124 +1,121 @@
-# 1. 使用说明
+# 1. Introduce
 
-## 1. 安装
+- The software is developed based on `pyqt5` and `python3.9.`
 
-本笔记基于`python3.9`以及`PyQt5`开发
+- The Development platform is `Linux 5.4.118-1-MANJARO`
 
-> 第一步
+This kind of `mind map` is introduced to those who need high logical expression
 
-安装`Python`
+you can run this software by several steps
 
-# 2. 需求分析
+1. `pip install -r requirements.txt`
+2. `python main.py`
 
-## 1. 笔记功能设计
+# 2. Functions
 
-### 1. 逻辑表示的完善
+## 1. You can create two basic widgets
 
-#### 1. 元素的完善
+### 1. First one is `Attribute Widget`.
 
-> 属性互相限制
+> Through the context menu with the right mouse button
 
-1. 逻辑定义构成
-    单位是其他元素的构成
-    1. 常见的物理事物  
-        - 特定的晨光橡皮擦
-            - 第一种复合逻辑-分类形式: 橡皮套物质以及橡皮本体物质构成于
-            - 第二种复合逻辑-分类形式: 由蓝色物质以及白色物质构成于
-        - etc.
-    2. 常见的定义事物
-        - 特定的笛卡尔直角坐标系
-            - 水平箭头线
-            - 垂直箭头线
-        - 锐角(其逻辑定义构成的位置描述其成为锐角)
-            - A线
-            - B线
-        - etc.
-2. 逻辑定义构成于
-    即构成的元素
-3. 逻辑定义位置
-    - 绝对位置x
-        - 关于绝对位置x描述的基本方式
-            - 坐标系复合逻辑
-            - 方向系复合逻辑
-            - etc.
-4. 逻辑定义数值
-    以数学数字集合为基本单位
-5. 逻辑定义时间
-    - 绝对时间x
-        - 关于绝对时间x描述的基本方式
-            - 时间的基本单位: 铯-133 原子基态的两个超精细能级间跃迁辐射振荡 9192631770 周所持续的时间
-            - 根据定义的1秒时间结合历法进制描述
-            - etc.
-6. 逻辑真值
-    - 真
-    - 假
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/create_attribute_widget.gif)
 
-#### 2. 基本逻辑的完善
+Through this widget, you can edit `rich text` such as `table`, `image` .etc.
 
-1. 元逻辑
-    - 产生限制逻辑 -> 针对于元素以及其的所有属性
-    - 限制于逻辑 -> 针对于元素以及其的所有属性
-    - 组合内部逻辑
-        - 组合内部小于 -> 针对于逻辑定义数值
-        - 组合内部等于 -> 针对于元素以及其的逻辑定义数值以及逻辑定义构成
-        - 组合内部大于 -> 针对于逻辑定义数值
-2. 复合逻辑
-    - 分类逻辑 -> 针对于元素的所有属性
-        将组合内部相同的元素属性合为一体
-    - etc.
+It has four ports: true input port | false input port | true output port | false output port
 
-### 2. 期望的界面表示逻辑
+> Press `Ctrl + Q` to make the font italic
+>
+> Press `Ctrl + W` to make the font bold
+>
+> Press `Ctrl + R` to add underline to font
+>
+> Press `Ctrl + /` to add delete-line to font
+>
+> Press `Ctrl + G` to decrease font size
+>
+> Press `Ctrl + H` to increase font size
 
-#### 1. 表示逻辑定义的办法
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/rich_text.gif)
 
->   前提条件: a. 有些属性是不需要的属性  b. 有些属性在不同逻辑中是不同的  c. 构成元素的之间有逻辑关系
+> Press `Ctrl + M` to add hyper link
 
--   基本元素的组成
-    基本元素由三个基本属性组成: 构成, 位置, 数值
-    每个属性有两个基本描述: 真值, 时间
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/hyperlink.gif)
 
-    对于基本元素表示成 一个大框, 两行真值group小框, 实现其可添加特性
-    
--   属性的内容编辑采用Markdown并且要实现跳转超链接和图片和代码功能
+> Press `Ctrl + N` to change the color of the words
 
--   对于元素可以考虑用一个大框表示, 同理左侧有真值, 右侧有自定义时间
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/font_color.gif)
 
--   多个属性可以容纳进一个元素, 多个元素可以容纳进另一个元素, 内部的布局要求内部关系也能体现采用珊格布局 3 * 3
+Of course you could clear the format
 
-#### 2. 基本逻辑的表示
+> Press `Ctrl + L` to clear the format of the words
 
--   针对有些元素逻辑之间比较复杂的处理办法
-    2. 如果复杂逻辑中一个小逻辑断裂{即属性改变以适应其他逻辑}则该框不显示, 只有在点击目标逻辑时, 自动调整属性重新显示该框
-    3. 多个构成于如何处理: 采用逻辑克隆的办法
-    3. 采用圆形辐射布局, 内容越多圈越大
--   对于基本逻辑的展示
-    1. 产生限制逻辑: 一个带文字和按钮的箭头, 文字用于描述, 需要一个逻辑容纳框
-    2. 限制于逻辑: 一个带文字和按钮的箭头, 文字用于描述, 需要一个逻辑容纳框
-    3. 组合内部逻辑: 并列的上下线条
-    4. 基本逻辑小控件, 用于展示必要/充分条件
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/clear_format.gif)
 
-#### 3.其他添加的基本功能
+It also supports mathematical formula which is started with $ and ended with $
 
-   	1. 构成中代码的运行
-   	2. 共有内容的修改
-   	3. 画板实现自定义图形绘制
-   	4. 分页以及超链接跳转
-   	5. 部分展示
+> Press `Ctrl + i` to convert the mathematical formula to a picture
 
-## 3. 所需的全部控件
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/math.gif)
 
-### 1. `AttributeWidget`
+It can insert the picture and resize the picture
 
-- 内部含有真值为真和真值为假(附带时间编辑)的文本框
+> Press `Ctrl + U` to resize picture
 
-- 其连接只能从这些属性文本框连接
-- 允许添加其他`AttributeWidget`控件
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/picture.gif)
 
-### 2. `LogicWidget`
+> Press `Ctrl + [` to align text left
+>
+> Press `Ctrl + ]` to align text right
+>
+> Press `Ctrl + \` to align text center
 
-- 用于展示充分必要条件
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/align_text.gif)
 
-### 3. `GroupLogicWidget`
+> Press `Tab` or `Ctrl + Tab` to add or remove 4 spaces at the start of the line
 
-- 用于容纳内部逻辑基本为状态变化的逻辑
-- 允许自己调整形状
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/tab.gif)
+
+> Press `Ctrl + 1` to add table 
+>
+> Press `Ctrl + T` to insert column
+>
+> Press `Ctrl + R` to insert row
+>
+> Press `Ctrl + D` to remove column
+>
+> Press `Ctrl + M` to remove row
+
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/table.gif)
+
+> Press `Ctrl + 2` to add list
+
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/list.gif)
+
+> Press `Ctrl + 6` to turn on python syntax highlighting
+
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/python_highter.gif)
+
+> Press `Ctrl F` to search
+>
+> Press `Ctrl + Z` to undo
+>
+> Press `Ctrl + Y` to redo
+
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/search.gif)
+
+### 2. Second one is `Logic widget`
+
+you can use this widget to control the truth and logical relationship  between `attribute widgets` like this
+
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/logic_widget.gif)
+
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/colli.gif)
+
+## 2. You can add sub attribute widget and enter the sub scene
+
+> Press `Alt and left mouse button` to enter the sub scene
+
+![](https://raw.githubusercontent.com/yetao0806/CloudImage/main/NodeNote/sub_scene.gif)
+

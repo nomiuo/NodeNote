@@ -154,6 +154,12 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
         self.history.store_history("update pipe animation")
 
+    def python_highlighter(self):
+        for item in self.current_scene.selectedItems():
+            if isinstance(item, attribute.AttributeWidget):
+                item.attribute_widget.label_item.pythonlighter = \
+                    attribute.PythonHighlighter(item.attribute_widget.label_item.document())
+
     def search_text(self):
         # widget
         if not self.search_widget.isVisible():
@@ -700,6 +706,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             self.mode = constants.MODE_NOOP
         if event.key() == QtCore.Qt.Key_0 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.view_update_pipe_animation()
+        if event.key() == QtCore.Qt.Key_6 and int(event.modifiers()) & QtCore.Qt.ControlModifier:
+            self.python_highlighter()
         if event.key() == QtCore.Qt.Key_Delete:
             self.delete_widgets(event)
         if (event.key() == QtCore.Qt.Key_Equal and event.modifiers() & QtCore.Qt.ControlModifier) or \
