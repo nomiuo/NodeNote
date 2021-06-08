@@ -21,6 +21,9 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
         self.addItem(self.background_image)
         self.background_image.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
 
+        # title
+        self.changed.connect(self.title_changed)
+
         # CUT LINE
         self.cutline = effect_cutline.EffectCutline()
         self.addItem(self.cutline)
@@ -108,6 +111,12 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
             if isinstance(item, pipe.Pipe):
                 if item.id == pipe_id:
                     return item
+
+    def title_changed(self):
+        if self.view.filename:
+            self.view.mainwindow.setWindowTitle("*" + self.view.filename + "-Snow")
+        else:
+            self.view.mainwindow.setWindowTitle("*Snow")
 
     def serialize(self):
         attribute_widgets = list()

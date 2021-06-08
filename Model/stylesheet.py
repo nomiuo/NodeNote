@@ -361,6 +361,18 @@ QLabel {
 }
 '''
 
+STYLE_QLABEL_TITLE_TIME = '''
+QLabel {
+    background-color: rgba(51, 102, 153, 200);
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 16px;
+    padding: 6px;
+}
+'''
+
 
 STYLE_QLABEL_FILE = '''
 QLabel {

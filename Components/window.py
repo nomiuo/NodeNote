@@ -1,5 +1,7 @@
 __all__ = ["NoteWindow"]
 
+import time
+
 from PyQt5 import QtWidgets, QtCore, QtGui
 from Components.effect_snow import EffectSkyWidget
 from Components import attribute, pipe, port, container
@@ -28,18 +30,39 @@ class NoteWindow(QtWidgets.QMainWindow):
         self.toolbar.addWidget(self.tab_widget)
 
         # Scene list widget
+        self.scene_list_bottom = QtWidgets.QWidget()
+        self.scene_list_bottom_layout = QtWidgets.QVBoxLayout()
+        self.scene_list_bottom.setLayout(self.scene_list_bottom_layout)
+
+        self.scene_list_scroll = QtWidgets.QScrollArea(self.scene_list_bottom)
+        self.scene_list_scroll.setWidgetResizable(True)
+        self.scene_list_scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.scene_list_bottom_layout.addWidget(self.scene_list_scroll)
+
         self.scene_list = QtWidgets.QTreeWidget()
         self.scene_list.setStyleSheet(stylesheet.STYLE_QTREEWIDGET)
         self.scene_list.setAlternatingRowColors(True)
         self.scene_list.setHeaderLabel("Scene List")
         self.scene_list.setIndentation(8)
-        self.tab_widget.addTab(self.scene_list, "Scene")
+        self.scene_list_scroll.setWidget(self.scene_list)
+        self.tab_widget.addTab(self.scene_list_bottom, "Scene")
 
         # Style list widget
+        self.style_list_bottom = QtWidgets.QWidget()
+        self.style_list_bottom_layout = QtWidgets.QVBoxLayout()
+        self.style_list_bottom.setLayout(self.style_list_bottom_layout)
+
+        self.style_list_scroll = QtWidgets.QScrollArea(self.style_list_bottom)
+        self.style_list_scroll.setWidgetResizable(True)
+        self.style_list_scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.style_list_bottom_layout.addWidget(self.style_list_scroll)
+
         self.style_list = QtWidgets.QWidget()
         self.style_list_layout = QtWidgets.QGridLayout()
+        self.style_list_scroll.setWidget(self.style_list)
         self.style_list.setLayout(self.style_list_layout)
-        self.tab_widget.addTab(self.style_list, "Style")
+
+        self.tab_widget.addTab(self.style_list_bottom, "Style")
         #   Switch widget
         self.style_switch_combox = QtWidgets.QComboBox()
         self.style_switch_combox.addItems(("All Scene", "Current Scene", "Selected Items"))
@@ -282,6 +305,23 @@ class NoteWindow(QtWidgets.QMainWindow):
         self.style_switch_combox.currentIndexChanged.connect(self.init_style)
         self.init_style(current_index=self.style_switch_combox.currentIndex())
 
+        # Time list widget
+        self.time_list = QtWidgets.QWidget()
+        self.time_list_layout = QtWidgets.QVBoxLayout()
+        self.time_list.setLayout(self.time_list_layout)
+        self.tab_widget.addTab(self.time_list, "Time")
+
+        # time widget
+        #   init
+        self.time_day_label = QtWidgets.QLabel("today has used software: ")
+        self.time_day_button = QtWidgets.QPushButton("Start")
+        #   added
+        self.time_list_layout.addWidget(self.time_day_label)
+        self.time_list_layout.addWidget(self.time_day_button)
+        #   stylesheet
+        self.time_day_label.setStyleSheet(stylesheet.STYLE_QLABEL_TITLE_TIME)
+        self.time_day_button.setStyleSheet(stylesheet.STYLE_QPUSHBUTTON)
+
         # Widget Init
         self.central_widget = QtWidgets.QWidget()  # central widget
         self.view_widget = View(self, self.central_widget)  # view widget
@@ -292,6 +332,43 @@ class NoteWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(self.view_widget)
         self.central_widget.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
         self.setCentralWidget(self.central_widget)
+
+        # time clock
+        timer = QtCore.QTimer(self)
+        timer.timeout.connect(self.time_update)
+        self.start_time = None
+        self.last_time = 0
+        self.timer_status = False
+        self.time_day_button.clicked.connect(lambda: self.time_start(timer))
+
+    def time_start(self, timer):
+        if self.timer_status is False:
+            timer.start(1000)
+            self.timer_status = True
+            if not self.start_time:
+                if not self.view_widget.start_time:
+                    self.start_time = time.time()
+                    self.view_widget.start_time = self.start_time
+                else:
+                    self.start_time = self.view_widget.start_time
+            else:
+                self.start_time = time.time()
+            self.time_day_button.setText("End")
+        elif self.timer_status:
+            timer.stop()
+            self.timer_status = False
+            self.last_time += time.time() - self.start_time
+            self.view_widget.last_time = self.last_time
+            self.start_time = time.time()
+            self.time_day_button.setText("Start")
+
+    def time_update(self):
+        day_time = time.time() - self.start_time + self.view_widget.last_time
+        day_time_hour = int(day_time // 60 // 60)
+        day_time_min = int((day_time // 60) - 60 * day_time_hour)
+        day_time_sec = int(day_time - 60 * day_time_min - 60 * 60 * day_time_hour)
+        self.time_day_label.setText("today has used software: %s : %s: %s" %
+                                    (day_time_hour, day_time_min, day_time_sec))
 
     @staticmethod
     def color_label_changed(label, color):

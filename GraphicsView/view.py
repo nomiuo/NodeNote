@@ -1,4 +1,5 @@
 import json
+import time
 from collections import OrderedDict
 from PyQt5 import QtGui, QtCore, QtWidgets, sip
 from GraphicsView.scene import Scene
@@ -22,6 +23,10 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.setScene(self.root_scene)
         self.background_image = self.root_scene.background_image
         self.cutline = self.root_scene.cutline
+
+        # TIME
+        self.start_time = None
+        self.last_time = 0
 
         # SCALE FUNCTION
         self.zoomInFactor = 1.25
@@ -96,6 +101,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.search_position = -1
         self.search_result = False
         self.text_format = {}
+
+        # file
+        self.filename = None
 
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
@@ -706,9 +714,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             if not event.isAccepted():
                 self.history.redo()
         if event.key() == QtCore.Qt.Key_S and int(event.modifiers()) & QtCore.Qt.ControlModifier:
-            self.save_to_file("Graph.json")
+            self.save_to_file()
         if event.key() == QtCore.Qt.Key_O and int(event.modifiers()) & QtCore.Qt.ControlModifier:
-            self.load_from_file("Graph.json")
+            self.load_from_file()
         if event.key() == QtCore.Qt.Key_P and int(event.modifiers()) & QtCore.Qt.ControlModifier and \
                 int(event.modifiers()) & QtCore.Qt.AltModifier:
             self.print_item(part="Scene")
@@ -743,19 +751,34 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())
         self.background_image.resize(self.size().width(), self.size().height())
 
-    def save_to_file(self, filename):
-        with open(filename, "w", encoding='utf-8') as file:
-            file.write(json.dumps(self.serialize(), indent=4))
+    def save_to_file(self):
+        if not self.filename:
+            filename, ok = QtWidgets.QFileDialog.getSaveFileName(self, "Save serialization json file", "./", "json (*.json)")
+            if filename and ok:
+                self.filename = filename
+                with open(filename, "w", encoding='utf-8') as file:
+                    file.write(json.dumps(self.serialize(), indent=4))
+                self.mainwindow.setWindowTitle(filename + "-Snow")
+        else:
+            with open(self.filename, "w", encoding='utf-8') as file:
+                file.write(json.dumps(self.serialize(), indent=4))
+            self.mainwindow.setWindowTitle(self.filename + "-Snow")
 
-    def load_from_file(self, filename):
-        with open(filename, "r", encoding='utf-8') as file:
-            data = json.loads(file.read())
-            self.deserialize(data, {}, self, True)
+    def load_from_file(self):
+        filename, ok = QtWidgets.QFileDialog.getOpenFileName(self, "Open serialization json file", "./", "json (*.json)")
+        if filename and ok:
+            with open(filename, "r", encoding='utf-8') as file:
+                data = json.loads(file.read())
+                self.deserialize(data, {}, self, True)
+                self.filename = filename
+                self.mainwindow.setWindowTitle(filename + "-Snow")
 
     def serialize(self):
         return OrderedDict([
             ('root scene', self.root_scene.serialize()),
             ('current scene', self.current_scene.id),
+            ('use time', self.start_time),
+            ('last time', self.last_time),
             ('attribute font family', attribute.InputTextField.font.family()),
             ('attribute font size', attribute.InputTextField.font.pointSize()),
             ('attribute font color', attribute.InputTextField.font_color.rgba()),
@@ -792,6 +815,16 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.logic_widgets = list()
         self.pipes = list()
         self.containers = list()
+
+        # use time
+        current_day = time.strftime("%Y:%M:%D", time.localtime(time.time()))
+        last_day = time.strftime("%Y:%M:%D", time.localtime(data['use time']))
+        if current_day == last_day:
+            self.start_time = data['use time']
+        else:
+            self.start_time = time.time()
+
+        self.last_time = data['last time']
 
         # set root scene
         self.root_scene_flag = QtWidgets.QTreeWidgetItem(
