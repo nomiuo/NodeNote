@@ -70,9 +70,15 @@ class EffectSkyWidget(QtWidgets.QWidget):
 
 
 class SnowWidget(QtWidgets.QWidget):
+    image_path = 'Resources/snow4.png'
+
     def __init__(self, parent=None):
         super(SnowWidget, self).__init__(parent)
 
+    def change_image_path(self, path):
+        self.image_path = path
+        self.update()
+
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
-        painter.drawPixmap(self.rect(), QtGui.QPixmap('Resources/snow4.png'), QtCore.QRect())
+        painter.drawPixmap(self.rect(), QtGui.QPixmap(self.image_path), QtCore.QRect())

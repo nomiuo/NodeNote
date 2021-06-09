@@ -3,7 +3,7 @@ import time
 from collections import OrderedDict
 from PyQt5 import QtGui, QtCore, QtWidgets, sip
 from GraphicsView.scene import Scene
-from Components import effect_water, attribute, port, pipe, container, effect_cutline, effect_background
+from Components import effect_water, attribute, port, pipe, container, effect_cutline, effect_background, effect_snow
 from Model import constants, stylesheet, history, serializable
 
 __all__ = ["View"]
@@ -105,6 +105,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         # file
         self.filename = None
 
+        # image
+        self.image_path = None
+
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
         property_water_drop = QtWidgets.QGraphicsProxyWidget()
@@ -118,6 +121,12 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         image_name, image_type = QtWidgets.QFileDialog.getOpenFileName(self, "select svg", "", "*.svg")
         if image_name != "":
             self.background_image.change_svg(image_name)
+
+    def change_flowing_image(self):
+        image_name, image_type = QtWidgets.QFileDialog.getOpenFileName(self, "select png", "", "*.png")
+        if image_name != "":
+            self.image_path = image_name
+            effect_snow.SnowWidget.image_path = image_name
 
     def change_scale(self, event):
         if constants.DEBUG_VIEW_CHANGE_SCALE:
@@ -747,7 +756,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             change_background_image = context_menu.addAction("Change Background Image")
             change_background_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change Background Image.png"))
             change_snow_image = context_menu.addAction("Change flowing Image")
-            change_snow_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change Background Image.png"))
+            change_snow_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change flowing.png"))
 
             action = context_menu.exec_(self.mapToGlobal(event.pos()))
             if action == create_attribute_widget:
@@ -756,6 +765,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 self.add_truth_widget(event)
             elif action == change_background_image:
                 self.change_svg_image()
+            elif action == change_snow_image:
+                self.change_flowing_image()
 
     def drawBackground(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None:
         self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())
@@ -791,6 +802,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             ('current scene', self.current_scene.id),
             ('use time', self.start_time),
             ('last time', self.last_time),
+            ('image path', self.image_path),
             ('attribute font family', attribute.InputTextField.font.family()),
             ('attribute font size', attribute.InputTextField.font.pointSize()),
             ('attribute font color', attribute.InputTextField.font_color.rgba()),
@@ -837,6 +849,11 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             self.start_time = time.time()
 
         self.last_time = data['last time']
+
+        # image path
+        if data['image path']:
+            effect_snow.SnowWidget.image_path = data['image path']
+            self.image_path = data['image path']
 
         # set root scene
         self.root_scene_flag = QtWidgets.QTreeWidgetItem(
