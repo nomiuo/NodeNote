@@ -746,6 +746,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             create_truth_widget.setIcon((QtGui.QIcon("Resources/ViewContextMenu/Truth Widget.png")))
             change_background_image = context_menu.addAction("Change Background Image")
             change_background_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change Background Image.png"))
+            change_snow_image = context_menu.addAction("Change flowing Image")
+            change_snow_image.setIcon(QtGui.QIcon("Resources/ViewContextMenu/Change Background Image.png"))
 
             action = context_menu.exec_(self.mapToGlobal(event.pos()))
             if action == create_attribute_widget:
@@ -761,7 +763,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
     def save_to_file(self):
         if not self.filename:
-            filename, ok = QtWidgets.QFileDialog.getSaveFileName(self, "Save serialization json file", "./", "json (*.json)")
+            filename, ok = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                                 "Save serialization json file", "./", "json (*.json)")
             if filename and ok:
                 self.filename = filename
                 with open(filename, "w", encoding='utf-8') as file:
@@ -773,7 +776,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             self.mainwindow.setWindowTitle(self.filename + "-Snow")
 
     def load_from_file(self):
-        filename, ok = QtWidgets.QFileDialog.getOpenFileName(self, "Open serialization json file", "./", "json (*.json)")
+        filename, ok = QtWidgets.QFileDialog.getOpenFileName(self,
+                                                             "Open serialization json file", "./", "json (*.json)")
         if filename and ok:
             with open(filename, "r", encoding='utf-8') as file:
                 data = json.loads(file.read())

@@ -2746,6 +2746,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             ('last logic widgets', last_logic_widgets),
             ('attribute sub widgets', attribute_sub_widgets),
             ('sub scene', self.sub_scene.serialize() if self.sub_scene else None),
+            ('highlighter', True if self.attribute_widget.label_item.pythonlighter else False),
 
             # style
             ('item font family', self.attribute_widget.label_item.font.family()),
@@ -2781,6 +2782,10 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             self.false_input_port.deserialize(data['input false port'], hashmap, view, flag=True)
             self.true_output_port.deserialize(data['output true port'], hashmap, view, flag=True)
             self.false_output_port.deserialize(data['output false port'], hashmap, view, flag=True)
+            # highlighter
+            if data['highlighter']:
+                self.attribute_widget.label_item.pythonlighter = \
+                    PythonHighlighter(self.attribute_widget.label_item.document())
             # style
             font = QtGui.QFont()
             font.setFamily(data['item font family'])
