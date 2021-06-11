@@ -279,6 +279,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
                          self.path().pointAtPercent(0.5).y() - (bound_rect_height // 2))
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
+        super(Pipe, self).mouseMoveEvent(event)
         if self.isSelected():
             self.control = True
             self.update()
@@ -354,8 +355,8 @@ class ControlPoint(QtWidgets.QGraphicsItem):
     control_point_color = QtGui.QColor(255, 129, 129)
     control_point_border_color = QtGui.QColor(0, 0, 0)
 
-    def __init__(self):
-        super(ControlPoint, self).__init__()
+    def __init__(self, parent=None):
+        super(ControlPoint, self).__init__(parent)
         self.moving = False
         self.control_point_flag = True
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsSelectable |

@@ -1326,10 +1326,20 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         painter.drawRoundedRect(0, 0, self.size().width(), self.size().height(), 2, 2)
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
-        # move control point
-        for pipe_item in self.input_port.pipes + self.output_port.pipes:
-            super(pipe.ControlPoint, pipe_item.source_item).mouseMoveEvent(event)
-            super(pipe.ControlPoint, pipe_item.destination_item).mouseMoveEvent(event)
+        for item in self.scene().selectedItems():
+            if isinstance(item, LogicWidget):
+                for pipe_item in item.input_port.pipes + item.output_port.pipes:
+                    pipe_item.source_item.setVisible(True)
+                    pipe_item.destination_item.setVisible(True)
+                    pipe_item.source_item.setSelected(True)
+                    pipe_item.destination_item.setSelected(True)
+            elif isinstance(item, AttributeWidget):
+                for pipe_item in item.true_output_port.pipes + item.true_input_port.pipes + \
+                                 item.false_input_port.pipes + item.false_output_port.pipes:
+                    pipe_item.source_item.setVisible(True)
+                    pipe_item.destination_item.setVisible(True)
+                    pipe_item.source_item.setSelected(True)
+                    pipe_item.destination_item.setSelected(True)
 
         self.moving = True
         self.was_moved = True
@@ -2405,11 +2415,20 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             super(AttributeWidget, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:
-        # move control point
-        for pipe_item in self.true_output_port.pipes + self.false_output_port.pipes \
-                         + self.true_input_port.pipes + self.false_input_port.pipes:
-            super(pipe.ControlPoint, pipe_item.source_item).mouseMoveEvent(event)
-            super(pipe.ControlPoint, pipe_item.destination_item).mouseMoveEvent(event)
+        for item in self.scene().selectedItems():
+            if isinstance(item, AttributeWidget):
+                for pipe_item in item.true_output_port.pipes + item.true_input_port.pipes + \
+                                 item.false_input_port.pipes + item.false_output_port.pipes:
+                    pipe_item.source_item.setVisible(True)
+                    pipe_item.destination_item.setVisible(True)
+                    pipe_item.source_item.setSelected(True)
+                    pipe_item.destination_item.setSelected(True)
+            elif isinstance(item, LogicWidget):
+                for pipe_item in item.input_port.pipes + item.output_port.pipes:
+                    pipe_item.source_item.setVisible(True)
+                    pipe_item.destination_item.setVisible(True)
+                    pipe_item.source_item.setSelected(True)
+                    pipe_item.destination_item.setSelected(True)
 
         self.was_moved = True
         self.moving = True

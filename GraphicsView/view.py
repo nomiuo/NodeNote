@@ -690,8 +690,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         elif event.button() == QtCore.Qt.LeftButton and \
                 hasattr(pipe_item, "control_point_flag"):
             self.pipe_true_item.show_flag = True
-        elif self.pipe_true_item:
-            self.pipe_true_item.show_flag = False
+        else:
+            for pipe_widget in self.pipes:
+                pipe_widget.show_flag = False
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.mode == constants.MODE_PIPE_CUT:
