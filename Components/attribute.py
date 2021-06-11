@@ -1326,6 +1326,11 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         painter.drawRoundedRect(0, 0, self.size().width(), self.size().height(), 2, 2)
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
+        # move control point
+        for pipe_item in self.input_port.pipes + self.output_port.pipes:
+            super(pipe.ControlPoint, pipe_item.source_item).mouseMoveEvent(event)
+            super(pipe.ControlPoint, pipe_item.destination_item).mouseMoveEvent(event)
+
         self.moving = True
         self.was_moved = True
 
@@ -2400,6 +2405,12 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             super(AttributeWidget, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:
+        # move control point
+        for pipe_item in self.true_output_port.pipes + self.false_output_port.pipes \
+                         + self.true_input_port.pipes + self.false_input_port.pipes:
+            super(pipe.ControlPoint, pipe_item.source_item).mouseMoveEvent(event)
+            super(pipe.ControlPoint, pipe_item.destination_item).mouseMoveEvent(event)
+
         self.was_moved = True
         self.moving = True
 

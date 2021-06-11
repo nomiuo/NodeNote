@@ -108,6 +108,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         # image
         self.image_path = None
 
+        # control
+        self.pipe_true_item = None
+
     def set_leftbtn_beauty(self, event):
         water_drop = effect_water.EffectWater()
         property_water_drop = QtWidgets.QGraphicsProxyWidget()
@@ -679,6 +682,17 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 isinstance(item, attribute.AttributeWidget):
             self.new_sub_scene(item)
 
+        # control point
+        pipe_item = self.itemAt(event.pos())
+        if event.button() == QtCore.Qt.LeftButton and isinstance(pipe_item, pipe.Pipe):
+            self.pipe_true_item = pipe_item
+            self.pipe_true_item.show_flag = True
+        elif event.button() == QtCore.Qt.LeftButton and \
+                hasattr(pipe_item, "control_point_flag"):
+            self.pipe_true_item.show_flag = True
+        elif self.pipe_true_item:
+            self.pipe_true_item.show_flag = False
+
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
         if self.mode == constants.MODE_PIPE_CUT:
             self.cutline_released()
@@ -846,7 +860,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if current_day == last_day:
             self.start_time = data['use time']
         else:
-            self.start_time = time.time()
+            self.start_time = None
 
         self.last_time = data['last time']
 

@@ -3,7 +3,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from Model import constants, serializable
 from Components import attribute, port
 
-__all__ = ["Pipe"]
+__all__ = ["Pipe", "ControlPoint"]
 
 
 class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
@@ -27,8 +27,6 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.pos_source = self.start_port.parentItem().get_port_position(self.start_port.port_type,
                                                                          self.start_port.port_truth)
         self.pos_destination = self.pos_source
-        self.control_start_point = QtCore.QPointF()
-        self.control_end_point = QtCore.QPointF()
         self.status = constants.PIPE_STATUS_NEW
 
         # ANIMATION
@@ -61,19 +59,13 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
                          self.path().pointAtPercent(0.5).y() - (bound_rect_height // 2))
 
         # CONTROL
-        self.control_start_point_offect = QtCore.QPointF()
-        self.control_end_point_offect = QtCore.QPointF()
-        self.defalut_start_offect = None
-        self.default_end_offect = None
-        self.move_status = constants.PIPE_FIRST
         self.choose_first = True
-        self.distance_end = None
-        self.distance_start = None
-        self.last_default_start = QtCore.QPointF()
-        self.last_default_end = QtCore.QPointF()
-        self.now_default_start = None
-        self.now_default_end = None
         self.control = False
+
+        self.source_item = None
+        self.destination_item = None
+        self.show_flag = False
+        self.control_line_color = QtGui.QColor(128, 205, 255)
 
         # Style init
         self.width_flag = False
@@ -217,33 +209,40 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
                 ((s.x() < d.x()) and sspos == constants.INPUT_NODE_TYPE):
             s_x *= -2.4  # > 0, s_y = 0  | < 0
             d_x *= -2.4  # < 0, d_y = 0  | > 0
-
         path = QtGui.QPainterPath(self.pos_source)
-        if self.move_status == constants.PIPE_FIRST:
-            self.defalut_start_offect = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
-            self.default_end_offect = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
-            self.last_default_start = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
-            self.last_default_end = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
-            self.control_start_point = self.defalut_start_offect
-            self.control_end_point = self.default_end_offect
-        elif self.move_status == constants.PIPE_MOVEING:
-            self.control_start_point = self.defalut_start_offect + self.control_start_point_offect
-            self.control_end_point = self.default_end_offect + self.control_end_point_offect
-        elif self.move_status == constants.PIPE_COMMON:
-            self.defalut_start_offect = self.control_start_point
-            self.default_end_offect = self.control_end_point
-            self.move_status = constants.PIPE_UPDATE
-        elif self.move_status == constants.PIPE_UPDATE:
-            self.control_start_point += QtCore.QPointF(s.x() + s_x, s.y() + s_y) - self.last_default_start
-            self.control_end_point += QtCore.QPointF(d.x() + d_x, d.y() + d_y) - self.last_default_end
-            self.last_default_start = QtCore.QPointF(s.x() + s_x, s.y() + s_y)
-            self.last_default_end = QtCore.QPointF(d.x() + d_x, d.y() + d_y)
-        path.cubicTo(
-            self.control_start_point,
-            self.control_end_point,
-            self.pos_destination
-        )
-        self.setPath(path)
+
+        # create ellipse item
+        if not self.source_item and not self.destination_item:
+            self.source_item = ControlPoint()
+            self.destination_item = ControlPoint()
+            self.source_item.setPos(s.x() + s_x, s.y() + s_y)
+            self.destination_item.setPos(d.x() + d_x, d.y() + d_y)
+            self.scene().addItem(self.source_item)
+            self.scene().addItem(self.destination_item)
+
+        # control show
+        if self.show_flag:
+            self.source_item.setVisible(True)
+            self.destination_item.setVisible(True)
+            painter.setPen(self.control_line_color)
+            painter.drawLine(
+                self.pos_source, self.source_item.scenePos() +
+                QtCore.QPointF(ControlPoint.control_point_radius / 2, ControlPoint.control_point_radius / 2))
+            painter.drawLine(
+                self.pos_destination, self.destination_item.scenePos() +
+                QtCore.QPointF(ControlPoint.control_point_radius / 2, ControlPoint.control_point_radius / 2))
+        else:
+            self.source_item.setVisible(False)
+            self.destination_item.setVisible(False)
+
+        if not self.source_item.moving:
+            self.source_item.setPos(
+                s.x() + s_x,
+                s.y() + s_y)
+        if not self.destination_item.moving:
+            self.destination_item.setPos(
+                d.x() + d_x,
+                d.y() + d_y)
 
         # PEN
         if self.end_port is None or (self.start_flag == constants.INPUT_NODE_START and self.start_port is None):
@@ -252,6 +251,12 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             painter.setPen(pen)
 
         # DRAW
+        path.cubicTo(
+            self.source_item.scenePos(),
+            self.destination_item.scenePos(),
+            self.pos_destination,
+        )
+        self.setPath(path)
         painter.setBrush(QtCore.Qt.NoBrush)
         painter.drawPath(self.path())
 
@@ -275,27 +280,11 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
         if self.isSelected():
-            self.move_status = constants.PIPE_MOVEING
-            current_pos = event.scenePos()
-            if self.choose_first:
-                self.distance_start = (current_pos.x() - self.defalut_start_offect.x()) ** 2 + \
-                                      (current_pos.y() - self.defalut_start_offect.y()) ** 2
-                self.distance_end = (current_pos.x() - self.default_end_offect.x()) ** 2 + \
-                                    (current_pos.y() - self.default_end_offect.y()) ** 2
-                self.choose_first = False
-            if self.distance_start > self.distance_end:
-                self.control_start_point_offect = QtCore.QPointF()
-                self.control_end_point_offect = event.scenePos()
-            else:
-                self.control_start_point_offect = event.scenePos()
-                self.control_end_point_offect = QtCore.QPointF()
             self.control = True
             self.update()
 
     def mouseReleaseEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
         super(Pipe, self).mouseReleaseEvent(event)
-        self.move_status = constants.PIPE_COMMON
-        self.choose_first = True
         if self.isSelected() and self.control and self.start_port and self.end_port:
             self.scene().view.history.store_history("Change Pipe Control Point")
             self.control = False
@@ -306,14 +295,13 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             ('start port', self.start_port.id),
             ('end port', self.end_port.id),
             ("text", self.edit.toPlainText()),
-            ('start control point x', self.control_start_point.x()),
-            ('start control point y', self.control_start_point.y()),
-            ('end control point x', self.control_end_point.x()),
-            ('end control point y', self.control_end_point.y()),
-            ('last default start point x', self.last_default_start.x()),
-            ('last default start point y', self.last_default_start.y()),
-            ('last default end point x', self.last_default_end.x()),
-            ('last default end point y', self.last_default_end.y()),
+            # control point
+            ('start control point x', self.source_item.scenePos().x()),
+            ('start control point y', self.source_item.scenePos().y()),
+            ('end control point x', self.destination_item.scenePos().x()),
+            ('end control point y', self.destination_item.scenePos().y()),
+            ('source moving status', self.source_item.moving),
+            ('destination moving status', self.destination_item.moving),
             # style
             ('width', self.width),
             ('color', self.color.rgba()),
@@ -347,10 +335,42 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.selected_color_flag = data['selected color flag']
 
         # control point
-        self.control_start_point = QtCore.QPointF(data['start control point x'], data['start control point y'])
-        self.control_end_point = QtCore.QPointF(data['end control point x'], data['end control point y'])
-        self.last_default_start = QtCore.QPointF(data['last default start point x'], data['last default start point y'])
-        self.last_default_end = QtCore.QPointF(data['last default end point x'], data['last default end point y'])
-        self.move_status = constants.PIPE_COMMON
+        if not self.source_item and not self.destination_item:
+            self.source_item = ControlPoint()
+            self.destination_item = ControlPoint()
+            self.source_item.setPos(data['start control point x'], data['start control point y'])
+            self.destination_item.setPos(data['end control point x'], data['end control point y'])
+            self.source_item.moving = data['source moving status']
+            self.destination_item.moving = data['destination moving status']
+            self.scene().addItem(self.source_item)
+            self.scene().addItem(self.destination_item)
+
         self.update()
         return True
+
+
+class ControlPoint(QtWidgets.QGraphicsItem):
+    control_point_radius = 10
+    control_point_color = QtGui.QColor(255, 129, 129)
+    control_point_border_color = QtGui.QColor(0, 0, 0)
+
+    def __init__(self):
+        super(ControlPoint, self).__init__()
+        self.moving = False
+        self.control_point_flag = True
+        self.setFlags(QtWidgets.QGraphicsItem.ItemIsSelectable |
+                      QtWidgets.QGraphicsItem.ItemIsMovable)
+        self.setZValue(constants.Z_VAL_PIPE)
+        self.setVisible(False)
+
+    def boundingRect(self) -> QtCore.QRectF:
+        return QtCore.QRectF(0, 0, self.control_point_radius, self.control_point_radius)
+
+    def paint(self, painter, option, widget=None) -> None:
+        painter.setBrush(self.control_point_color)
+        painter.setPen(self.control_point_border_color)
+        painter.drawEllipse(self.boundingRect())
+
+    def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
+        super(ControlPoint, self).mouseMoveEvent(event)
+        self.moving = True
