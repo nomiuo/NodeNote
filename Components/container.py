@@ -30,6 +30,9 @@ class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.color_flag = False
         self.selected_color_flag = False
 
+    def boundingRect(self) -> QtCore.QRectF:
+        return QtCore.QRectF(0, 0, 1000, 1000)
+
     def paint(self, painter, option, widget=None) -> None:
         #   Width and color init
         if self.scene().container_style_width and not self.width_flag:

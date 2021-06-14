@@ -65,6 +65,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                                                          ("Root Scene",))
         self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
         self.root_scene_flag.setExpanded(True)
+        self.root_scene.sub_scene_flag = self.root_scene_flag
         self.current_scene = self.root_scene
         self.current_scene_flag = self.root_scene_flag
 
@@ -713,6 +714,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 self.open_file(item)
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
+        super(View, self).mouseMoveEvent(event)
         if self.mode == constants.MODE_PIPE_DRAG:
             self.drag_pipe.update_position(self.mapToScene(event.pos()))
         elif self.mode == constants.MODE_PIPE_CUT:
@@ -721,7 +723,6 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         elif self.mode == constants.MODE_CONTAINER:
             self.container_widget.next_point = self.mapToScene(event.pos())
             self.container_widget.update()
-        super(View, self).mouseMoveEvent(event)
 
     def keyPressEvent(self, event) -> None:
         super(View, self).keyPressEvent(event)
@@ -784,6 +785,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 self.change_flowing_image()
 
     def drawBackground(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None:
+        super(View, self).drawBackground(painter, rect)
         self.background_image.setPos(self.mapToScene(0, 0).x(), self.mapToScene(0, 0).y())
         self.background_image.resize(self.size().width(), self.size().height())
 

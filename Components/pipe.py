@@ -176,6 +176,9 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             self.pos_destination = self.pos_source
         self.update()
 
+    def boundingRect(self) -> QtCore.QRectF:
+        return QtCore.QRectF(0, 0, 1000, 1000)
+
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
         # Width and color init
         if self.scene().pipe_style_width and not self.width_flag:
