@@ -114,9 +114,7 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
 
     def title_changed(self):
         if self.view.filename:
-            self.view.mainwindow.setWindowTitle("*" + self.view.filename + "-Snow")
-        else:
-            self.view.mainwindow.setWindowTitle("*Snow")
+            self.view.save_to_file()
 
     def serialize(self):
         attribute_widgets = list()

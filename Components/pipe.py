@@ -174,10 +174,15 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             self.pos_destination = pos_destination
         else:
             self.pos_destination = self.pos_source
+
+        self.prepareGeometryChange()
+        self.start_port.parentItem().layout.activate()
+        if self.end_port:
+            self.end_port.parentItem().layout.activate()
         self.update()
 
     def boundingRect(self) -> QtCore.QRectF:
-        return QtCore.QRectF(self.pos_source, self.pos_destination - self.pos_source)
+        return QtCore.QRectF(self.pos_source, self.pos_destination + self.pos_source)
 
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
         # Width and color init
