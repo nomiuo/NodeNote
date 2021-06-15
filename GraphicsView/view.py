@@ -541,6 +541,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
     def cutline_released(self):
         self.cut_interacting_edges()
         self.cutline.line_points = list()
+        self.cutline.prepareGeometryChange()
         self.cutline.update()
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
         self.mode = constants.MODE_NOOP
@@ -716,9 +717,11 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
         super(View, self).mouseMoveEvent(event)
         if self.mode == constants.MODE_PIPE_DRAG:
+            self.drag_pipe.prepareGeometryChange()
             self.drag_pipe.update_position(self.mapToScene(event.pos()))
         elif self.mode == constants.MODE_PIPE_CUT:
             self.cutline.line_points.append(self.mapToScene(event.pos()))
+            self.cutline.prepareGeometryChange()
             self.cutline.update()
         elif self.mode == constants.MODE_CONTAINER:
             self.container_widget.next_point = self.mapToScene(event.pos())
