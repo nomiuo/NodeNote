@@ -1091,11 +1091,41 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable | QtWidgets.QGraphicsItem.ItemIsSelectable)
         self.input_port = port.Port(constants.INPUT_NODE_TYPE, True, self)
         self.output_port = port.Port(constants.OUTPUT_NODE_TYPE, True, self)
-        self.layout = QtWidgets.QGraphicsLinearLayout()
         self.setZValue(constants.Z_VAL_NODE)
         self.logic_combobox_input = QtWidgets.QComboBox()
         self.logic_combobox_output = QtWidgets.QComboBox()
-        self.design_ui()
+        self.logic_combobox_input.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
+        self.logic_combobox_input.setMaximumHeight(20)
+        logic_list_input = QtWidgets.QListView(self.logic_combobox_input)
+        logic_list_input.setStyleSheet(stylesheet.STYLE_QLISTVIEW)
+        self.logic_combobox_input.setView(logic_list_input)
+        self.logic_combobox_input.addItems(("And", "Or", "Not"))
+        self.logic_combobox_input.clearFocus()
+
+        self.logic_combobox_output.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
+        self.logic_combobox_output.setMaximumHeight(20)
+        logic_list_output = QtWidgets.QListView(self.logic_combobox_output)
+        logic_list_output.setStyleSheet(stylesheet.STYLE_QLISTVIEW)
+        self.logic_combobox_output.setView(logic_list_output)
+        self.logic_combobox_output.addItems(("And", "Or", "Not"))
+        self.logic_combobox_output.clearFocus()
+
+        group = GroupWidget("Logical Controller")
+        group.add_node_widget(self.logic_combobox_input)
+        group.add_node_widget(self.logic_combobox_output)
+        proxywidget = QtWidgets.QGraphicsProxyWidget()
+        proxywidget.setWidget(group)
+        self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
+        self.layout.addItem(self.input_port)
+        self.layout.addItem(proxywidget)
+        self.layout.addItem(self.output_port)
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.input_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.input_port.setMinimumSize(port.Port.width, port.Port.width)
+        self.output_port.setMaximumSize(port.Port.width, port.Port.width)
+        self.output_port.setMinimumSize(port.Port.width, port.Port.width)
+        self.setLayout(self.layout)
 
         # Animation
         self.next_attribute = list()
@@ -1125,37 +1155,12 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.border_color_flag = False
         self.selected_border_color_flag = False
 
-    def design_ui(self):
-        # select logic
-        self.logic_combobox_input.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
-        self.logic_combobox_input.setMaximumHeight(20)
-        logic_list_input = QtWidgets.QListView(self.logic_combobox_input)
-        logic_list_input.setStyleSheet(stylesheet.STYLE_QLISTVIEW)
-        self.logic_combobox_input.setView(logic_list_input)
-        self.logic_combobox_input.addItems(("And", "Or", "Not"))
-        self.logic_combobox_input.clearFocus()
-
-        self.logic_combobox_output.setStyleSheet(stylesheet.STYLE_QCOMBOBOX)
-        self.logic_combobox_output.setMaximumHeight(20)
-        logic_list_output = QtWidgets.QListView(self.logic_combobox_output)
-        logic_list_output.setStyleSheet(stylesheet.STYLE_QLISTVIEW)
-        self.logic_combobox_output.setView(logic_list_output)
-        self.logic_combobox_output.addItems(("And", "Or", "Not"))
-        self.logic_combobox_output.clearFocus()
-
-        group = GroupWidget("Logical Controller")
-        group.add_node_widget(self.logic_combobox_input)
-        group.add_node_widget(self.logic_combobox_output)
-        proxywidget = QtWidgets.QGraphicsProxyWidget()
-        proxywidget.setWidget(group)
-        self.layout.addItem(proxywidget)
-        self.setLayout(self.layout)
-
     def get_port_position(self, port_type, port_truth):
         if port_truth:
             if port_type == constants.INPUT_NODE_TYPE:
                 return self.input_port.scenePos() + QtCore.QPointF(0, port.Port.width / 2)
             else:
+                self.update()
                 return self.output_port.scenePos() + QtCore.QPointF(0, port.Port.width / 2)
 
     def update_pipe_position(self):
@@ -1306,8 +1311,9 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         if self.scene().logic_style_selected_border_color and not self.selected_border_color_flag:
             self.selected_border_color = self.scene().logic_style_selected_border_color
 
-        self.input_port.setPos(-port.Port.width / 2, self.size().height() / 2 - 3)
-        self.output_port.setPos(self.size().width() - port.Port.width / 2, self.size().height() / 2 - 3)
+        # self.input_port.setPos(-port.Port.width / 2, self.size().height() / 2 - 3)
+        # self.output_port.setPos(self.size().width() - port.Port.width / 2, self.size().height() / 2 - 3)
+        # print("paint:", self.input_port.scenePos())
 
         if self.colliding_co:
             pen = QtGui.QPen(QtGui.QColor(230, 0, 0, 100), 2)

@@ -62,8 +62,8 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.choose_first = True
         self.control = False
 
-        self.source_item = None
-        self.destination_item = None
+        self.source_item = ControlPoint()
+        self.destination_item = ControlPoint()
         self.show_flag = False
         self.control_line_color = QtGui.QColor(128, 205, 255)
 
@@ -177,7 +177,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.update()
 
     def boundingRect(self) -> QtCore.QRectF:
-        return QtCore.QRectF(0, 0, 1000, 1000)
+        return QtCore.QRectF(0, 0, 10000, 10000)
 
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
         # Width and color init
@@ -215,9 +215,9 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         path = QtGui.QPainterPath(self.pos_source)
 
         # create ellipse item
-        if not self.source_item and not self.destination_item:
-            self.source_item = ControlPoint()
-            self.destination_item = ControlPoint()
+        if not self.source_item.first_flag and not self.destination_item.first_flag:
+            self.source_item.first_flag = True
+            self.destination_item.first_flag = True
             self.source_item.setPos(s.x() + s_x, s.y() + s_y)
             self.destination_item.setPos(d.x() + d_x, d.y() + d_y)
             self.scene().addItem(self.source_item)
@@ -339,15 +339,13 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.selected_color_flag = data['selected color flag']
 
         # control point
-        if not self.source_item and not self.destination_item:
+        if not self.source_item.first_flag and not self.destination_item.first_flag:
             self.source_item = ControlPoint()
             self.destination_item = ControlPoint()
             self.source_item.setPos(data['start control point x'], data['start control point y'])
             self.destination_item.setPos(data['end control point x'], data['end control point y'])
             self.source_item.moving = data['source moving status']
             self.destination_item.moving = data['destination moving status']
-            self.scene().addItem(self.source_item)
-            self.scene().addItem(self.destination_item)
 
         self.update()
         return True
@@ -362,6 +360,7 @@ class ControlPoint(QtWidgets.QGraphicsItem):
         super(ControlPoint, self).__init__(parent)
         self.moving = False
         self.control_point_flag = True
+        self.first_flag = False
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsSelectable |
                       QtWidgets.QGraphicsItem.ItemIsMovable)
         self.setZValue(constants.Z_VAL_PIPE)

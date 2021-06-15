@@ -31,7 +31,22 @@ class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.selected_color_flag = False
 
     def boundingRect(self) -> QtCore.QRectF:
-        return QtCore.QRectF(0, 0, 1000, 1000)
+        left_x = float("+inf")
+        up_y = float("+inf")
+        right_x = float("-inf")
+        down_y = float("-inf")
+
+        for point in self.points:
+            if point[0] <= left_x:
+                left_x = point[0]
+            if point[1] <= up_y:
+                up_y = point[1]
+            if point[0] >= right_x:
+                right_x = point[0]
+            if point[1] >= down_y:
+                down_y = point[1]
+
+        return QtCore.QRectF(QtCore.QPointF(left_x, up_y), QtCore.QPointF(right_x, down_y))
 
     def paint(self, painter, option, widget=None) -> None:
         #   Width and color init
