@@ -1156,12 +1156,12 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.selected_border_color_flag = False
 
     def get_port_position(self, port_type, port_truth):
+        self.layout.activate()
         if port_truth:
             if port_type == constants.INPUT_NODE_TYPE:
                 return self.input_port.scenePos() + QtCore.QPointF(0, port.Port.width / 2)
             else:
-                self.update()
-                return self.output_port.scenePos() + QtCore.QPointF(0, port.Port.width / 2)
+                return self.output_port.scenePos() + QtCore.QPointF(port.Port.width / 2, port.Port.width / 2)
 
     def update_pipe_position(self):
         self.input_port.update_pipes_position()
@@ -1310,10 +1310,6 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             self.border_color = self.scene().logic_style_border_color
         if self.scene().logic_style_selected_border_color and not self.selected_border_color_flag:
             self.selected_border_color = self.scene().logic_style_selected_border_color
-
-        # self.input_port.setPos(-port.Port.width / 2, self.size().height() / 2 - 3)
-        # self.output_port.setPos(self.size().width() - port.Port.width / 2, self.size().height() / 2 - 3)
-        # print("paint:", self.input_port.scenePos())
 
         if self.colliding_co:
             pen = QtGui.QPen(QtGui.QColor(230, 0, 0, 100), 2)
