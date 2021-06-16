@@ -606,6 +606,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.mainwindow.style_switch_combox.setCurrentIndex(0)
         self.mainwindow.style_switch_combox.setCurrentIndex(1)
 
+        self.mainwindow.scene_list.selectionModel().clearSelection()
+
     def delete_sub_scene(self, sub_scene_item: QtWidgets.QTreeWidgetItem):
         parent_flag = sub_scene_item.parent()
 
