@@ -346,30 +346,31 @@ class NoteWindow(QtWidgets.QMainWindow):
         if self.timer_status is False:
             timer.start(1000)
             self.timer_status = True
-            if not self.start_time:
-                if not self.view_widget.start_time:
-                    self.start_time = time.time()
-                    self.view_widget.start_time = self.start_time
-                else:
-                    self.start_time = self.view_widget.start_time
-            else:
-                self.start_time = time.time()
+            self.start_time = time.time()
+            if not self.view_widget.start_time:
+                self.view_widget.start_time = self.start_time
+            self.last_time = self.view_widget.last_time
             self.time_day_button.setText("End")
         elif self.timer_status:
             timer.stop()
             self.timer_status = False
             self.last_time += time.time() - self.start_time
             self.view_widget.last_time = self.last_time
-            self.start_time = time.time()
             self.time_day_button.setText("Start")
 
     def time_update(self):
-        day_time = time.time() - self.start_time + self.view_widget.last_time
+        day_time = time.time() - self.start_time + self.last_time
         day_time_hour = int(day_time // 60 // 60)
         day_time_min = int((day_time // 60) - 60 * day_time_hour)
         day_time_sec = int(day_time - 60 * day_time_min - 60 * 60 * day_time_hour)
-        self.time_day_label.setText("today has used software: %s : %s: %s" %
+        self.time_day_label.setText("today has used software: %s:%s:%s" %
                                     (day_time_hour, day_time_min, day_time_sec))
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        if self.timer_status:
+            self.timer_status = False
+            self.last_time += time.time() - self.start_time
+            self.view_widget.last_time = self.last_time
 
     @staticmethod
     def color_label_changed(label, color):

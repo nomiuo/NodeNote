@@ -871,14 +871,14 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.containers = list()
 
         # use time
-        current_day = time.strftime("%Y:%M:%D", time.localtime(time.time()))
-        last_day = time.strftime("%Y:%M:%D", time.localtime(data['use time']))
+        current_day = time.strftime("%Y:%m:%d", time.localtime(time.time()))
+        last_day = time.strftime("%Y:%m:%d", time.localtime(data['use time']))
         if current_day == last_day:
             self.start_time = data['use time']
+            self.last_time = data['last time']
         else:
             self.start_time = None
-
-        self.last_time = data['last time']
+            self.last_time = 0
 
         # image path
         if data['image path']:
