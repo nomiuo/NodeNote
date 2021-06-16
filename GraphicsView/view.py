@@ -575,6 +575,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             sub_scene_flag.setData(0, QtCore.Qt.ToolTipRole, sub_scene)
             sub_scene_flag.setExpanded(True)
 
+            self.current_scene.clearSelection()
             self.setScene(sub_scene)
             self.current_scene = sub_scene
             self.current_scene_flag = sub_scene.sub_scene_flag
@@ -582,6 +583,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
             sub_scene = attribute_widget.sub_scene
 
+            self.current_scene.clearSelection()
             self.setScene(sub_scene)
             self.current_scene = sub_scene
             self.current_scene_flag = sub_scene.sub_scene_flag
