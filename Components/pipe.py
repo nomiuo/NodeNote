@@ -182,7 +182,12 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         self.update()
 
     def boundingRect(self) -> QtCore.QRectF:
-        return QtCore.QRectF(self.pos_source, self.pos_destination + self.pos_source)
+        return QtCore.QRectF(
+            min(self.pos_source.x(), self.pos_destination.x()),
+            min(self.pos_source.y(), self.pos_destination.y()),
+            abs(self.pos_source.x() - self.pos_destination.x()),
+            abs(self.pos_source.y() - self.pos_destination.y()),
+        ).adjusted(-self.width / 2, -self.width / 2, +self.width / 2, +self.width / 2)
 
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
         # Width and color init

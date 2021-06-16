@@ -207,7 +207,8 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
                 end_port = self.get_id_port(pipe_data['end port'])
                 pipe.Pipe(start_port, end_port, None).deserialize(pipe_data, hashmap, view, flag=True)
                 start_port.update_pipes_position()
-                end_port.update_pipes_position()
+                if end_port:
+                    end_port.update_pipes_position()
             # deserialize container widgets with all
             for container_data in data['container widgets']:
                 container.Container(QtCore.QPointF(container_data['points'][0][0], container_data['points'][0][1])). \
