@@ -1,4 +1,5 @@
 import random
+import os
 from PyQt5 import QtCore, QtGui, QtWidgets, sip
 from Model.constants import DEBUG_EFFECT_SNOW
 
@@ -70,7 +71,7 @@ class EffectSkyWidget(QtWidgets.QWidget):
 
 
 class SnowWidget(QtWidgets.QWidget):
-    image_path = 'Resources/snow4.png'
+    image_path = 'Resources/flower.png'
 
     def __init__(self, parent=None):
         super(SnowWidget, self).__init__(parent)

@@ -113,8 +113,13 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
                     return item
 
     def title_changed(self):
-        if self.view.filename:
-            self.view.save_to_file()
+        if self.view.first_open:
+            if self.view.filename:
+                self.view.load_from_file()
+                self.view.first_open = False
+        else:
+            if self.view.filename:
+                self.view.save_to_file()
 
     def serialize(self):
         attribute_widgets = list()

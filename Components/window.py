@@ -10,12 +10,12 @@ from GraphicsView.view import View
 
 
 class NoteWindow(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, argv):
         super(NoteWindow, self).__init__()
-
+        self.argv = argv
         #   Window Init
-        self.setWindowIcon(QtGui.QIcon('Resources/snow3.svg'))  # set icon
-        self.setWindowTitle("Snow")  # set title
+        self.setWindowIcon(QtGui.QIcon('Resources/life.png'))  # set icon
+        self.setWindowTitle("My Beautiful life")  # set title
         self.resize(1200, 1000)  # set size
         self.move(  # set geometry
             (QtWidgets.QDesktopWidget().screenGeometry().width() - self.geometry().width()) // 2,
@@ -28,6 +28,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         self.addToolBar(QtCore.Qt.LeftToolBarArea, self.toolbar)
         self.tab_widget = QtWidgets.QTabWidget()
         self.toolbar.addWidget(self.tab_widget)
+        self.toolbar.setVisible(False)
 
         # Scene list widget
         self.scene_list_bottom = QtWidgets.QWidget()
@@ -1037,12 +1038,19 @@ class NoteWindow(QtWidgets.QMainWindow):
             self.color_label_changed(self.logic_style_selected_border_color_label,
                                      attribute.LogicWidget.selected_border_color)
             #   change slots
+            self.logic_style_background_color_button.disconnect()
             self.logic_style_background_color_button.clicked.connect(
                 lambda x: self.color_changed("Logic_color", current_index))
+
+            self.logic_style_selected_background_color_button.disconnect()
             self.logic_style_selected_background_color_button.clicked.connect(
                 lambda x: self.color_changed("Logic_selected_color", current_index))
+
+            self.logic_style_border_color_button.disconnect()
             self.logic_style_border_color_button.clicked.connect(
                 lambda x: self.color_changed("Logic_border_color", current_index))
+
+            self.logic_style_selected_border_color_button.disconnect()
             self.logic_style_selected_border_color_button.clicked.connect(
                 lambda x: self.color_changed("Logic_selected_border_color", current_index))
 
@@ -1113,18 +1121,16 @@ class NoteWindow(QtWidgets.QMainWindow):
 
     def init_pipe(self, current_index):
         if current_index == 0:
-            #   change current parameters
-            #       width
-            self.width_label_changed(self.pipe_style_width_label, pipe.Pipe.width)
-            #       color
-            self.color_label_changed(self.pipe_style_background_color_label, pipe.Pipe.color)
-            self.color_label_changed(self.pipe_style_selected_background_color_label, pipe.Pipe.selected_color)
             #   change slots
             #       width
+            self.pipe_style_width_button.disconnect()
             self.pipe_style_width_button.clicked.connect(lambda x: self.width_changed("Pipe_width", current_index))
             #       color
+            self.pipe_style_background_color_button.disconnect()
             self.pipe_style_background_color_button.clicked.connect(
                 lambda x: self.color_changed("Pipe_color", current_index))
+
+            self.pipe_style_selected_background_color_button.disconnect()
             self.pipe_style_selected_background_color_button.clicked.connect(
                 lambda x: self.color_changed("Pipe_selected_color", current_index))
 
@@ -1189,18 +1195,30 @@ class NoteWindow(QtWidgets.QMainWindow):
             self.color_label_changed(self.port_style_activated_border_color_label, port.Port.activated_border_color)
             #   change slots
             #       width
+            self.port_style_width_button.disconnect()
             self.port_style_width_button.clicked.connect(lambda x: self.width_changed("Port_width", current_index))
             #       color
+            self.port_style_color_button.disconnect()
             self.port_style_color_button.clicked.connect(
                 lambda x: self.color_changed("Port_color", current_index))
+
+            self.port_style_border_color_button.disconnect()
             self.port_style_border_color_button.clicked.connect(
                 lambda x: self.color_changed("Port_border_color", current_index))
+
+            self.port_style_hovered_color_button.disconnect()
             self.port_style_hovered_color_button.clicked.connect(
                 lambda x: self.color_changed("Port_hovered_color", current_index))
+
+            self.port_style_hovered_border_color_button.disconnect()
             self.port_style_hovered_border_color_button.clicked.connect(
                 lambda x: self.color_changed("Port_hovered_border_color", current_index))
+
+            self.port_style_activated_color_button.disconnect()
             self.port_style_activated_color_button.clicked.connect(
                 lambda x: self.color_changed("Port_activated_color", current_index))
+
+            self.port_style_activated_border_color_button.disconnect()
             self.port_style_activated_border_color_button.clicked.connect(
                 lambda x: self.color_changed("Port_activated_border_color", current_index))
 
@@ -1316,11 +1334,15 @@ class NoteWindow(QtWidgets.QMainWindow):
             self.color_label_changed(self.container_style_selected_color_label, container.Container.selected_color)
             #   chang slots
             #       width
+            self.container_style_width_button.disconnect()
             self.container_style_width_button.clicked.connect(
                 lambda x: self.width_changed("Container_width", current_index))
             #       color
+            self.container_style_color_button.disconnect()
             self.container_style_color_button.clicked.connect(
                 lambda x: self.color_changed("Container_color", current_index))
+
+            self.container_style_selected_color_button.disconnect()
             self.container_style_selected_color_button.clicked.connect(
                 lambda x: self.color_changed("Container_selected_color", current_index))
 

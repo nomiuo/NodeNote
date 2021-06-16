@@ -302,7 +302,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         return OrderedDict([
             ('id', self.id),
             ('start port', self.start_port.id),
-            ('end port', self.end_port.id),
+            ('end port', self.end_port.id if self.end_port else None),
             ("text", self.edit.toPlainText()),
             # control point
             ('start control point x', self.source_item.scenePos().x()),

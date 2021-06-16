@@ -104,7 +104,11 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.text_format = {}
 
         # file
-        self.filename = None
+        if len(self.mainwindow.argv) == 2:
+            self.filename = self.mainwindow.argv[1]
+        else:
+            self.filename = None
+        self.first_open = True
 
         # image
         self.image_path = None
@@ -807,14 +811,20 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             self.mainwindow.setWindowTitle(self.filename + "-Snow")
 
     def load_from_file(self):
-        filename, ok = QtWidgets.QFileDialog.getOpenFileName(self,
-                                                             "Open serialization json file", "./", "json (*.json)")
-        if filename and ok:
-            with open(filename, "r", encoding='utf-8') as file:
+        if not self.filename:
+            filename, ok = QtWidgets.QFileDialog.getOpenFileName(self,
+                                                                 "Open serialization json file", "./", "json (*.json)")
+            if filename and ok:
+                with open(filename, "r", encoding='utf-8') as file:
+                    data = json.loads(file.read())
+                    self.deserialize(data, {}, self, True)
+                    self.filename = filename
+                    self.mainwindow.setWindowTitle(filename + "-Snow")
+        else:
+            with open(self.filename, "r", encoding='utf-8') as file:
                 data = json.loads(file.read())
                 self.deserialize(data, {}, self, True)
-                self.filename = filename
-                self.mainwindow.setWindowTitle(filename + "-Snow")
+                self.mainwindow.setWindowTitle(self.filename + "-Snow")
 
     def serialize(self):
         return OrderedDict([
