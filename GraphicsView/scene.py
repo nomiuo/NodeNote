@@ -22,9 +22,6 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
         self.addItem(self.background_image)
         self.background_image.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations)
 
-        # title
-        self.changed.connect(self.title_changed)
-
         # CUT LINE
         self.cutline = effect_cutline.EffectCutline()
         self.addItem(self.cutline)
@@ -112,15 +109,6 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
             if isinstance(item, pipe.Pipe):
                 if item.id == pipe_id:
                     return item
-
-    def title_changed(self):
-        if self.view.first_open:
-            if self.view.filename:
-                self.view.load_from_file()
-                self.view.first_open = False
-        else:
-            if self.view.filename:
-                self.view.save_to_file()
 
     def drawBackground(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None:
         if painter.paintEngine().type() != QtGui.QPaintEngine.OpenGL:

@@ -178,6 +178,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                         item.end_evaluation_feedback()
 
         self.history.store_history("update pipe animation")
+        if self.filename:
+            self.save_to_file()
 
     def python_highlighter(self):
         for item in self.current_scene.selectedItems():
@@ -385,6 +387,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                         item.parent_item.update_pipe_position()
 
             self.history.store_history("Delete Widgets")
+            if self.filename:
+                self.save_to_file()
 
     def delete_pipe(self, item):
         end_node = item.get_input_node()
@@ -412,6 +416,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.attribute_widgets.append(basic_widget)
         self.history.store_history("Add Attribute Widget")
+        if self.filename:
+            self.save_to_file()
 
     def add_truth_widget(self, event):
         basic_widget = attribute.LogicWidget()
@@ -419,6 +425,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.logic_widgets.append(basic_widget)
         self.history.store_history("Add Truth Widget")
+        if self.filename:
+            self.save_to_file()
 
     def open_file(self, item):
         if not item.file_url:
@@ -426,6 +434,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                                                                      "any file (*.*)")
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(item.file_url))
         self.history.store_history("Add File")
+        if self.filename:
+            self.save_to_file()
 
     def add_drag_pipe(self, port_widget, pipe_widget):
         port_widget.add_pipes(pipe_widget)
@@ -517,6 +527,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                     output_node.start_pipe_animation()
 
                 self.history.store_history("Create Pipe")
+                if self.filename:
+                    self.save_to_file()
             else:
                 if constants.DEBUG_DRAW_PIPE:
                     print("delete drag pipe case 1")
@@ -569,6 +581,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
         self.mode = constants.MODE_NOOP
         self.history.store_history("Create Container")
+        if self.filename:
+            self.save_to_file()
 
     def new_sub_scene(self, attribute_widget):
         if not attribute_widget.sub_scene:
@@ -603,6 +617,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.mainwindow.style_switch_combox.setCurrentIndex(1)
 
         self.history.store_history("Create Sub Scene")
+        if self.filename:
+            self.save_to_file()
 
     def change_current_scene(self, sub_scene_item: QtWidgets.QTreeWidgetItem):
         self.current_scene = sub_scene_item.data(0, QtCore.Qt.ToolTipRole)
@@ -816,11 +832,11 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                 self.filename = filename
                 with open(filename, "w", encoding='utf-8') as file:
                     file.write(json.dumps(self.serialize(), indent=4))
-                self.mainwindow.setWindowTitle(filename + "-Snow")
+                self.mainwindow.setWindowTitle(filename + "-Life")
         else:
             with open(self.filename, "w", encoding='utf-8') as file:
                 file.write(json.dumps(self.serialize(), indent=4))
-            self.mainwindow.setWindowTitle(self.filename + "-Snow")
+            self.mainwindow.setWindowTitle(self.filename + "-Life")
 
     def load_from_file(self):
         if not self.filename:
