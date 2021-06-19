@@ -1414,3 +1414,9 @@ class NoteWindow(QtWidgets.QMainWindow):
         if a0.key() == QtCore.Qt.Key_Delete and len(self.scene_list.selectedItems()) == 1:
             self.view_widget.delete_sub_scene(self.scene_list.selectedItems()[0])
         super(NoteWindow, self).keyPressEvent(a0)
+
+    def load_data(self, splash: QtWidgets.QSplashScreen):
+        if self.view_widget.filename:
+            self.view_widget.load_from_file()
+        splash.showMessage("loading", QtCore.Qt.AlignCenter | QtCore.Qt.AlignBottom, QtCore.Qt.white)
+        QtWidgets.qApp.processEvents()

@@ -778,9 +778,13 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if event.key() == QtCore.Qt.Key_Z and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             if not event.isAccepted():
                 self.history.undo()
+                if self.filename:
+                    self.save_to_file()
         if event.key() == QtCore.Qt.Key_Y and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             if not event.isAccepted():
                 self.history.redo()
+                if self.filename:
+                    self.save_to_file()
         if event.key() == QtCore.Qt.Key_S and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.save_to_file()
         if event.key() == QtCore.Qt.Key_O and int(event.modifiers()) & QtCore.Qt.ControlModifier:
