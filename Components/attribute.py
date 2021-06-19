@@ -1300,6 +1300,7 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
     def paint(self, painter, option, widget=None) -> None:
         super(LogicWidget, self).paint(painter, option, widget)
+        painter.save()
 
         #   color init
         if self.scene().logic_style_background_color and not self.background_color_flag:
@@ -1326,6 +1327,8 @@ class LogicWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         painter.setPen(pen)
         painter.setBrush(brush)
         painter.drawRoundedRect(0, 0, self.size().width(), self.size().height(), 2, 2)
+
+        painter.restore()
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
         for item in self.scene().selectedItems():
@@ -1765,11 +1768,15 @@ class AttributeFile(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.image_url = r"Resources/Attribute Flag/video.png"
 
     def paint(self, painter: QtGui.QPainter, option: 'QtWidgets.QStyleOptionGraphicsItem', widget=None) -> None:
+        painter.save()
+
         pen = QtGui.QPen(AttributeWidget.border_color, 0.5)
         selected_pen = QtGui.QPen(AttributeWidget.selected_border_color, 0.5)
         painter.setPen(pen if not self.isSelected() else selected_pen)
         painter.setBrush(QtCore.Qt.NoBrush)
         painter.drawRoundedRect(0, 0, self.size().width(), self.size().height(), 5, 5)
+
+        painter.restore()
 
     def turn_image(self):
         image_url, _ = QtWidgets.QFileDialog.getOpenFileName(None, "select image", "", "*.png *.jpg")

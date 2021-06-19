@@ -190,6 +190,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         ).adjusted(-self.width / 2, -self.width / 2, +self.width / 2, +self.width / 2)
 
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
+        painter.save()
         # Width and color init
         if self.scene().pipe_style_width and not self.width_flag:
             self.width = self.scene().pipe_style_width
@@ -220,8 +221,8 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         d_y = 0
         if ((s.x() > d.x()) and sspos == constants.OUTPUT_NODE_TYPE) or \
                 ((s.x() < d.x()) and sspos == constants.INPUT_NODE_TYPE):
-            s_x *= -2.4  # > 0, s_y = 0  | < 0
-            d_x *= -2.4  # < 0, d_y = 0  | > 0
+            s_x *= -1  # > 0, s_y = 0  | < 0
+            d_x *= -1  # < 0, d_y = 0  | > 0
         path = QtGui.QPainterPath(self.pos_source)
 
         # create ellipse item
@@ -290,6 +291,8 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         bound_rect_width, bound_rect_height = self.edit.boundingRect().width(), self.edit.boundingRect().height()
         self.edit.setPos(self.path().pointAtPercent(0.5).x() - (bound_rect_width // 2),
                          self.path().pointAtPercent(0.5).y() - (bound_rect_height // 2))
+
+        painter.restore()
 
     def mouseMoveEvent(self, event: 'QtWidgets.QGraphicsSceneMouseEvent') -> None:
         super(Pipe, self).mouseMoveEvent(event)
@@ -373,7 +376,7 @@ class ControlPoint(QtWidgets.QGraphicsItem):
         self.first_flag = False
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsSelectable |
                       QtWidgets.QGraphicsItem.ItemIsMovable)
-        self.setZValue(constants.Z_VAL_PIPE)
+        self.setZValue(constants.Z_VAL_PORT)
         self.setVisible(False)
 
     def boundingRect(self) -> QtCore.QRectF:

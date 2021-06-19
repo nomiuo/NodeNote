@@ -27,4 +27,6 @@ class EffectBackground(QtSvg.QGraphicsSvgItem):
         return QtCore.QRectF(0, 0, self.width, self.height)
 
     def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget=None) -> None:
+        painter.save()
         self.renderer().render(painter, self.boundingRect())
+        painter.restore()

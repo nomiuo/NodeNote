@@ -49,6 +49,8 @@ class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         return QtCore.QRectF(QtCore.QPointF(left_x, up_y), QtCore.QPointF(right_x, down_y))
 
     def paint(self, painter, option, widget=None) -> None:
+        painter.save()
+
         #   Width and color init
         if self.scene().container_style_width and not self.width_flag:
             self.width = self.scene().container_style_width
@@ -79,6 +81,8 @@ class Container(QtWidgets.QGraphicsPathItem, serializable.Serializable):
             self.setPath(self.draw_path)
             painter.drawPath(self.path())
             self.deserialize_flag = False
+
+        painter.restore()
 
     def serialize(self):
         return OrderedDict([
