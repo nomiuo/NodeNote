@@ -178,7 +178,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                         item.end_evaluation_feedback()
 
         self.history.store_history("update pipe animation")
-        if self.filename:
+        if self.filename and not self.first_open:
             self.save_to_file()
 
     def python_highlighter(self):
@@ -387,7 +387,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                         item.parent_item.update_pipe_position()
 
             self.history.store_history("Delete Widgets")
-            if self.filename:
+            if self.filename and not self.first_open:
                 self.save_to_file()
 
     def delete_pipe(self, item):
@@ -416,7 +416,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.attribute_widgets.append(basic_widget)
         self.history.store_history("Add Attribute Widget")
-        if self.filename:
+        if self.filename and not self.first_open:
             self.save_to_file()
 
     def add_truth_widget(self, event):
@@ -425,7 +425,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         basic_widget.setPos(self.mapToScene(event.pos()))
         self.logic_widgets.append(basic_widget)
         self.history.store_history("Add Truth Widget")
-        if self.filename:
+        if self.filename and not self.first_open:
             self.save_to_file()
 
     def open_file(self, item):
@@ -434,7 +434,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                                                                      "any file (*.*)")
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(item.file_url))
         self.history.store_history("Add File")
-        if self.filename:
+        if self.filename and not self.first_open:
             self.save_to_file()
 
     def add_drag_pipe(self, port_widget, pipe_widget):
@@ -527,7 +527,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                     output_node.start_pipe_animation()
 
                 self.history.store_history("Create Pipe")
-                if self.filename:
+                if self.filename and not self.first_open:
                     self.save_to_file()
             else:
                 if constants.DEBUG_DRAW_PIPE:
@@ -581,7 +581,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.ArrowCursor)
         self.mode = constants.MODE_NOOP
         self.history.store_history("Create Container")
-        if self.filename:
+        if self.filename and not self.first_open:
             self.save_to_file()
 
     def new_sub_scene(self, attribute_widget):
@@ -617,7 +617,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.mainwindow.style_switch_combox.setCurrentIndex(1)
 
         self.history.store_history("Create Sub Scene")
-        if self.filename:
+        if self.filename and not self.first_open:
             self.save_to_file()
 
     def change_current_scene(self, sub_scene_item: QtWidgets.QTreeWidgetItem):
@@ -631,6 +631,9 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.mainwindow.style_switch_combox.setCurrentIndex(1)
 
         self.mainwindow.scene_list.selectionModel().clearSelection()
+
+        if self.filename and not self.first_open:
+            self.save_to_file()
 
     def delete_sub_scene(self, sub_scene_item: QtWidgets.QTreeWidgetItem):
         parent_flag = sub_scene_item.parent()
@@ -778,12 +781,12 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if event.key() == QtCore.Qt.Key_Z and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             if not event.isAccepted():
                 self.history.undo()
-                if self.filename:
+                if self.filename and not self.first_open:
                     self.save_to_file()
         if event.key() == QtCore.Qt.Key_Y and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             if not event.isAccepted():
                 self.history.redo()
-                if self.filename:
+                if self.filename and not self.first_open:
                     self.save_to_file()
         if event.key() == QtCore.Qt.Key_S and int(event.modifiers()) & QtCore.Qt.ControlModifier:
             self.save_to_file()
@@ -851,12 +854,14 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                     data = json.loads(file.read())
                     self.deserialize(data, {}, self, True)
                     self.filename = filename
-                    self.mainwindow.setWindowTitle(filename + "-Snow")
+                    self.mainwindow.setWindowTitle(filename + "-Life")
         else:
             with open(self.filename, "r", encoding='utf-8') as file:
                 data = json.loads(file.read())
                 self.deserialize(data, {}, self, True)
-                self.mainwindow.setWindowTitle(self.filename + "-Snow")
+                self.mainwindow.setWindowTitle(self.filename + "-Life")
+
+        self.first_open = False
 
     def serialize(self):
         return OrderedDict([

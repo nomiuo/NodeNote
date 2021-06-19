@@ -1418,5 +1418,6 @@ class NoteWindow(QtWidgets.QMainWindow):
     def load_data(self, splash: QtWidgets.QSplashScreen):
         if self.view_widget.filename:
             self.view_widget.load_from_file()
+            self.view_widget.first_open = False
         splash.showMessage("loading", QtCore.Qt.AlignCenter | QtCore.Qt.AlignBottom, QtCore.Qt.white)
         QtWidgets.qApp.processEvents()

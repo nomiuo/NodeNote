@@ -304,7 +304,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         super(Pipe, self).mouseReleaseEvent(event)
         if self.isSelected() and self.control and self.start_port and self.end_port:
             self.scene().view.history.store_history("Change Pipe Control Point")
-            if self.scene().view.filename:
+            if self.scene().view.filename and not self.scene().view.first_open:
                 self.scene().view.save_to_file()
             self.control = False
 
