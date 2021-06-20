@@ -357,6 +357,7 @@ class Pipe(QtWidgets.QGraphicsPathItem, serializable.Serializable):
         if not self.source_item.first_flag and not self.destination_item.first_flag:
             self.source_item = ControlPoint()
             self.destination_item = ControlPoint()
+            self.prepareGeometryChange()
             self.source_item.setPos(data['start control point x'], data['start control point y'])
             self.destination_item.setPos(data['end control point x'], data['end control point y'])
             self.source_item.moving = data['source moving status']

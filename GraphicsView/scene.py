@@ -111,6 +111,7 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
                     return item
 
     def drawBackground(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None:
+        super(Scene, self).drawBackground(painter, rect)
         if painter.paintEngine().type() != QtGui.QPaintEngine.OpenGL:
             warnings.warn("OpenGLScene: drawBackground needs a QGLWidget to be set as viewport on the graphics view")
 
@@ -359,11 +360,13 @@ class Scene(QtWidgets.QGraphicsScene, serializable.Serializable):
                                     sub_attribute_widget = self.get_id_attribute(attribute_sub_id)
                                     item.attribute_sub_widgets.append(sub_attribute_widget)
                                     item.attribute_layout.addItem(sub_attribute_widget)
+                                    item.text_change_node_shape()
                                 elif isinstance(attribute_sub_id, dict):
                                     attribute_file = attribute.AttributeFile(item)
                                     attribute_file.deserialize(attribute_sub_id, hashmap, view, flag)
                                     item.attribute_sub_widgets.append(attribute_file)
                                     item.attribute_layout.addItem(attribute_file)
+                                    item.text_change_node_shape()
                             # deserialize attribute widgets with attribute next widgets
                             for attribute_next_id in attribute_widget_data['next attribute widgets']:
                                 next_attribute_widget = self.get_id_attribute(attribute_next_id)

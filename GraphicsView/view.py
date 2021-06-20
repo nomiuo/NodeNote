@@ -671,9 +671,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
                     if item.scenePos().y() <= top:
                         top = item.scenePos().y()
                     if item.scenePos().y() + item.boundingRect().height() >= bottom:
-                        bottom = item.scenePos().x() + item.boundingRect().width()
+                        bottom = item.scenePos().y() + item.boundingRect().height()
 
-                print(right, left, bottom, top)
                 pic = QtGui.QPixmap(abs(right - left), abs(bottom - top))
                 painter = QtGui.QPainter(pic)
                 painter.setRenderHint(QtGui.QPainter.Antialiasing)
