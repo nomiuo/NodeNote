@@ -1871,7 +1871,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.input_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.output_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
-        self.title_layout =  QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
+        self.title_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         #   sapcing
         self.layout.setSpacing(0)
@@ -2041,6 +2041,11 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         # pipe position
         self.update_pipe_position()
         self.update_pipe_parent_position()
+        # parent
+        node = self.parentItem()
+        while node:
+            node.text_change_node_shape()
+            node = node.parentItem()
 
     def mouse_update_node_size(self, event):
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress and not self.parentItem():
