@@ -76,7 +76,7 @@ def format(color, style=''):
 STYLES = {
     'keyword': format('blue'),
     'operator': format('red'),
-    'brace': format('darkGray'),
+    'brace': format('black'),
     'defclass': format('black', 'bold'),
     'string': format('magenta'),
     'string2': format('darkMagenta'),
@@ -1866,20 +1866,24 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.setZValue(constants.Z_VAL_NODE)
 
         # LAYOUTS
+        self.layout_ori = True
         #   create
         self.layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Horizontal)
         self.input_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.output_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
+        self.title_layout =  QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         self.attribute_layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical)
         #   sapcing
         self.layout.setSpacing(0)
         self.input_layout.setSpacing(0)
         self.output_layout.setSpacing(0)
+        self.title_layout.setSpacing(0)
         self.attribute_layout.setSpacing(0)
         #   margin
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.input_layout.setContentsMargins(0, 0, 0, 0)
         self.output_layout.setContentsMargins(0, 0, 0, 0)
+        self.title_layout.setContentsMargins(0, 0, 0, 0)
         self.attribute_layout.setContentsMargins(0, 0, 0, 5)
 
         # WIDGETS
@@ -1903,16 +1907,18 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.setLayout(self.layout)
         self.layout.addItem(self.input_layout)
         self.layout.addStretch(1)
-        self.layout.addItem(self.attribute_layout)
+        self.layout.addItem(self.title_layout)
         self.layout.addStretch(1)
         self.layout.addItem(self.output_layout)
         #  input layout
         self.input_layout.addItem(self.true_input_port)
         self.input_layout.addStretch(1)
         self.input_layout.addItem(self.false_input_port)
-        # attribute layout
-        self.attribute_layout.addItem(self.attribute_widget)
-        self.attribute_layout.setAlignment(self.attribute_widget, QtCore.Qt.AlignCenter)
+        # title layout
+        self.title_layout.addItem(self.attribute_widget)
+        self.title_layout.addItem(self.attribute_layout)
+        self.title_layout.setAlignment(self.attribute_widget, QtCore.Qt.AlignCenter)
+        self.title_layout.setAlignment(self.attribute_layout, QtCore.Qt.AlignCenter)
         # output layout
         self.output_layout.addItem(self.true_output_port)
         self.output_layout.addStretch(1)
@@ -2028,6 +2034,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         self.layout.activate()
         self.updateGeometry()
         self.update()
+        self.title_layout.updateGeometry()
+        self.title_layout.invalidate()
         self.attribute_layout.updateGeometry()
         self.attribute_layout.invalidate()
         # pipe position
@@ -2762,6 +2770,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         move_up.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/up.png"))
         move_down = menu.addAction("Move Down")
         move_down.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/down.png"))
+        change_layout = menu.addAction("Change Layout")
+        change_layout.setIcon(QtGui.QIcon("Resources/AttributeWidgetContextMenu/layout.png"))
         result = menu.exec(event.screenPos())
         if result == add_subwidget:
             self.add_new_subwidget()
@@ -2777,6 +2787,14 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                                       isinstance(self.scene().itemAt(event.scenePos(), QtGui.QTransform()),
                                                  AttributeFile)):
             self.move_down_widget(self.scene().itemAt(event.scenePos(), QtGui.QTransform()))
+        elif result == change_layout:
+            if self.attribute_layout.orientation() == QtCore.Qt.Vertical:
+                self.attribute_layout.setOrientation(QtCore.Qt.Horizontal)
+                self.layout_ori = False
+            else:
+                self.attribute_layout.setOrientation(QtCore.Qt.Vertical)
+                self.layout_ori = True
+            self.text_change_node_shape()
         event.setAccepted(True)
 
     def moveEvent(self, event: 'QtWidgets.QGraphicsSceneMoveEvent') -> None:
@@ -2823,6 +2841,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             ('attribute sub widgets', attribute_sub_widgets),
             ('sub scene', self.sub_scene.serialize() if self.sub_scene else None),
             ('highlighter', True if self.attribute_widget.label_item.pythonlighter else False),
+            ('ori', self.layout_ori),
 
             # style
             ('item font family', self.attribute_widget.label_item.font.family()),
@@ -2918,4 +2937,13 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
                 # restore scene and flag
                 view.current_scene = last_scene
                 view.current_scene_flag = last_scene_flag
+
+            # ori
+            if not data['ori']:
+                self.attribute_layout.setOrientation(QtCore.Qt.Horizontal)
+                self.layout_ori = False
+            else:
+                self.attribute_layout.setOrientation(QtCore.Qt.Vertical)
+                self.layout_ori = True
+
         return True
