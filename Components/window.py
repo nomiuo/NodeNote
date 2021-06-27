@@ -1,4 +1,4 @@
-__all__ = ["NoteWindow"]
+__all__ = ["NoteWindow", 'TreeWidgetItem']
 
 import time
 
@@ -14,7 +14,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         super(NoteWindow, self).__init__()
         self.argv = argv
         #   Window Init
-        self.setWindowIcon(QtGui.QIcon('Resources/life.png'))  # set icon
+        self.setWindowIcon(QtGui.QIcon('Resources/cloudy.png'))  # set icon
         self.setWindowTitle("My Beautiful life")  # set title
         self.resize(1200, 1000)  # set size
         self.move(  # set geometry
@@ -41,6 +41,8 @@ class NoteWindow(QtWidgets.QMainWindow):
         self.scene_list_bottom_layout.addWidget(self.scene_list_scroll)
 
         self.scene_list = QtWidgets.QTreeWidget()
+        self.scene_list.setSortingEnabled(True)
+        self.scene_list.sortByColumn(0, QtCore.Qt.AscendingOrder)
         self.scene_list.setStyleSheet(stylesheet.STYLE_QTREEWIDGET)
         self.scene_list.setAlternatingRowColors(True)
         self.scene_list.setHeaderLabel("Scene List")

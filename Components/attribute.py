@@ -2925,7 +2925,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
 
                 # sub scene
                 from GraphicsView.scene import Scene
-                sub_scene_flag = QtWidgets.QTreeWidgetItem(
+                from GraphicsView.view import TreeWidgetItem
+                sub_scene_flag = TreeWidgetItem(
                     view.current_scene_flag,
                     (self.attribute_widget.label_item.toPlainText(),))
                 sub_scene = Scene(sub_scene_flag, view, self)

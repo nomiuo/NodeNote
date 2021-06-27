@@ -1,12 +1,36 @@
 import json
 import time
+import re
 from collections import OrderedDict
 from PyQt5 import QtGui, QtCore, QtWidgets, sip
 from GraphicsView.scene import Scene
 from Components import effect_water, attribute, port, pipe, container, effect_cutline, effect_background, effect_snow
 from Model import constants, stylesheet, history, serializable
 
-__all__ = ["View"]
+__all__ = ["View", "TreeWidgetItem"]
+
+
+class TreeWidgetItem(QtWidgets.QTreeWidgetItem):
+    def __lt__(self, other):
+        column = self.treeWidget().sortColumn()
+        key_1 = self.natural_sort_key(self.text(column))
+        key_2 = self.natural_sort_key(other.text(column))
+        if isinstance(key_1, int) and isinstance(key_2, int) or isinstance(key_1, str) and isinstance(key_2, str):
+            return key_1 < key_2
+        else:
+            return str(key_1) < str(key_2)
+
+    @staticmethod
+    def natural_sort_key(key):
+        text = re.match(r'(.+?)\..*', key, re.M)
+        if text:
+            text = text.group(1)
+            if text.isdigit():
+                return int(text)
+            elif text:
+                return text
+        else:
+            return 0
 
 
 class View(QtWidgets.QGraphicsView, serializable.Serializable):
@@ -69,8 +93,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         self.container_widget = None
 
         # SUB SCENE
-        self.root_scene_flag = QtWidgets.QTreeWidgetItem(self.mainwindow.scene_list,
-                                                         ("Root Scene",))
+        self.root_scene_flag = TreeWidgetItem(self.mainwindow.scene_list,
+                                              ("Root Scene",))
         self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
         self.root_scene_flag.setExpanded(True)
         self.root_scene.sub_scene_flag = self.root_scene_flag
@@ -586,8 +610,8 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
 
     def new_sub_scene(self, attribute_widget):
         if not attribute_widget.sub_scene:
-            sub_scene_flag = QtWidgets.QTreeWidgetItem(self.current_scene_flag,
-                                                       (attribute_widget.attribute_widget.label_item.toPlainText(),))
+            sub_scene_flag = TreeWidgetItem(self.current_scene_flag,
+                                            (attribute_widget.attribute_widget.label_item.toPlainText(),))
             sub_scene = Scene(sub_scene_flag, self, attribute_widget)
             self.background_image = sub_scene.background_image
             self.cutline = sub_scene.cutline
@@ -620,7 +644,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if self.filename and not self.first_open:
             self.save_to_file()
 
-    def change_current_scene(self, sub_scene_item: QtWidgets.QTreeWidgetItem):
+    def change_current_scene(self, sub_scene_item: TreeWidgetItem):
         self.current_scene = sub_scene_item.data(0, QtCore.Qt.ToolTipRole)
         self.current_scene_flag = sub_scene_item
         self.setScene(self.current_scene)
@@ -635,7 +659,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
         if self.filename and not self.first_open:
             self.save_to_file()
 
-    def delete_sub_scene(self, sub_scene_item: QtWidgets.QTreeWidgetItem):
+    def delete_sub_scene(self, sub_scene_item: TreeWidgetItem):
         parent_flag = sub_scene_item.parent()
 
         if parent_flag:
@@ -928,7 +952,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             self.image_path = data['image path']
 
         # set root scene
-        self.root_scene_flag = QtWidgets.QTreeWidgetItem(
+        self.root_scene_flag = TreeWidgetItem(
             self.mainwindow.scene_list,
             ("Root Scene",))
         self.root_scene_flag.setData(0, QtCore.Qt.ToolTipRole, self.root_scene)
