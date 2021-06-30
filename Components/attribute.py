@@ -2117,8 +2117,7 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         if self.scene().view.filename and not self.scene().view.first_open:
             self.scene().view.save_to_file()
 
-    @staticmethod
-    def move_up_widget(widget):
+    def move_up_widget(self, widget):
         parent = widget.parentItem()
         index = 0
         for i in range(parent.attribute_layout.count()):
@@ -2131,8 +2130,11 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             parent.attribute_layout.removeAt(index)
             parent.attribute_layout.insertItem(index - 1, widget)
 
-    @staticmethod
-    def move_down_widget(widget):
+        self.scene().view.history.store_history("Move up widget")
+        if self.scene().view.filename and not self.scene().view.first_open:
+            self.scene().view.save_to_file()
+
+    def move_down_widget(self, widget):
         parent = widget.parentItem()
         index = 0
         for i in range(parent.attribute_layout.count()):
@@ -2144,6 +2146,10 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
         else:
             parent.attribute_layout.removeAt(index)
             parent.attribute_layout.insertItem(index + 1, widget)
+
+        self.scene().view.history.store_history("Move up widget")
+        if self.scene().view.filename and not self.scene().view.first_open:
+            self.scene().view.save_to_file()
 
     def add_exist_subwidget(self, subwidget):
         self.attribute_layout.addItem(subwidget)
@@ -2822,7 +2828,8 @@ class AttributeWidget(QtWidgets.QGraphicsWidget, serializable.Serializable):
             last_attribute_widgets.append(last_attribute_widget.id)
         for last_logic_widget in self.last_logic:
             last_logic_widgets.append(last_logic_widget.id)
-        for attribute_sub_widget in self.attribute_sub_widgets:
+        for i in range(len(self.attribute_sub_widgets)):
+            attribute_sub_widget = self.attribute_layout.itemAt(i)
             if isinstance(attribute_sub_widget, AttributeWidget):
                 attribute_sub_widgets.append(attribute_sub_widget.id)
             elif isinstance(attribute_sub_widget, AttributeFile):
