@@ -13,3 +13,4 @@ free
 registry
 
 # Custom Widgets
+## package.component.base_component.BaseComponent class

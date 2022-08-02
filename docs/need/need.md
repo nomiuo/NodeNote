@@ -13,7 +13,7 @@ Every component can be extended by plugins in these areas such as apperance, fea
 
 We also can create our own component.
 
-### 1. Container.
+### 1. Container(custom layout).
 Every component has a container to hold other components. This is designed for custom widgets of user. We can assemble our own components with exist components and reuse them with "Assembling editor" which is used to assemble components.
 
 The layout of container can be grid layout or free layout which means we can drag other components anywhere in this container. The layout can be customized by plugin. We will offer canlendar layout, timeline layout by built-in plugin.
