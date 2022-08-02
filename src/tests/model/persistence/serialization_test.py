@@ -3,7 +3,7 @@
 
 from unittest import TestCase
 
-from shmilyyy.model.persistence.serialization import Serialization
+from smiley.model.persistence.serialization import Serialization
 
 
 class SerializationTest(TestCase):
@@ -32,10 +32,10 @@ class SerializationCaseTest(Serialization):
     """
 
     def serialize(self, serialization_object: object):
-        """Serialize the object infomation into object.
+        """Serialize the object information into object.
 
         Args:
-            serialization_object (object): Object of google protobuf.
+            serialization_object (object): Object of google protocol buffer.
         """
         raise NotImplementedError
 
@@ -43,6 +43,6 @@ class SerializationCaseTest(Serialization):
         """Deserialize self by serialization object.
 
         Args:
-            serialization_object (object): Object of google protobuf.
+            serialization_object (object): Object of google protocol buffer.
         """
         raise NotImplementedError

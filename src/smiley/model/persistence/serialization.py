@@ -17,10 +17,10 @@ class Serialization(ABC):
 
     @abstractmethod
     def serialize(self, serialization_object: object):
-        """Serialize the object infomation into object.
+        """Serialize the object information into object.
 
         Args:
-            serialization_object (object): Object of google protobuf.
+            serialization_object (object): Object of google protocol buffer.
         """
 
     @abstractmethod
@@ -28,7 +28,7 @@ class Serialization(ABC):
         """Deserialize self by serialization object.
 
         Args:
-            serialization_object (object): Object of google protobuf.
+            serialization_object (object): Object of google protocol buffer.
         """
 
     def get_uuid(self) -> str:

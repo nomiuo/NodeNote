@@ -1,6 +1,7 @@
 from setuptools import setup
 
 setup(
-    name="shmily_note",
-    packages=["shmilyyy", "tests"],
+    name="smiley-note",
+    packages=["smiley", "tests"],
+    install_requires=["PySide6 >= 6.3.1"],
 )

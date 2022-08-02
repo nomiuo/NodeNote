@@ -4,11 +4,11 @@
 from abc import ABC
 from typing import Optional
 
-import PySide6
-from PySide6.QtWidgets import QGraphicsWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGraphicsItem, QGraphicsWidget
 
 
-class BaseComponent(QGraphicsWidget, ABC):
+class AbstractComponent(QGraphicsWidget, ABC):
     """This is the base component that any other component inherits from.
 
     Args:
@@ -17,8 +17,8 @@ class BaseComponent(QGraphicsWidget, ABC):
 
     def __init__(
         self,
-        parent: Optional[PySide6.QtWidgets.QGraphicsItem],
-        wFlags: PySide6.QtCore.Qt.WindowFlags,
+        parent: Optional[QGraphicsItem],
+        wFlags: Qt.WindowFlags,
     ) -> None:
         """Init basic function.
 
@@ -26,6 +26,6 @@ class BaseComponent(QGraphicsWidget, ABC):
             parent (Optional[PySide6.QtWidgets.QGraphicsItem], optional):
                 Parent widget.
             wFlags (PySide6.QtCore.Qt.WindowFlags, optional):
-                Apperance window flags.
+                Appearance window flags.
         """
         super().__init__(parent, wFlags)
