@@ -54,6 +54,9 @@ Add someone to team and use "@someone" to remind the specific person. Collaborat
 ### 3. Git version support.
 Any changes to the note will be marked.
 
+### 4. Note
+Different scene can show in one window.
+
 ## c. appearance.
 ### 1. Layout.
 The window can be put anywhere.

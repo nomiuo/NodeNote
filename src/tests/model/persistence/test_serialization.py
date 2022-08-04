@@ -1,27 +1,11 @@
 """_summary_
 """
 
+
+import unittest
 from unittest import TestCase
 
 from smiley.model.persistence.serialization import Serialization
-
-
-class SerializationTest(TestCase):
-    """Test function of Serialization class.
-
-    Args:
-        TestCase (class): Test class.
-    """
-
-    def test_id(self):
-        """Test uuid."""
-        id_set = set()
-        for _ in range(10000):
-            uuid = SerializationCaseTest().get_uuid()
-            if uuid not in id_set:
-                id_set.add(uuid)
-            else:
-                assert False
 
 
 class SerializationCaseTest(Serialization):
@@ -46,3 +30,19 @@ class SerializationCaseTest(Serialization):
             serialization_object (object): Object of google protocol buffer.
         """
         raise NotImplementedError
+
+
+class TestSerialization(TestCase):
+    def test_id(self):
+        """Test uuid."""
+        id_set = set()
+        for _ in range(10000):
+            uuid = SerializationCaseTest().get_uuid()
+            if uuid not in id_set:
+                id_set.add(uuid)
+            else:
+                self.assert_(False)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,7 +1,11 @@
 from setuptools import setup
 
 setup(
-    name="smiley-note",
+    name="smiley",
     packages=["smiley", "tests"],
-    install_requires=["PySide6 >= 6.3.1"],
+    python_requires="==3.7.9",
+    install_requires=[
+        "PySide6==6.2.4",
+    ],
+    extras_require={"linting": ["pylama", "black"]},
 )
