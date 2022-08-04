@@ -12,9 +12,8 @@ class TestView(TestCase):
         app = QtWidgets.QApplication(sys.argv)
         view = View.get_singleton_instance()
         view.show()
-        res = app.exec()
+        app.exec()
         self.assert_(True)
-        sys.exit(res)
 
 
 if __name__ == "__main__":
