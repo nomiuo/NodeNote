@@ -1,0 +1,11 @@
+:py:mod:`smiley.appearance.layout.abstract_layout`
+==================================================
+
+.. py:module:: smiley.appearance.layout.abstract_layout
+
+.. autoapi-nested-parse::
+
+   This module defines a standard of layout.
+
+
+

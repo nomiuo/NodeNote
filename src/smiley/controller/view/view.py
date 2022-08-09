@@ -1,41 +1,65 @@
 """View controller.
 """
 
-import threading
 from typing import Optional
 
 from PySide6 import QtWidgets
+from typing_extensions import Self
+
+from smiley.config.controller.view_config import ViewConfig
 
 
 class View(QtWidgets.QGraphicsView):
-    """_summary_
+    """Show the scene through the graphics view.
 
     Args:
-        QtWidgets (_type_): _description_
+        QtWidgets.QGraphicsView (class): Parent class.
     """
 
-    # Singleton lock.
-    __instance_lock = threading.Lock()
-
-    @classmethod
-    def get_singleton_instance(
-        cls, parent: Optional[QtWidgets.QWidget] = None
-    ) -> QtWidgets.QGraphicsView:
-        """Create single view instance.
-
-        Args:
-            parent (Optional[QtWidgets.QWidget]): Parent widget.
-
-        Returns:
-            QtWidgets.QGraphicsView: Singleton view.
-        """
-        with cls.__instance_lock:
-            if not hasattr(View, "__instance"):
-                cls.__instance = View(parent)
-            return cls.__instance
-
-    def __init__(self, parent: Optional[QtWidgets.QWidget]):
+    def __init__(self, parent: Optional[QtWidgets.QWidget] = None):
         super().__init__(parent)
 
-        # Scene config.
-        self.current_scene: QtWidgets.QGraphicsScene = None
+        # View configuration.
+        self.__view_config: ViewConfig = None
+
+        # Scene property.
+        self.__current_scene: QtWidgets.QGraphicsScene = None
+
+    def set_current_scene(self, scene: QtWidgets.QGraphicsScene) -> Self:
+        """Set current scene property.
+
+        Args:
+            scene (QtWidgets.QGraphicsScene): The scene which will be associated with the view.
+        """
+        self.__current_scene = scene
+
+        return self
+
+    def set_view_config(self, view_config: ViewConfig) -> Self:
+        """Set configuration of view.
+
+        Args:
+            view_config (ViewConfig): Configuration.
+
+        Returns:
+            Self: Self.
+        """
+        self.__view_config = view_config
+
+        return self
+
+    def get_current_scene(self) -> QtWidgets.QGraphicsScene:
+        """Get current scene property.
+
+        Returns:
+            QtWidgets.QGraphicsScene: The scene which is associated with the view.
+        """
+        return self.__current_scene
+
+    def get_view_config(self) -> ViewConfig:
+        """Get configuration of view.
+
+        Returns:
+            ViewConfig: Configuration.
+        """
+        return self.__view_config

@@ -1,0 +1,6 @@
+:py:mod:`smiley.util`
+=====================
+
+.. py:module:: smiley.util
+
+

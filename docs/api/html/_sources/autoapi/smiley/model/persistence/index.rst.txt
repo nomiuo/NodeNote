@@ -1,0 +1,15 @@
+:py:mod:`smiley.model.persistence`
+==================================
+
+.. py:module:: smiley.model.persistence
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   serialization/index.rst
+
+

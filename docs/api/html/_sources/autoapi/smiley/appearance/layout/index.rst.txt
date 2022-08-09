@@ -1,0 +1,15 @@
+:py:mod:`smiley.appearance.layout`
+==================================
+
+.. py:module:: smiley.appearance.layout
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   abstract_layout/index.rst
+
+

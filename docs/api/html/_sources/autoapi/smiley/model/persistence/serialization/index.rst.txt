@@ -1,0 +1,57 @@
+:py:mod:`smiley.model.persistence.serialization`
+================================================
+
+.. py:module:: smiley.model.persistence.serialization
+
+.. autoapi-nested-parse::
+
+   This module has a serialization standard for all component.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   smiley.model.persistence.serialization.Serialization
+
+
+
+
+.. py:class:: Serialization
+
+   Bases: :py:obj:`abc.ABC`
+
+   Every component must implement this serialization class.
+
+   .. py:method:: serialize(serialization_object: object)
+      :abstractmethod:
+
+      Serialize the object information into object.
+
+      Args:
+          serialization_object (object): Object of google protocol buffer.
+
+
+   .. py:method:: deserialize(serialization_object: object)
+      :abstractmethod:
+
+      Deserialize self by serialization object.
+
+      Args:
+          serialization_object (object): Object of google protocol buffer.
+
+
+   .. py:method:: get_uuid() -> str
+
+      Get id of object which needs to be serialized.
+
+      Returns:
+          id (str): UUID of object.
+
+
+

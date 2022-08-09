@@ -1,0 +1,6 @@
+:py:mod:`smiley.resource`
+=========================
+
+.. py:module:: smiley.resource
+
+

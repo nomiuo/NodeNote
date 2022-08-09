@@ -1,0 +1,16 @@
+:py:mod:`smiley.appearance`
+===========================
+
+.. py:module:: smiley.appearance
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   effect/index.rst
+   layout/index.rst
+
+

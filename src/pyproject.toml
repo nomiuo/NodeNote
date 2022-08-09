@@ -1,0 +1,44 @@
+# Basic infomation.
+[tool.poetry]
+name = "smiley"
+version = "3.0.0"
+description = ""
+authors = ["YhhHaa <2168929065@qq.com>"]
+license = "GPL-2.0-only"
+
+# Required dependencies.
+[tool.poetry.dependencies]
+python = ">=3.7, <3.8"
+PySide6 = "^6.3"
+
+# Development dependencies.
+[tool.poetry.dev-dependencies]
+# Test.
+pytest = "^7.1.2"
+# Format and linting.
+pylint = ""
+isort = ""
+black = ""
+# Docs.
+sphinx = "^5.1.1"
+sphinx-autoapi = "^1.9.0"
+
+# Build system dependencies.
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# Other configuration.
+# Python format.
+[tool.black]
+line-length = 78
+[tool.isort]
+profile = "black"
+# Python linting.
+[tool.pylint]
+extension-pkg-whitelist = "Pyside6"
+# Test
+[tool.pytest]
+testpaths = [
+    "tests",
+]

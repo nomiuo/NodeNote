@@ -1,0 +1,29 @@
+:py:mod:`smiley.controller.scene.scene`
+=======================================
+
+.. py:module:: smiley.controller.scene.scene
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   smiley.controller.scene.scene.Scene
+
+
+
+
+.. py:class:: Scene
+
+   Bases: :py:obj:`PySide6.QtWidgets.QGraphicsScene`
+
+   _summary_
+
+   Args:
+       QtWidgets (_type_): _description_
+
+

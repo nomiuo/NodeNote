@@ -1,0 +1,6 @@
+:py:mod:`smiley.core.plugin.api`
+================================
+
+.. py:module:: smiley.core.plugin.api
+
+

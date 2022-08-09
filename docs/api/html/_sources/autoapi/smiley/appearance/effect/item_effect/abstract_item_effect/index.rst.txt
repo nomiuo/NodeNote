@@ -1,0 +1,69 @@
+:py:mod:`smiley.appearance.effect.item_effect.abstract_item_effect`
+===================================================================
+
+.. py:module:: smiley.appearance.effect.item_effect.abstract_item_effect
+
+.. autoapi-nested-parse::
+
+   This module defines a standard effect of item.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   smiley.appearance.effect.item_effect.abstract_item_effect.AbstractItemEffect
+
+
+
+
+.. py:class:: AbstractItemEffect
+
+   Bases: :py:obj:`abc.ABC`
+
+   Some abstract item effect method which should be implemented.
+
+   - move_effect: When item is moving, effect will show.
+   - create_effect: When item is created, effect will show.
+   - delete_effect: When item is deleted, effect will show.
+
+   Args:
+       ABC (class): Abstract class.
+
+   .. py:method:: move_effect(target: PySide6.QtWidgets.QGraphicsWidget, event: PySide6.QtWidgets.QGraphicsSceneMoveEvent) -> None
+      :staticmethod:
+      :abstractmethod:
+
+      Move item with specific effect.
+
+      Args:
+          target (QtWidgets.QGraphicsWidget): Target widget.
+          event (QtWidgets.QGraphicsSceneMoveEvent): Move event.
+
+
+   .. py:method:: create_effect(target: PySide6.QtWidgets.QGraphicsWidget) -> None
+      :staticmethod:
+      :abstractmethod:
+
+      Create item with specific effect.
+
+      Args:
+          target (QtWidgets.QGraphicsWidget): Target widget.
+
+
+   .. py:method:: delete_effect(target: PySide6.QtWidgets.QGraphicsWidget) -> None
+      :staticmethod:
+      :abstractmethod:
+
+      Delete item with specific effect.
+
+      Args:
+          target (QtWidgets.QGraphicsWidget): Target widget.
+
+
+

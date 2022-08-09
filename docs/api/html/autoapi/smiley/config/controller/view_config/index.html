@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>smiley.config.controller.view_config &#8212; smiley 3.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css" />
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-smiley.config.controller.view_config">
+<span id="smiley-config-controller-view-config"></span><h1><a class="reference internal" href="#module-smiley.config.controller.view_config" title="smiley.config.controller.view_config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smiley.config.controller.view_config</span></code></a><a class="headerlink" href="#module-smiley.config.controller.view_config" title="Permalink to this heading">¶</a></h1>
+<p>Configuration of view.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">¶</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#smiley.config.controller.view_config.ViewConfig" title="smiley.config.controller.view_config.ViewConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ViewConfig</span></code></a></p></td>
+<td><p>Configuration of view.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">smiley.config.controller.view_config.</span></span><span class="sig-name descname"><span class="pre">ViewConfig</span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration of view.
+Can init ViewConfig and set configuration of view
+such as update mode, render hints, context menu
+policy, attribute and drag mode.</p>
+<p>Please ensure that the specific configuration is not
+none.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.__CONFIG_ERROR">
+<span class="sig-name descname"><span class="pre">__CONFIG_ERROR</span></span><em class="property"><span class="w"> </span><span class="pre">:str</span> <span class="pre">=</span> <span class="pre">Please</span> <span class="pre">ensure</span> <span class="pre">view</span> <span class="pre">and</span> <span class="pre">config</span> <span class="pre">not</span> <span class="pre">none.</span></em><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.__CONFIG_ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.update_mode_config">
+<span class="sig-name descname"><span class="pre">update_mode_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtWidgets.QGraphicsView</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.update_mode_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the update mode of graphics view.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>view (QtWidgets.QGraphicsView): Window used to show scene.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.render_hints_config">
+<span class="sig-name descname"><span class="pre">render_hints_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtWidgets.QGraphicsView</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.render_hints_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the render hints of graphics view.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>view (QtWidgets.QGraphicsView): Window used to show scene.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.context_menu_policy_config">
+<span class="sig-name descname"><span class="pre">context_menu_policy_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtWidgets.QGraphicsView</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.context_menu_policy_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the context menu policy of graphics view.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>view (QtWidgets.QGraphicsView): Window used to show scene.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.attribute_config">
+<span class="sig-name descname"><span class="pre">attribute_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtWidgets.QGraphicsView</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.attribute_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the context menu policy of graphics view.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>view (QtWidgets.QGraphicsView): Window used to show scene.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.drag_mode_config">
+<span class="sig-name descname"><span class="pre">drag_mode_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtWidgets.QGraphicsView</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.drag_mode_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the drag mode of graphics view.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>view (QtWidgets.QGraphicsView): Drag mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.set_update_mode">
+<span class="sig-name descname"><span class="pre">set_update_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtWidgets.QGraphicsView.ViewportUpdateMode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">typing_extensions.Self</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.set_update_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set update mode of config.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>update_mode (QtWidgets.QGraphicsView.ViewportUpdateMode): Update mode.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Self: Self.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.set_render_hints">
+<span class="sig-name descname"><span class="pre">set_render_hints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">render_hints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtGui.QPainter.RenderHints</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">typing_extensions.Self</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.set_render_hints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set render hints.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>render_hints (QtGui.QPainter.RenderHints): Render hints.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Self: Self.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.set_context_menu_policy">
+<span class="sig-name descname"><span class="pre">set_context_menu_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context_menu_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtCore.Qt.ContextMenuPolicy</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">typing_extensions.Self</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.set_context_menu_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set context menu policy.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>context_menu_policy (QtCore.Qt.ContextMenuPolicy): Context menu policy.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Self: Self.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.set_attribute">
+<span class="sig-name descname"><span class="pre">set_attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attribute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtCore.Qt.WidgetAttribute</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">typing_extensions.Self</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.set_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set attribute.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>attribute (QtCore.Qt.WidgetAttribute): Window attribute.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Self: Self.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="smiley.config.controller.view_config.ViewConfig.set_drag_mode">
+<span class="sig-name descname"><span class="pre">set_drag_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drag_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide6.QtWidgets.QGraphicsView.DragMode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">typing_extensions.Self</span></span></span><a class="headerlink" href="#smiley.config.controller.view_config.ViewConfig.set_drag_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set drag mode.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>drag_mode (QtWidgets.QGraphicsView.DragMode): Drag mode.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Self: Self.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">smiley</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, YhhHaa.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../../../_sources/autoapi/smiley/config/controller/view_config/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

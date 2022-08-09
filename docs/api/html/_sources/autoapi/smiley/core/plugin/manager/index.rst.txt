@@ -1,0 +1,6 @@
+:py:mod:`smiley.core.plugin.manager`
+====================================
+
+.. py:module:: smiley.core.plugin.manager
+
+

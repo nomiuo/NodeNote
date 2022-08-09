@@ -1,0 +1,16 @@
+:py:mod:`smiley.controller`
+===========================
+
+.. py:module:: smiley.controller
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   scene/index.rst
+   view/index.rst
+
+

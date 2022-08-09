@@ -1,0 +1,25 @@
+:py:mod:`smiley.appearance.effect`
+==================================
+
+.. py:module:: smiley.appearance.effect
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   item_effect/index.rst
+   mouse_effect/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   abstract_cp_effect/index.rst
+
+

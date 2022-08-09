@@ -1,0 +1,15 @@
+:py:mod:`smiley.model`
+======================
+
+.. py:module:: smiley.model
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   persistence/index.rst
+
+

@@ -1,0 +1,15 @@
+:py:mod:`smiley.appearance.effect.mouse_effect`
+===============================================
+
+.. py:module:: smiley.appearance.effect.mouse_effect
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   abstract_mouse_effect/index.rst
+
+

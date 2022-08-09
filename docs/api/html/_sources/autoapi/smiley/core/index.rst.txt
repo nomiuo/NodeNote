@@ -1,0 +1,15 @@
+:py:mod:`smiley.core`
+=====================
+
+.. py:module:: smiley.core
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   plugin/index.rst
+
+

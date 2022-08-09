@@ -1,0 +1,71 @@
+:py:mod:`smiley.appearance.effect.mouse_effect.abstract_mouse_effect`
+=====================================================================
+
+.. py:module:: smiley.appearance.effect.mouse_effect.abstract_mouse_effect
+
+.. autoapi-nested-parse::
+
+   This module defines a standard effect of mouse event.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   smiley.appearance.effect.mouse_effect.abstract_mouse_effect.AbstractMouseEffect
+
+
+
+
+.. py:class:: AbstractMouseEffect
+
+   Bases: :py:obj:`abc.ABC`
+
+   Some abstract mouse effect method which should be implemented.
+
+   - click_effect: When user clicks this item, effect will show.
+   - double_click_effect: When user double clicks this item, effect will show.
+   - hover_effect: When mouse hovers over this item, effect will show.
+
+   Args:
+       ABC (class): Abstract class.
+
+   .. py:method:: click_effect(target: PySide6.QtWidgets.QGraphicsWidget, event: PySide6.QtWidgets.QGraphicsSceneMouseEvent) -> None
+      :staticmethod:
+      :abstractmethod:
+
+      Add effect into click event
+
+      Args:
+          target (QtWidgets.QGraphicsWidget): Target QGraphicsWidget.
+          event (QtWidgets.QGraphicsSceneMouseEvent): MouseClickEvent.
+
+
+   .. py:method:: double_click_effect(target: PySide6.QtWidgets.QGraphicsWidget, event: PySide6.QtWidgets.QGraphicsSceneMouseEvent) -> None
+      :staticmethod:
+      :abstractmethod:
+
+      Add effect into double click event.
+
+      Args:
+          target (QtWidgets.QGraphicsWidget): Target QGraphicsWidget.
+          event (QtWidgets.QGraphicsSceneMouseEvent): MouseDoubleClickEvent.
+
+
+   .. py:method:: hover_effect(target: PySide6.QtWidgets.QGraphicsWidget, event: PySide6.QtWidgets.QGraphicsSceneMouseEvent) -> None
+      :staticmethod:
+      :abstractmethod:
+
+      Add effect into mouse hover event.
+
+      Args:
+          target (QtWidgets.QGraphicsWidget): Target QGraphicsWidget.
+          event (QtWidgets.QGraphicsSceneMouseEvent): MouseHoverEvent.
+
+
+

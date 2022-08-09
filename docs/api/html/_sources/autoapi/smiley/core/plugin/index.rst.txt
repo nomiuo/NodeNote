@@ -1,0 +1,16 @@
+:py:mod:`smiley.core.plugin`
+============================
+
+.. py:module:: smiley.core.plugin
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   api/index.rst
+   manager/index.rst
+
+

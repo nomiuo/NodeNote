@@ -1,0 +1,20 @@
+:py:mod:`smiley.component`
+==========================
+
+.. py:module:: smiley.component
+
+.. autoapi-nested-parse::
+
+   This file is used to organize module.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   abstract_component/index.rst
+
+

@@ -1,0 +1,69 @@
+:py:mod:`smiley.controller.view.view`
+=====================================
+
+.. py:module:: smiley.controller.view.view
+
+.. autoapi-nested-parse::
+
+   View controller.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   smiley.controller.view.view.View
+
+
+
+
+.. py:class:: View(parent: Optional[PySide6.QtWidgets.QWidget] = None)
+
+   Bases: :py:obj:`PySide6.QtWidgets.QGraphicsView`
+
+   Show the scene through the graphics view.
+
+   Args:
+       QtWidgets.QGraphicsView (class): Parent class.
+
+   .. py:method:: set_current_scene(scene: PySide6.QtWidgets.QGraphicsScene) -> typing_extensions.Self
+
+      Set current scene property.
+
+      Args:
+          scene (QtWidgets.QGraphicsScene): The scene which will be associated with the view.
+
+
+   .. py:method:: set_view_config(view_config: smiley.config.controller.view_config.ViewConfig) -> typing_extensions.Self
+
+      Set configuration of view.
+
+      Args:
+          view_config (ViewConfig): Configuration.
+
+      Returns:
+          Self: Self.
+
+
+   .. py:method:: get_current_scene() -> PySide6.QtWidgets.QGraphicsScene
+
+      Get current scene property.
+
+      Returns:
+          QtWidgets.QGraphicsScene: The scene which is associated with the view.
+
+
+   .. py:method:: get_view_config() -> smiley.config.controller.view_config.ViewConfig
+
+      Get configuration of view.
+
+      Returns:
+          ViewConfig: Configuration.
+
+
+

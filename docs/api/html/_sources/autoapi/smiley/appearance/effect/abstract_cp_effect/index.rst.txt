@@ -1,0 +1,35 @@
+:py:mod:`smiley.appearance.effect.abstract_cp_effect`
+=====================================================
+
+.. py:module:: smiley.appearance.effect.abstract_cp_effect
+
+.. autoapi-nested-parse::
+
+   Base component effect.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   smiley.appearance.effect.abstract_cp_effect.AbstractCpEffect
+
+
+
+
+.. py:class:: AbstractCpEffect
+
+   Bases: :py:obj:`smiley.appearance.effect.mouse_effect.abstract_mouse_effect.AbstractMouseEffect`, :py:obj:`smiley.appearance.effect.item_effect.abstract_item_effect.AbstractItemEffect`
+
+   Basic component effect.
+
+   Args:
+       AbstractMouseEffect (class): Mouse effect.
+       AbstractItemEffect (class): Item effect.
+
+

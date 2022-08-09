@@ -1,0 +1,15 @@
+:py:mod:`smiley.config`
+=======================
+
+.. py:module:: smiley.config
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   controller/index.rst
+
+

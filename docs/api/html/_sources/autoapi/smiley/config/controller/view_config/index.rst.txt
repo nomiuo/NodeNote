@@ -1,0 +1,135 @@
+:py:mod:`smiley.config.controller.view_config`
+==============================================
+
+.. py:module:: smiley.config.controller.view_config
+
+.. autoapi-nested-parse::
+
+   Configuration of view.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   smiley.config.controller.view_config.ViewConfig
+
+
+
+
+.. py:class:: ViewConfig
+
+   Configuration of view.
+   Can init ViewConfig and set configuration of view
+   such as update mode, render hints, context menu
+   policy, attribute and drag mode.
+
+   Please ensure that the specific configuration is not
+   none.
+
+   .. py:attribute:: __CONFIG_ERROR
+      :annotation: :str = Please ensure view and config not none.
+
+      
+
+   .. py:method:: update_mode_config(view: PySide6.QtWidgets.QGraphicsView) -> None
+
+      Set the update mode of graphics view.
+
+      Args:
+          view (QtWidgets.QGraphicsView): Window used to show scene.
+
+
+   .. py:method:: render_hints_config(view: PySide6.QtWidgets.QGraphicsView) -> None
+
+      Set the render hints of graphics view.
+
+      Args:
+          view (QtWidgets.QGraphicsView): Window used to show scene.
+
+
+   .. py:method:: context_menu_policy_config(view: PySide6.QtWidgets.QGraphicsView) -> None
+
+      Set the context menu policy of graphics view.
+
+      Args:
+          view (QtWidgets.QGraphicsView): Window used to show scene.
+
+
+   .. py:method:: attribute_config(view: PySide6.QtWidgets.QGraphicsView, target: bool) -> None
+
+      Set the context menu policy of graphics view.
+
+      Args:
+          view (QtWidgets.QGraphicsView): Window used to show scene.
+
+
+   .. py:method:: drag_mode_config(view: PySide6.QtWidgets.QGraphicsView) -> None
+
+      Set the drag mode of graphics view.
+
+      Args:
+          view (QtWidgets.QGraphicsView): Drag mode.
+
+
+   .. py:method:: set_update_mode(update_mode: PySide6.QtWidgets.QGraphicsView.ViewportUpdateMode) -> typing_extensions.Self
+
+      Set update mode of config.
+
+      Args:
+          update_mode (QtWidgets.QGraphicsView.ViewportUpdateMode): Update mode.
+
+      Returns:
+          Self: Self.
+
+
+   .. py:method:: set_render_hints(render_hints: PySide6.QtGui.QPainter.RenderHints) -> typing_extensions.Self
+
+      Set render hints.
+
+      Args:
+          render_hints (QtGui.QPainter.RenderHints): Render hints.
+
+      Returns:
+          Self: Self.
+
+
+   .. py:method:: set_context_menu_policy(context_menu_policy: PySide6.QtCore.Qt.ContextMenuPolicy) -> typing_extensions.Self
+
+      Set context menu policy.
+
+      Args:
+          context_menu_policy (QtCore.Qt.ContextMenuPolicy): Context menu policy.
+
+      Returns:
+          Self: Self.
+
+
+   .. py:method:: set_attribute(attribute: PySide6.QtCore.Qt.WidgetAttribute) -> typing_extensions.Self
+
+      Set attribute.
+
+      Args:
+          attribute (QtCore.Qt.WidgetAttribute): Window attribute.
+
+      Returns:
+          Self: Self.
+
+
+   .. py:method:: set_drag_mode(drag_mode: PySide6.QtWidgets.QGraphicsView.DragMode) -> typing_extensions.Self
+
+      Set drag mode.
+
+      Args:
+          drag_mode (QtWidgets.QGraphicsView.DragMode): Drag mode.
+
+      Returns:
+          Self: Self.
+
+
+

@@ -1,0 +1,34 @@
+:py:mod:`smiley.component.abstract_component`
+=============================================
+
+.. py:module:: smiley.component.abstract_component
+
+.. autoapi-nested-parse::
+
+   This module defines a standard that all components should follow.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   smiley.component.abstract_component.AbstractComponent
+
+
+
+
+.. py:class:: AbstractComponent(parent: Optional[PySide6.QtWidgets.QGraphicsItem], wFlags: PySide6.QtCore.Qt.WindowFlags)
+
+   Bases: :py:obj:`PySide6.QtWidgets.QGraphicsWidget`, :py:obj:`abc.ABC`
+
+   This is the base component that any other component inherits from.
+
+   Args:
+       QGraphicsWidget (class): public base class.
+
+
