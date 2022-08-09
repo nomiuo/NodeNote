@@ -1,4 +1,5 @@
 {
+    // Spell.
     "cSpell.words": [
         "autoapi",
         "BUILDDIR",
@@ -7,5 +8,14 @@
         "modindex",
         "quickstart",
         "toctree"
-    ]
+    ],
+    // Python test.
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./src",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.unittestEnabled": true,
 }

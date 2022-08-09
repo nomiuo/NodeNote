@@ -13,8 +13,6 @@ PySide6 = "^6.3"
 
 # Development dependencies.
 [tool.poetry.dev-dependencies]
-# Test.
-pytest = "^7.1.2"
 # Format and linting.
 pylint = ""
 isort = ""
@@ -37,8 +35,3 @@ profile = "black"
 # Python linting.
 [tool.pylint]
 extension-pkg-whitelist = "Pyside6"
-# Test
-[tool.pytest]
-testpaths = [
-    "tests",
-]
