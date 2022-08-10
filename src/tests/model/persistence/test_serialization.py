@@ -41,7 +41,7 @@ class TestSerialization(TestCase):
             if uuid not in id_set:
                 id_set.add(uuid)
             else:
-                self.assert_(False)
+                assert False
 
 
 if __name__ == "__main__":

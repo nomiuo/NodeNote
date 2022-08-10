@@ -4,7 +4,6 @@
 from typing import Optional
 
 from PySide6 import QtWidgets
-from typing_extensions import Self
 
 from smiley.config.controller.view_config import ViewConfig
 
@@ -20,12 +19,12 @@ class View(QtWidgets.QGraphicsView):
         super().__init__(parent)
 
         # View configuration.
-        self.__view_config: ViewConfig = None
+        self.__view_config: Optional[ViewConfig] = None
 
         # Scene property.
-        self.__current_scene: QtWidgets.QGraphicsScene = None
+        self.__current_scene: Optional[QtWidgets.QGraphicsScene] = None
 
-    def set_current_scene(self, scene: QtWidgets.QGraphicsScene) -> Self:
+    def set_current_scene(self, scene: QtWidgets.QGraphicsScene) -> "View":
         """Set current scene property.
 
         Args:
@@ -35,7 +34,7 @@ class View(QtWidgets.QGraphicsView):
 
         return self
 
-    def set_view_config(self, view_config: ViewConfig) -> Self:
+    def set_view_config(self, view_config: ViewConfig) -> "View":
         """Set configuration of view.
 
         Args:
@@ -48,7 +47,7 @@ class View(QtWidgets.QGraphicsView):
 
         return self
 
-    def get_current_scene(self) -> QtWidgets.QGraphicsScene:
+    def get_current_scene(self) -> Optional[QtWidgets.QGraphicsScene]:
         """Get current scene property.
 
         Returns:
@@ -56,7 +55,7 @@ class View(QtWidgets.QGraphicsView):
         """
         return self.__current_scene
 
-    def get_view_config(self) -> ViewConfig:
+    def get_view_config(self) -> Optional[ViewConfig]:
         """Get configuration of view.
 
         Returns:

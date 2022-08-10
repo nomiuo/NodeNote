@@ -8,18 +8,19 @@ license = "GPL-2.0-only"
 
 # Required dependencies.
 [tool.poetry.dependencies]
-python = ">=3.7, <3.8"
+python = ">=3.10, <3.11"
 PySide6 = "^6.3"
 
 # Development dependencies.
 [tool.poetry.dev-dependencies]
 # Format and linting.
+mypy = "^0.971"
 pylint = ""
 isort = ""
 black = ""
 # Docs.
-sphinx = "^5.1.1"
-sphinx-autoapi = "^1.9.0"
+sphinx = "^5.1"
+sphinx-autoapi = "^1.9"
 
 # Build system dependencies.
 [build-system]
@@ -35,3 +36,4 @@ profile = "black"
 # Python linting.
 [tool.pylint]
 extension-pkg-whitelist = "Pyside6"
+disable="too-few-public-methods"

@@ -7,7 +7,8 @@
         "maxdepth",
         "modindex",
         "quickstart",
-        "toctree"
+        "toctree",
+        "Traceback"
     ],
     // Python test.
     "python.testing.unittestArgs": [
@@ -18,4 +19,12 @@
         "test_*.py"
     ],
     "python.testing.unittestEnabled": true,
+    // Python linting.
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintArgs": [
+        "--disable=too-few-public-methods",
+        "--extension-pkg-whitelist=PySide6"
+    ],
+    "mypy.dmypyExecutable": "${workspaceFolder}/src/.venv/Scripts/dmypy.exe",
 }
