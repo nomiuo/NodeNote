@@ -1,6 +1,6 @@
 from abc import ABC
 
-from ..constant.enum.appearance.level import AppearanceLevel
+from smiley.constant.enum.appearance.level import AppearanceLevel
 
 
 class AbstractAppearance(ABC):
