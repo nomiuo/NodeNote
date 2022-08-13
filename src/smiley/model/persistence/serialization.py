@@ -9,7 +9,8 @@ class Serialization(ABC):
     """Every component must implement this serialization class."""
 
     def __init__(self):
-        """Generate ramdom id.
+        """Generate random id.
+
         It should be noted that uuid1() depends on mac, timestamp,
         the probability of repetition is almost zero
         """

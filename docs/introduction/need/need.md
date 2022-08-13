@@ -11,6 +11,10 @@ Every component must implement the serialization interface.
 
 Every component can be extended by plugins in these areas such as appearance, feature.
 
+Every component could scale.
+
+Every component could be cloned and changed in synchronization.
+
 We also can create our own component.
 
 ### 1. Container(custom layout).
@@ -48,6 +52,8 @@ Video, Audio.
 ### 1. Knowledge.
 We can create connection between any cards and component. Then the cards will show when mouse is hovering over these components.
 
+The outline could be converted to graphics items.
+
 ### 2. Team.
 Add someone to team and use "@someone" to remind the specific person. Collaboration between team members will be implemented with peer to peer architecture.
 
@@ -69,6 +75,6 @@ Users can change appearance of any components. Mouse click event, double click e
 
 
 # Sth.
-multi-language
+multi-language uses tr() function.
 log
 aop
