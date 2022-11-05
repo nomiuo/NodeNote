@@ -239,3 +239,7 @@ This project is being refactored...V3 is on the way. V3 will use PySide6.
 ## v2.37.22:
 - [x] 修复了bug
 - [x] 增加了场景内的根据当前鼠标坐标批量移动小部件的功能
+
+## v2.37.23:
+- [x] 修复了一些bug
+
