@@ -1,33 +1,33 @@
-# Basic infomation.
+########## Basic infomation ##########
 [tool.poetry]
 name = "smiley"
 version = "3.0.0"
 description = ""
-authors = ["YhhHaa <2168929065@qq.com>"]
+authors = ["YaHa <yahaui@163.com>"]
 license = "GPL-2.0-only"
 
-# Required dependencies.
+########## Required dependencies ##########
 [tool.poetry.dependencies]
-python = ">=3.10, <3.11"
+python = ">=3.7.2,<3.11"
 PySide6 = "^6.3"
 
-# Development dependencies.
+########## Development dependencies ##########
 [tool.poetry.dev-dependencies]
 # Format and linting.
 mypy = "^0.971"
-pylint = ""
-isort = ""
-black = ""
+pylint = "^2.15.10"
+isort = "^5.11.4"
+black = "^22.12.0"
 # Docs.
 sphinx = "^5.1"
 sphinx-autoapi = "^1.9"
 
-# Build system dependencies.
+########## Build system dependencies ##########
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-# Other configuration.
+########## Other configuration ##########
 # Python format.
 [tool.black]
 line-length = 78
