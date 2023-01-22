@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "smiley"
+project = "homes"
 copyright = "2022, YhhHaa"
 author = "YhhHaa"
 release = "3.0.0"
@@ -19,7 +19,7 @@ extensions = ["autoapi.extension"]
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-autoapi_dirs = ["../smiley"]
+autoapi_dirs = ["../homes"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

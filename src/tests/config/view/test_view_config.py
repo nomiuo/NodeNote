@@ -4,8 +4,8 @@ from unittest import TestCase
 
 from PySide6 import QtWidgets
 
-from smiley.config.controller.view_config import ViewConfig
-from smiley.controller.view.view import View
+from homes.config.controller.view_config import ViewConfig
+from homes.controller.view.view import View
 
 
 class TestViewConfig(TestCase):

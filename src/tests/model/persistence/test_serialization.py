@@ -5,7 +5,7 @@
 import unittest
 from unittest import TestCase
 
-from smiley.model.persistence.serialization import Serialization
+from homes.model.persistence.serialization import Serialization
 
 
 class SerializationCaseTest(Serialization):

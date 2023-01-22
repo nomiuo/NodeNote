@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from PySide6 import QtWidgets
 
-from smiley.controller.view.view import View
+from homes.controller.view.view import View
 
 
 class TestView(TestCase):

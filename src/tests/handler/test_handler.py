@@ -8,7 +8,7 @@ from unittest import TestCase
 
 from PySide6 import QtCore, QtWidgets
 
-from smiley.controller.view.view import View
+from homes.controller.view.view import View
 
 
 class TestHandler(TestCase):
