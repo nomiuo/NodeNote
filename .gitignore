@@ -164,3 +164,6 @@ log/
 
 # Vscode.
 .vscode/
+
+# MacOs.
+.DS_Store
