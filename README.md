@@ -1,6 +1,3 @@
-This project is being refactored...V3 is on the way. V3 will use PySide6.
-
-
 <div align="center">
     <a href="https://github.com/yetao0806/">
         <img src="https://img.shields.io/badge/license-MPL2.0-yellow" alt="MPL 2.0 License" />
