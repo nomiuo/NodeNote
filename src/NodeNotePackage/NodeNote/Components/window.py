@@ -527,7 +527,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         if widget_type == "Attribute_font_color":
             font_color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                          QtWidgets.QColorDialog.ShowAlphaChannel)
-            if font_color:
+            if font_color.isValid():
                 if current_index == 0:
                     for item in self.view_widget.attribute_widgets:
                         if not item.scene().attribute_style_font_color and \
@@ -560,7 +560,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Attribute_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     attribute.AttributeWidget.color = color
                     self.color_label_changed(self.attribute_style_background_color_label,
@@ -588,7 +588,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Attribute_selected_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     attribute.AttributeWidget.selected_color = color
                     self.color_label_changed(self.attribute_style_selected_background_color_label,
@@ -617,7 +617,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Attribute_border_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     attribute.AttributeWidget.border_color = color
                     self.color_label_changed(self.attribute_style_border_color_label,
@@ -645,7 +645,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Attribute_selected_border_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     attribute.AttributeWidget.selected_border_color = color
                     self.color_label_changed(self.attribute_style_selected_border_color_label,
@@ -673,7 +673,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Logic_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     attribute.LogicWidget.background_color = color
                     self.color_label_changed(self.logic_style_background_color_label,
@@ -701,7 +701,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Logic_selected_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     attribute.LogicWidget.selected_background_color = color
                     self.color_label_changed(self.logic_style_selected_background_color_label,
@@ -729,7 +729,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Logic_border_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     attribute.LogicWidget.border_color = color
                     self.color_label_changed(self.logic_style_border_color_label, attribute.LogicWidget.border_color)
@@ -756,7 +756,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Logic_selected_border_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     attribute.LogicWidget.selected_border_color = color
                     self.color_label_changed(self.logic_style_selected_border_color_label,
@@ -784,7 +784,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Pipe_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     pipe.Pipe.color = color
                     self.color_label_changed(self.pipe_style_background_color_label, pipe.Pipe.color)
@@ -811,7 +811,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Pipe_selected_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     pipe.Pipe.selected_color = color
                     self.color_label_changed(self.pipe_style_selected_background_color_label, pipe.Pipe.selected_color)
@@ -838,7 +838,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Port_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     port.Port.color = color
                     self.color_label_changed(self.port_style_color_label, port.Port.color)
@@ -865,7 +865,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Port_border_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     port.Port.border_color = color
                     self.color_label_changed(self.port_style_border_color_label, port.Port.border_color)
@@ -892,7 +892,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Port_hovered_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     port.Port.hovered_color = color
                     self.color_label_changed(self.port_style_hovered_color_label, port.Port.hovered_color)
@@ -919,7 +919,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Port_hovered_border_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     port.Port.hovered_border_color = color
                     self.color_label_changed(self.port_style_hovered_border_color_label, port.Port.hovered_border_color)
@@ -946,7 +946,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Port_activated_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     port.Port.activated_color = color
                     self.color_label_changed(self.port_style_activated_color_label, port.Port.activated_color)
@@ -973,7 +973,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Port_activated_border_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     port.Port.activated_border_color = color
                     self.color_label_changed(self.port_style_activated_border_color_label,
@@ -1001,7 +1001,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         elif widget_type == "Pipe_font_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color",
                                                     QtWidgets.QColorDialog.ShowAlphaChannel)
-            if color:
+            if color.isValid():
                 if current_index == 0:
                     pipe.Pipe.font_color = color
                     self.color_label_changed(self.pipe_style_font_color_label, color)
@@ -1023,7 +1023,7 @@ class NoteWindow(QtWidgets.QMainWindow):
 
         elif widget_type == "draw_color":
             color = QtWidgets.QColorDialog.getColor(QtCore.Qt.red, None, "Select Color")
-            if color:
+            if color.isValid():
                 draw.Draw.color = color
                 draw.SideDraw.color = color
                 self.color_label_changed(self.draw_style_color_label, color)
