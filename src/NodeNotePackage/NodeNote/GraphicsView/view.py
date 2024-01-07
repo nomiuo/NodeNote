@@ -1882,7 +1882,7 @@ class View(QtWidgets.QGraphicsView, serializable.Serializable):
             if self.root_flag:
                 current_item.node.context_flag = True
                 current_item.node.contextMenuEvent(event)
-        elif isinstance(current_item, (attribute.SubConstituteWidget, attribute.SimpleTextField)):
+        elif isinstance(current_item, attribute.SubConstituteWidget):
             if self.root_flag and not isinstance(current_item.parentItem(), (pipe.Pipe, attribute.AttributeFile)):
                 current_item.parentItem().context_flag = True
                 current_item.parentItem().contextMenuEvent(event)

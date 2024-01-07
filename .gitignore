@@ -163,3 +163,4 @@ cython_debug/
 # SELF
 LASTDIR.json
 RunNodeNote.sh
+**/exception_log.txt
