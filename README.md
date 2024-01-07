@@ -22,7 +22,7 @@ This project is being refactored...V3 is on the way. V3 will use PySide6.
 ## 1. 不同平台的方式
 
 ### 1. 使用脚本方式运行
-1. 安装`python`: `Python版本` >= 3.6
+1. 安装`python`: `Python版本` 3.9
 2. 安装依赖: `pip install -r requirements.txt`
 3. 运行脚本: `python example.py`
 
