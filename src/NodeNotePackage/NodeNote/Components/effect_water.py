@@ -1,6 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 __all__ = ["EffectWater"]
 
 

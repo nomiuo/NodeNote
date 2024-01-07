@@ -1,21 +1,20 @@
-import os
-import time
-import shutil
-import sys
 import json
-import traceback
-import sqlite3
+import os
 import shutil
+import sqlite3
+import sys
+import time
+import traceback
 
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from NodeNotePackage.NodeNote.Components import draw
 
-from ..Model import constants, serialize_pb2
-from ..Components.window import NoteWindow
 from ..Components.attribute import AttributeWidget
 from ..Components.todo import Todo
+from ..Components.window import NoteWindow
 from ..GraphicsView.scene import Scene
+from ..Model import constants, serialize_pb2
 
 
 class ReadOnlyDeletgate(QtWidgets.QItemDelegate):
@@ -419,7 +418,7 @@ class WorkDirInterface(QtWidgets.QWidget):
         self.window.setWindowTitle(path)
 
         # backup file
-        self.copy_file(path, os.path.join(constants.work_dir, os.path.join("History", f"{time.strftime('%Y_%m_%d_%H_%M_%S', time.localtime(time.time()))}" + "_" + os.path.basename(path))))
+        self.copy_file(path, os.path.join(constants.work_dir, os.path.join("History", f"{time.strftime('%Y_%m_%d_%H_%M_%S', time.localtime(time.time()))}" + "_" + os.path.basename(path.replace('\\', os.sep)))))
     
     def save_markdown(self, dict_id: dict, mark_text: str):
         """

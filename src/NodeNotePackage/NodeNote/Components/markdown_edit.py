@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWebEngineWidgets, QtGui
+from PyQt5 import QtCore, QtGui, QtWebEngineWidgets
 
 from ..Model.constants import DEBUG_MARKDOWN
 

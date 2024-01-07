@@ -1,10 +1,11 @@
 import math
 import os
 
-from PyQt5 import QtWidgets, QtCore, QtGui, QtWebEngineWidgets, QtWebChannel
+from PyQt5 import QtCore, QtGui, QtWebChannel, QtWebEngineWidgets, QtWidgets
 
+from ..Components import (attribute, draw, effect_background, markdown_edit,
+                          pipe, port)
 from ..Components.effect_snow import EffectSkyWidget
-from ..Components import attribute, pipe, port, draw, effect_background, markdown_edit
 from ..GraphicsView.view import View
 from ..Model import constants
 
@@ -118,7 +119,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         self.file_view.setIndentation(20)
         self.file_view.setSortingEnabled(True)
         self.file_view.resize(self.file_view.screen().availableGeometry().size() / 2)
-        self.file_view.setColumnWidth(0, self.file_view.width() / 3)
+        self.file_view.setColumnWidth(0, int(self.file_view.width()))
         self.tab_widget.addTab(self.file_view, QtCore.QCoreApplication.translate("NoteWindow", "Work Dir"))
 
         # Scene list widget
@@ -1185,14 +1186,14 @@ class NoteWindow(QtWidgets.QMainWindow):
                         self.view_widget.current_scene.background_image.name = os.path.relpath(filename, constants.work_dir)
                         self.view_widget.current_scene.background_image.change_svg(os.path.relpath(filename, constants.work_dir))
 
-                    self.background_image_path_label.setText(os.path.basename(filename))
+                    self.background_image_path_label.setText(os.path.basename(filename.replace('\\', os.sep)))
         else:
             filename, ok = QtWidgets.QFileDialog.getOpenFileName(self,
                                                                 "Select qss", constants.work_dir,
                                                                 "qss stylesheet (*.qss)")
             if filename and ok:
                 self.runtime_style.path = os.path.relpath(filename, constants.work_dir)
-                self.stylesheet_path_label.setText(os.path.basename(filename))
+                self.stylesheet_path_label.setText(os.path.basename(filename.replace('\\', os.sep)))
                 self.runtime_style.load_stylesheet(self.runtime_style.path)
 
     def init_attribute(self, current_index):
@@ -1688,9 +1689,9 @@ class NoteWindow(QtWidgets.QMainWindow):
         """
 
         if current_index == 0:
-            self.background_image_path_label.setText(os.path.basename(os.path.join(constants.work_dir, effect_background.EffectBackground.name)))
+            self.background_image_path_label.setText(os.path.basename(os.path.join(constants.work_dir, effect_background.EffectBackground.name).replace('\\', os.sep)))
         elif current_index == 1:
-            self.background_image_path_label.setText(os.path.basename(os.path.join(constants.work_dir, self.view_widget.current_scene.background_image.name)))
+            self.background_image_path_label.setText(os.path.basename(os.path.join(constants.work_dir, self.view_widget.current_scene.background_image.name).replace('\\', os.sep)))
 
         self.background_image_path_button.disconnect()
         self.background_image_path_button.clicked.connect(lambda x: self.path_changed(current_index))
@@ -1702,7 +1703,7 @@ class NoteWindow(QtWidgets.QMainWindow):
         """
 
         # change current parameters
-        self.stylesheet_path_label.setText(os.path.basename(os.path.join(constants.work_dir, self.runtime_style.path)))
+        self.stylesheet_path_label.setText(os.path.basename(os.path.join(constants.work_dir, self.runtime_style.path).replace('\\', os.sep)))
         self.runtime_style.load_stylesheet(self.runtime_style.path)
         # slot
         self.stylesheet_button.disconnect()

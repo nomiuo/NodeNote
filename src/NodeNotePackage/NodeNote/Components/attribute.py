@@ -2,20 +2,21 @@
 attribute.py - Create many components which can be used in the scene.
 """
 
-from posixpath import relpath
-import re
-import os
 import io
-import time
+import os
+import re
 import shutil
-import validators
-import matplotlib.pyplot as plt
-from PIL import Image, ImageOps, ImageQt
-import numpy as np
-from PyQt5 import QtCore, QtWidgets, QtGui, sip
+import time
+from posixpath import relpath
 
+import matplotlib.pyplot as plt
+import numpy as np
+import validators
+from PIL import Image, ImageOps, ImageQt
+from PyQt5 import QtCore, QtGui, QtWidgets, sip
+
+from ..Components import pipe, port
 from ..Model import constants, serializable
-from ..Components import port, pipe
 
 __all__ = ["InputTextField", "SimpleTextField",
            "LogicWidget", "AttributeWidget", "AttributeFile"]
@@ -2303,8 +2304,8 @@ class AttributeFile(BaseWidget, serializable.Serializable):
         palette = self.image.palette()
         palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(
             QtGui.QPixmap(os.path.abspath(os.path.join(constants.work_dir, "Resources/Images/video.png"))).scaled(
-                self.image.size().width(),
-                self.image.size().height(),
+                int(self.image.size().width()),
+                int(self.image.size().height()),
                 QtCore.Qt.IgnoreAspectRatio,
                 QtCore.Qt.SmoothTransformation
             )))
@@ -2354,7 +2355,7 @@ class AttributeFile(BaseWidget, serializable.Serializable):
     def turn_image(self):
         image_url, _ = QtWidgets.QFileDialog.getOpenFileName(None, "select image", "", "*.png *.jpg")
         if image_url:
-            absolute_path = os.path.join(os.path.join(constants.work_dir, "Assets"), os.path.basename(image_url))
+            absolute_path = os.path.join(os.path.join(constants.work_dir, "Assets"), os.path.basename(image_url.replace('\\', os.sep)))
 
             # backup image
             self.scene().view.mainwindow.load_window.copy_file(image_url, absolute_path)
@@ -2374,7 +2375,7 @@ class AttributeFile(BaseWidget, serializable.Serializable):
     def turn_file(self):
         file_url, _ = QtWidgets.QFileDialog.getOpenFileName(None, "select files", "", "any file (*.*)")
         if file_url:
-            absolute_path = os.path.join(os.path.join(constants.work_dir, "Attachments"), os.path.basename(file_url))
+            absolute_path = os.path.join(os.path.join(constants.work_dir, "Attachments"), os.path.basename(file_url.replace('\\', os.sep)))
 
             # backup image
             self.scene().view.mainwindow.load_window.copy_file(file_url, absolute_path)
@@ -2401,8 +2402,8 @@ class AttributeFile(BaseWidget, serializable.Serializable):
         self.image_url = os.path.join(constants.work_dir, data.cover)
         palette = self.image.palette()
         palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(QtGui.QPixmap(self.image_url).scaled(
-            self.image.size().width(),
-            self.image.size().height(),
+            int(self.image.size().width()),
+            int(self.image.size().height()),
             QtCore.Qt.IgnoreAspectRatio,
             QtCore.Qt.SmoothTransformation
         )))
@@ -3849,7 +3850,8 @@ class AttributeWidget(BaseWidget, serializable.Serializable):
     def sub_function(get_str):
         '<img src="(.+?)"(.*?)>'
         attr = get_str.group(2)
-        rel_path = os.path.join(os.path.join(constants.work_dir, "Assets"), os.path.basename(get_str.group(1)))
+        rel_path = os.path.join(os.path.join(constants.work_dir, "Assets"),
+            os.path.basename(get_str.group(1).replace('\\', os.sep)))
         return '<img src="%s"%s>' % (rel_path, attr)
 
     def deserialize(self, data, hashmap: dict, view=None, flag=True):
